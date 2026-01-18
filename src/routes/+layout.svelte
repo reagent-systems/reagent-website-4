@@ -32,7 +32,7 @@
 	<!-- Open Graph / Facebook -->
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://reagent.systems/" />
-	<meta property="og:title" content="reagent systems - the idea factory" />
+	<meta property="og:title" content="reagent" />
 	<meta property="og:description" content="we make cool stuff in the open / a bootstrapped research lab & startup foundry. promoting a free and open internet, decentralization, and open distribution of AI." />
 	<meta property="og:site_name" content="reagent systems" />
 	
