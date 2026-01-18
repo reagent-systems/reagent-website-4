@@ -7,6 +7,7 @@
 	let scale = $state(1);
 	let animationId: number | null = null;
 	let startTime = Date.now();
+	let mounted = $state(false);
 
 	// Animation parameters
 	const maxRotation = 15; // Maximum rotation in degrees
@@ -29,6 +30,7 @@
 	}
 
 	onMount(() => {
+		mounted = true;
 		animate();
 		return () => {
 			if (animationId !== null) {
@@ -38,11 +40,7 @@
 	});
 </script>
 
-<svelte:head>
-	<title>the idea factory</title>
-</svelte:head>
-
-<div class="container">
+<div class="container" class:mounted>
 	<div class="graphic-container">
 		<pre 
 			class="ascii-art" 
@@ -56,9 +54,9 @@
 			<h1 class="main-title">factory</h1>
 		</div>
 		<nav class="nav-links">
-			<a href="#" class="nav-link">research</a>
-			<a href="#" class="nav-link">products</a>
-			<a href="#" class="nav-link">community</a>
+			<a href="/research" class="nav-link">research</a>
+			<a href="/products" class="nav-link">products</a>
+			<a href="/community" class="nav-link">community</a>
 		</nav>
 	</div>
 </div>
