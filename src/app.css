@@ -149,10 +149,27 @@ body {
 	font-family: 'Raleway Variable', var(--main-font);
 	-webkit-background-clip: initial;
 	background-clip: initial;
+	position: relative;
+}
+
+.nav-link::after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	width: 0;
+	height: 1px;
+	background-color: #6b6b6b;
+	transform: translateX(-50%);
+	transition: width 0.3s ease;
 }
 
 .nav-link:hover {
-	color: #1a1a1a;
+	color: #000000;
+}
+
+.nav-link:hover::after {
+	width: 100%;
 }
 
 @keyframes gradient-shift {
