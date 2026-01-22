@@ -7,6 +7,7 @@
 		description: string | null;
 		html_url: string;
 		readme?: string;
+		image_url?: string; // Image URL from README or static folder
 	}
 
 	let mounted = $state(false);
@@ -17,6 +18,28 @@
 	let startTime = Date.now();
 	const imageOffsets = new Map<HTMLElement, number>();
 
+	// Custom descriptions for products
+	const customDescriptions: Record<string, string> = {
+		'openlawn': 'The ultimate AI-powered CRM platform for modern lawn care businesses. Features multi-crew management, smart route optimization with Google Maps integration, real-time GPS tracking, complete customer relationship management, and AI-powered customer summaries with automated insights and service recommendations.',
+		'tetra': 'An AI-powered Android automation agent that can understand screen content and perform actions autonomously using OpenAI\'s GPT models and Android\'s Accessibility Services. Features AI-powered screen analysis, autonomous actions, voice input support, and real-time screen parsing.',
+		'Simple-Agent-Core': 'A sophisticated yet minimalist AI agent framework focused on simplicity, modularity, and intelligent execution. Designed with the belief that AI agents don\'t need to be complex to be useful. Features minimalist design, dynamic tool loading, loop detection, and intelligent execution management.',
+		'website': 'Temporary repository for the reagent website.',
+		'mcp-x-posting': 'A standalone Python-based Model Context Protocol (MCP) server that integrates with Cursor to automatically generate draft X (Twitter) posts based on your coding progress. Captures screenshots of browser preview, analyzes recent git changes, and uses a local AI model in LM Studio to craft engaging posts. Keeps your workflow private and local—no cloud services or extensions required.',
+		'summariser-bot': 'A Discord bot that summarises chat conversations using Google\'s Gemini AI. Features a /summarise slash command to summarise recent messages with an optional parameter to specify number of messages (1-100, default: 10). Uses Google Gemini for intelligent summarisation and ignores bot messages for cleaner summaries.',
+		'dither': 'A Python GUI application for creating artistic dithering effects on images. Dither Dock allows you to apply various dithering algorithms and shape-based patterns to transform your images into stylized, pixelated artwork. Features multiple dithering algorithms (Floyd-Steinberg, Ordered, and Atkinson), shape-based dithering with circles, squares, or triangles, real-time preview, and image adjustments for brightness, contrast, and saturation.',
+		'Spark': 'Spark turns your Android phone into a powerful AI chat companion by running Large Language Models directly on your device. Chat privately with no cloud dependencies, and even use it as a local API server for your applications. Currently in early development with active community support.',
+		'desktop-tetra': 'A minimal functional macOS desktop automation agent that uses the Accessibility API to find UI elements by semantic attributes (title, role, app), click, type, focus/open apps, record human actions (basic) and play them back, and provide a CLI for simple high-level tasks. Targets macOS and requires Accessibility permissions. No GUI; CLI only.',
+		'discord-summary-bot': 'A powerful Discord bot that summarizes messages using Google\'s Gemini API. Features include message summarization, user settings, and multiple summary modes. Commands include /summary, /unreadsummary, /fromtosummary, /listmodes, /addmode, and /removemode for comprehensive message management.',
+		'reagent-website-minimalist': 'A cutting-edge AI company focused on decentralized federated learning networks and intelligent agent systems. Develops quantized language models, autonomous agents, and privacy-preserving AI applications. Pioneering the future of AI with innovative approaches to decentralized federated learning, combining FP4 quantized models, forward-forward algorithms, and privacy-preserving agents.',
+		'orc': 'A sophisticated autonomous multi-agent system built with Google\'s Agent Development Kit (ADK). Enables multiple AI agents to work together autonomously to accomplish complex tasks through intelligent task decomposition and coordination. Features a peer-to-peer multi-agent architecture where agents autonomously monitor a shared workspace, claim tasks they\'re equipped to handle, and coordinate through file-based communication.',
+		'RigIDE': 'A high-performance mobile IDE for iOS and Android, inspired by VSCode and Cursor. Built with Flutter 3.19+ for cross-platform UI, Dart for performance, native modules for iOS (Swift) and Android (Kotlin), Language Server Protocol (LSP) for code intelligence, Tree-sitter for fast incremental parsing, and libgit2 for native Git operations.',
+		'Simple-Agent-Tools': 'This repository contains all the commands and tools that Simple Agent Core uses to perform various operations. These modular commands enable the AI agent to interact with files, web resources, GitHub repositories, and system operations in a structured and extensible way. Serves as the command library for Simple Agent Core, providing a comprehensive set of tools organized into logical categories.',
+		'Simple-Agent-Websocket': 'A lightweight WebSocket wrapper around SimpleAgent Core that provides real-time web interface capabilities without duplicating the core codebase. Follows the "Don\'t Repeat Yourself" (DRY) principle by not duplicating the SimpleAgent core code, using git submodules to reference the official SimpleAgent Core repository, and acting as a thin wrapper that adds WebSocket functionality.',
+		'Simple-Agent-Protocol': 'A WebSocket-based server that coordinates multiple Simple-Agent-Websocket (SAW) instances, managing task delegation and capability registration in real-time. Serves as the central coordination hub for a network of SAW instances, providing intelligent task delegation, capability management, and real-time monitoring of distributed AI agents.',
+		'Simple-Agent-Discord-Bot': 'A Discord bot that integrates with the Simple Agent WebSocket system to provide AI assistance through Discord slash commands with real-time updates in threads. Features slash commands, thread creation for each task, real-time updates, and interactive sessions where you can respond to agent questions directly in threads.',
+		'KIT_Caller': 'A Unity Android application that provides a voice-interactive AI assistant named "Kit" with full-screen reminder call functionality. The app creates realistic incoming call UIs for reminders and features conversational AI capabilities.'
+	};
+
 	// Animation parameters - only Y rotation (swivel), no X rotation
 	const maxRotation = 15; // Maximum rotation in degrees
 	const animationSpeed = 0.0003; // Speed of rotation
@@ -24,11 +47,11 @@
 	const breathingAmount = 0.05; // Amount of scale change (5% zoom in/out)
 
 	function initializeImageOffsets() {
-		const images = document.querySelectorAll('.product-image');
-		images.forEach((img) => {
-			const htmlImg = img as HTMLElement;
-			if (!imageOffsets.has(htmlImg)) {
-				imageOffsets.set(htmlImg, Math.random());
+		const wrappers = document.querySelectorAll('.product-image-wrapper');
+		wrappers.forEach((wrapper) => {
+			const htmlWrapper = wrapper as HTMLElement;
+			if (!imageOffsets.has(htmlWrapper)) {
+				imageOffsets.set(htmlWrapper, Math.random());
 			}
 		});
 	}
@@ -42,12 +65,12 @@
 		const baseElapsed = (Date.now() - startTime) * animationSpeed;
 		const baseBreathingElapsed = (Date.now() - startTime) * breathingSpeed;
 		
-		// Apply transform to all product images with their individual offsets
-		const images = document.querySelectorAll('.product-image');
-		if (images.length > 0) {
-			images.forEach((img) => {
-				const htmlImg = img as HTMLElement;
-				const offset = imageOffsets.get(htmlImg) || 0;
+		// Apply transform to all product image wrappers with their individual offsets
+		const wrappers = document.querySelectorAll('.product-image-wrapper');
+		if (wrappers.length > 0) {
+			wrappers.forEach((wrapper) => {
+				const htmlWrapper = wrapper as HTMLElement;
+				const offset = imageOffsets.get(htmlWrapper) || 0;
 				
 				// Apply offset to elapsed time
 				const elapsed = baseElapsed + (offset * Math.PI * 2);
@@ -59,75 +82,158 @@
 				// Breathing effect - slow zoom in and out
 				const scale = 1 + Math.sin(breathingElapsed) * breathingAmount;
 				
-				htmlImg.style.transform = 
+				htmlWrapper.style.transform = 
 					`perspective(1000px) rotateY(${rotateY}deg) scale(${scale})`;
-				htmlImg.style.transition = 'opacity 0.6s ease';
 			});
 		}
 		
 		animationId = requestAnimationFrame(animate);
 	}
 
-	async function fetchRepositories() {
+	// Static list of products (excluding .github and website repos)
+	const staticProducts: Omit<Repository, 'readme'>[] = [
+		{
+			name: 'openlawn',
+			description: customDescriptions['openlawn'],
+			html_url: 'https://github.com/reagent-systems/openlawn',
+			image_url: undefined
+		},
+		{
+			name: 'tetra',
+			description: customDescriptions['tetra'],
+			html_url: 'https://github.com/reagent-systems/tetra',
+			image_url: undefined
+		},
+		{
+			name: 'Simple-Agent-Core',
+			description: customDescriptions['Simple-Agent-Core'],
+			html_url: 'https://github.com/reagent-systems/Simple-Agent-Core',
+			image_url: undefined
+		},
+		{
+			name: 'mcp-x-posting',
+			description: customDescriptions['mcp-x-posting'],
+			html_url: 'https://github.com/reagent-systems/mcp-x-posting',
+			image_url: undefined
+		},
+		{
+			name: 'summariser-bot',
+			description: customDescriptions['summariser-bot'],
+			html_url: 'https://github.com/reagent-systems/summariser-bot',
+			image_url: undefined
+		},
+		{
+			name: 'dither',
+			description: customDescriptions['dither'],
+			html_url: 'https://github.com/reagent-systems/dither',
+			image_url: undefined
+		},
+		{
+			name: 'Spark',
+			description: customDescriptions['Spark'],
+			html_url: 'https://github.com/reagent-systems/Spark',
+			image_url: undefined
+		},
+		{
+			name: 'desktop-tetra',
+			description: customDescriptions['desktop-tetra'],
+			html_url: 'https://github.com/reagent-systems/desktop-tetra',
+			image_url: undefined
+		},
+		{
+			name: 'discord-summary-bot',
+			description: customDescriptions['discord-summary-bot'],
+			html_url: 'https://github.com/reagent-systems/discord-summary-bot',
+			image_url: undefined
+		},
+		{
+			name: 'orc',
+			description: customDescriptions['orc'],
+			html_url: 'https://github.com/reagent-systems/orc',
+			image_url: undefined
+		},
+		{
+			name: 'RigIDE',
+			description: customDescriptions['RigIDE'],
+			html_url: 'https://github.com/reagent-systems/RigIDE',
+			image_url: undefined
+		},
+		{
+			name: 'Simple-Agent-Tools',
+			description: customDescriptions['Simple-Agent-Tools'],
+			html_url: 'https://github.com/reagent-systems/Simple-Agent-Tools',
+			image_url: undefined
+		},
+		{
+			name: 'Simple-Agent-Websocket',
+			description: customDescriptions['Simple-Agent-Websocket'],
+			html_url: 'https://github.com/reagent-systems/Simple-Agent-Websocket',
+			image_url: undefined
+		},
+		{
+			name: 'Simple-Agent-Protocol',
+			description: customDescriptions['Simple-Agent-Protocol'],
+			html_url: 'https://github.com/reagent-systems/Simple-Agent-Protocol',
+			image_url: undefined
+		},
+		{
+			name: 'Simple-Agent-Discord-Bot',
+			description: customDescriptions['Simple-Agent-Discord-Bot'],
+			html_url: 'https://github.com/reagent-systems/Simple-Agent-Discord-Bot',
+			image_url: undefined
+		},
+		{
+			name: 'KIT_Caller',
+			description: customDescriptions['KIT_Caller'],
+			html_url: 'https://github.com/reagent-systems/KIT_Caller',
+			image_url: undefined
+		}
+	];
+
+	async function loadProducts() {
 		if (!browser) return;
 		
 		try {
-			// Fetch repositories from GitHub API
-			const response = await fetch('https://api.github.com/orgs/reagent-systems/repos?per_page=100&sort=updated');
-			if (!response.ok) {
-				throw new Error(`Failed to fetch repositories: ${response.statusText}`);
-			}
-			
-			const repos = await response.json();
-			
-			// Fetch README for each repository
-			const reposWithReadme = await Promise.all(
-				repos.map(async (repo: any) => {
-					let readme = '';
-					try {
-						// Try to fetch README
-						const readmeResponse = await fetch(`https://api.github.com/repos/reagent-systems/${repo.name}/readme`);
-						if (readmeResponse.ok) {
-							const readmeData = await readmeResponse.json();
-							// Decode base64 content - remove all whitespace including newlines
-							const base64Content = readmeData.content.replace(/\s/g, '');
-							readme = atob(base64Content);
-							// Extract description from README (first meaningful paragraph)
-							const lines = readme.split('\n')
-								.map(line => line.trim())
-								.filter(line => line && !line.startsWith('#') && !line.startsWith('!') && !line.startsWith('['));
-							// Get first few meaningful lines, up to 500 characters
-							readme = lines.slice(0, 10).join(' ').substring(0, 500);
-							if (readme.length === 500) {
-								readme += '...';
+			// Check for static images in product-images folder (both .png and .jpg)
+			const productsWithImages = await Promise.all(
+				staticProducts.map(async (product) => {
+					let imageUrl = product.image_url;
+					
+					// Check for .png first, then .jpg
+					const extensions = ['.png', '.jpg'];
+					for (const ext of extensions) {
+						const staticImageUrl = `/product-images/${product.name}${ext}`;
+						try {
+							const imageCheck = await fetch(staticImageUrl, { method: 'HEAD' });
+							if (imageCheck.ok) {
+								imageUrl = staticImageUrl;
+								break; // Found an image, stop checking
 							}
+						} catch (e) {
+							// Continue to next extension
 						}
-					} catch (e) {
-						// If README fetch fails, use description from repo
-						console.log(`Could not fetch README for ${repo.name}`);
 					}
 					
 					return {
-						name: repo.name,
-						description: readme || repo.description || 'No description available.',
-						html_url: repo.html_url,
-						readme: readme
+						...product,
+						image_url: imageUrl,
+						readme: ''
 					};
 				})
 			);
 			
-			repositories = reposWithReadme;
+			repositories = productsWithImages;
 			loading = false;
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'Failed to load repositories';
+			error = err instanceof Error ? err.message : 'Failed to load products';
 			loading = false;
-			console.error('Error fetching repositories:', err);
+			console.error('Error loading products:', err);
 		}
 	}
 
 	onMount(() => {
 		mounted = true;
-		fetchRepositories();
+		loadProducts();
 		startTime = Date.now();
 		animate();
 		
@@ -154,6 +260,7 @@
 	<title>reagent's products - reagent systems</title>
 	<meta name="title" content="reagent's products - reagent systems" />
 	<meta name="description" content="explore reagent systems' open source products and projects" />
+	<meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 
 <div class="products-page" class:mounted>
@@ -171,14 +278,32 @@
 		<div class="products-grid">
 			{#each repositories as repo, index}
 				<div class="product-image-container">
-					<img 
-						src="/product-images/{repo.name}.png" 
-						alt="{repo.name}"
-						class="product-image"
-						onerror={(e) => {
-							(e.target as HTMLImageElement).style.display = 'none';
-						}}
-					/>
+					{#if repo.image_url}
+						<div class="product-image-wrapper">
+							<img 
+								src={repo.image_url} 
+								alt="{repo.name}"
+								class="product-image"
+								onerror={(e) => {
+									(e.target as HTMLImageElement).style.display = 'none';
+									const container = (e.target as HTMLImageElement).closest('.product-image-container');
+									if (container) {
+										const placeholder = container.querySelector('.product-image-placeholder');
+										if (placeholder) {
+											(placeholder as HTMLElement).style.display = 'flex';
+										}
+									}
+								}}
+							/>
+						</div>
+						<div class="product-image-placeholder" style="display: none;">
+							<span>{repo.name.charAt(0).toUpperCase()}</span>
+						</div>
+					{:else}
+						<div class="product-image-placeholder">
+							<span>{repo.name.charAt(0).toUpperCase()}</span>
+						</div>
+					{/if}
 				</div>
 				<div class="product-content">
 					<h2 class="product-name">
@@ -244,21 +369,55 @@
 		align-items: center;
 		justify-content: center;
 		padding: 2rem;
+		width: 100%;
+		min-height: 600px;
+		position: relative;
+		overflow: visible;
+	}
+
+	.product-image-wrapper {
+		border-radius: 20px;
+		overflow: hidden;
+		max-width: 500px;
+		max-height: 600px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transform-style: preserve-3d;
+		will-change: transform;
 	}
 
 	.product-image {
 		width: 100%;
-		max-width: 400px;
 		height: auto;
-		border-radius: 20px;
+		max-width: 500px;
+		max-height: 600px;
 		object-fit: contain;
-		transform-style: preserve-3d;
-		will-change: transform;
+		opacity: 0;
+		transition: opacity 0.6s ease;
+		display: block;
+	}
+
+	.products-page.mounted .product-image {
+		opacity: 1;
+	}
+
+	.product-image-placeholder {
+		width: 100%;
+		height: 100%;
+		max-width: 500px;
+		border-radius: 20px;
+		background-color: #e0e0e0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 4rem;
+		color: #888;
 		opacity: 0;
 		transition: opacity 0.6s ease;
 	}
 
-	.products-page.mounted .product-image {
+	.products-page.mounted .product-image-placeholder {
 		opacity: 1;
 	}
 
