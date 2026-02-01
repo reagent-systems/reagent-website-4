@@ -134,54 +134,48 @@
 			html_url: 'https://github.com/reagent-systems/Spark',
 			image_url: undefined
 		},
-		{
-			name: 'desktop-tetra',
-			description: customDescriptions['desktop-tetra'],
-			html_url: 'https://github.com/reagent-systems/desktop-tetra',
-			image_url: undefined
-		},
-		{
-			name: 'discord-summary-bot',
-			description: customDescriptions['discord-summary-bot'],
-			html_url: 'https://github.com/reagent-systems/discord-summary-bot',
-			image_url: undefined
-		},
-		{
-			name: 'orc',
-			description: customDescriptions['orc'],
-			html_url: 'https://github.com/reagent-systems/orc',
-			image_url: undefined
-		},
+		// {
+		// 	name: 'discord-summary-bot',
+		// 	description: customDescriptions['discord-summary-bot'],
+		// 	html_url: 'https://github.com/reagent-systems/discord-summary-bot',
+		// 	image_url: undefined
+		// },
+		// {
+		// 	name: 'orc',
+		// 	description: customDescriptions['orc'],
+		// 	html_url: 'https://github.com/reagent-systems/orc',
+		// 	image_url: undefined
+		// },
 		{
 			name: 'RigIDE',
 			description: customDescriptions['RigIDE'],
 			html_url: 'https://github.com/reagent-systems/RigIDE',
 			image_url: undefined
 		},
-		{
-			name: 'Simple-Agent-Tools',
-			description: customDescriptions['Simple-Agent-Tools'],
-			html_url: 'https://github.com/reagent-systems/Simple-Agent-Tools',
-			image_url: undefined
-		},
-		{
-			name: 'Simple-Agent-Websocket',
-			description: customDescriptions['Simple-Agent-Websocket'],
-			html_url: 'https://github.com/reagent-systems/Simple-Agent-Websocket',
-			image_url: undefined
-		},
-		{
-			name: 'Simple-Agent-Protocol',
-			description: customDescriptions['Simple-Agent-Protocol'],
-			html_url: 'https://github.com/reagent-systems/Simple-Agent-Protocol',
-			image_url: undefined
-		},
-		{
-			name: 'Simple-Agent-Discord-Bot',
-			description: customDescriptions['Simple-Agent-Discord-Bot'],
-			html_url: 'https://github.com/reagent-systems/Simple-Agent-Discord-Bot',
-			image_url: undefined
-		},
+		// {
+		// 	name: 'Simple-Agent-Tools',
+		// 	description: customDescriptions['Simple-Agent-Tools'],
+		// 	html_url: 'https://github.com/reagent-systems/Simple-Agent-Tools',
+		// 	image_url: undefined
+		// },
+		// {
+		// 	name: 'Simple-Agent-Websocket',
+		// 	description: customDescriptions['Simple-Agent-Websocket'],
+		// 	html_url: 'https://github.com/reagent-systems/Simple-Agent-Websocket',
+		// 	image_url: undefined
+		// },
+		// {
+		// 	name: 'Simple-Agent-Protocol',
+		// 	description: customDescriptions['Simple-Agent-Protocol'],
+		// 	html_url: 'https://github.com/reagent-systems/Simple-Agent-Protocol',
+		// 	image_url: undefined
+		// },
+		// {
+		// 	name: 'Simple-Agent-Discord-Bot',
+		// 	description: customDescriptions['Simple-Agent-Discord-Bot'],
+		// 	html_url: 'https://github.com/reagent-systems/Simple-Agent-Discord-Bot',
+		// 	image_url: undefined
+		// },
 		{
 			name: 'KIT_Caller',
 			description: customDescriptions['KIT_Caller'],
@@ -199,15 +193,15 @@
 				staticProducts.map(async (product) => {
 					let imageUrl = product.image_url;
 					
-					// Check for .png first, then .jpg
-					const extensions = ['.png', '.jpg'];
+					// Check for .mp4, .png, then .jpg
+					const extensions = ['.mp4', '.png', '.jpg'];
 					for (const ext of extensions) {
-						const staticImageUrl = `/product-images/${product.name}${ext}`;
+						const staticMediaUrl = `/product-images/${product.name}${ext}`;
 						try {
-							const imageCheck = await fetch(staticImageUrl, { method: 'HEAD' });
-							if (imageCheck.ok) {
-								imageUrl = staticImageUrl;
-								break; // Found an image, stop checking
+							const mediaCheck = await fetch(staticMediaUrl, { method: 'HEAD' });
+							if (mediaCheck.ok) {
+								imageUrl = staticMediaUrl;
+								break;
 							}
 						} catch (e) {
 							// Continue to next extension
@@ -280,21 +274,42 @@
 				<div class="product-image-container">
 					{#if repo.image_url}
 						<div class="product-image-wrapper">
-							<img 
-								src={repo.image_url} 
-								alt="{repo.name}"
-								class="product-image"
-								onerror={(e) => {
-									(e.target as HTMLImageElement).style.display = 'none';
-									const container = (e.target as HTMLImageElement).closest('.product-image-container');
-									if (container) {
-										const placeholder = container.querySelector('.product-image-placeholder');
-										if (placeholder) {
-											(placeholder as HTMLElement).style.display = 'flex';
+							{#if repo.image_url.endsWith('.mp4')}
+								<video
+									src={repo.image_url}
+									class="product-image"
+									autoplay
+									loop
+									muted
+									playsinline
+									onerror={(e) => {
+										(e.target as HTMLVideoElement).style.display = 'none';
+										const container = (e.target as HTMLVideoElement).closest('.product-image-container');
+										if (container) {
+											const placeholder = container.querySelector('.product-image-placeholder');
+											if (placeholder) {
+												(placeholder as HTMLElement).style.display = 'flex';
+											}
 										}
-									}
-								}}
-							/>
+									}}
+								></video>
+							{:else}
+								<img 
+									src={repo.image_url} 
+									alt="{repo.name}"
+									class="product-image"
+									onerror={(e) => {
+										(e.target as HTMLImageElement).style.display = 'none';
+										const container = (e.target as HTMLImageElement).closest('.product-image-container');
+										if (container) {
+											const placeholder = container.querySelector('.product-image-placeholder');
+											if (placeholder) {
+												(placeholder as HTMLElement).style.display = 'flex';
+											}
+										}
+									}}
+								/>
+							{/if}
 						</div>
 						<div class="product-image-placeholder" style="display: none;">
 							<span>{repo.name.charAt(0).toUpperCase()}</span>
