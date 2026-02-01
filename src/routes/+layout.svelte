@@ -51,7 +51,7 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" href="/favicon.png" type="image/png" />
+	<link rel="icon" href="/favicon.gif" type="image/gif" />
 	
 	<!-- Primary Meta Tags -->
 	<title>reagent systems - the idea factory</title>
