@@ -1,5 +1,4 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
 	import '../app.css';
 	import { onNavigate } from '$app/navigation';
 	import { onMount } from 'svelte';
@@ -52,7 +51,7 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<link rel="icon" href="/favicon.png" type="image/png" />
 	
 	<!-- Primary Meta Tags -->
 	<title>reagent systems - the idea factory</title>
@@ -69,6 +68,9 @@
 	<meta property="og:title" content="reagent" />
 	<meta property="og:description" content="we make cool stuff in the open / a bootstrapped research lab & startup foundry. promoting a free and open internet, decentralization, and open distribution of AI." />
 	<meta property="og:site_name" content="reagent systems" />
+	<meta property="og:image" content="https://reagent.systems/og-image.png" />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
 	
 	<!-- Twitter -->
 	<meta property="twitter:card" content="summary_large_image" />
@@ -76,6 +78,7 @@
 	<meta property="twitter:title" content="reagent systems - the idea factory" />
 	<meta property="twitter:description" content="we make cool stuff in the open / a bootstrapped research lab & startup foundry. promoting a free and open internet, decentralization, and open distribution of AI." />
 	<meta property="twitter:creator" content="@Reagent_Systems" />
+	<meta property="twitter:image" content="https://reagent.systems/og-image.png" />
 	
 	<!-- Additional Meta Tags -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
