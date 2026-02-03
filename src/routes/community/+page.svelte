@@ -1,12 +1,21 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	
+	import { asciiArt } from '$lib/ascii-art-2';
+
 	let mounted = $state(false);
 	let animationId: number | null = null;
 	let startTime = Date.now();
 	let isDesktop = $state(false);
 	const avatarOffsets = new Map<HTMLElement, number>();
 	let expandedTitles = $state(new Set<number>());
+	// ASCII background animation (same as products page)
+	let asciiRotateX = $state(0);
+	let asciiRotateY = $state(0);
+	let asciiScale = $state(1);
+	const asciiMaxRotation = 15;
+	const asciiAnimationSpeed = 0.0003;
+	const asciiBreathingSpeed = 0.0005;
+	const asciiBreathingAmount = 0.05;
 
 	// Title abbreviations mapping
 	const titleAbbreviations: Record<string, string> = {
@@ -98,6 +107,13 @@
 				htmlAvatar.style.transition = 'opacity 0.6s ease';
 			});
 		}
+
+		// ASCII background animation (same as products page)
+		const asciiElapsed = (Date.now() - startTime) * asciiAnimationSpeed;
+		const asciiBreathingElapsed = (Date.now() - startTime) * asciiBreathingSpeed;
+		asciiRotateX = Math.sin(-asciiElapsed) * asciiMaxRotation;
+		asciiRotateY = Math.cos(-asciiElapsed) * asciiMaxRotation;
+		asciiScale = 1 + Math.sin(asciiBreathingElapsed) * asciiBreathingAmount;
 		
 		animationId = requestAnimationFrame(animate);
 	}
@@ -182,7 +198,14 @@
 </svelte:head>
 
 <div class="community-page" class:mounted>
-	<div class="community-header">
+	<div class="community-ascii-bg" aria-hidden="true">
+		<pre
+			class="community-ascii-art"
+			style="transform: perspective(1000px) rotateX({asciiRotateX}deg) rotateY({asciiRotateY}deg) scale({asciiScale});"
+		>{asciiArt}</pre>
+	</div>
+	<div class="community-content">
+		<div class="community-header">
 		<h1 class="community-title">community</h1>
 	</div>
 	
@@ -293,11 +316,12 @@
 		</div>
 	</div>
 
-	<nav class="community-nav">
-		<a href="/" class="nav-link">home</a>
-		<a href="/research" class="nav-link">research</a>
-		<a href="/products" class="nav-link">products</a>
-	</nav>
+		<nav class="community-nav">
+			<a href="/" class="nav-link">home</a>
+			<a href="/research" class="nav-link">research</a>
+			<a href="/products" class="nav-link">products</a>
+		</nav>
+	</div>
 </div>
 
 <style>
@@ -308,10 +332,60 @@
 		transition: opacity 0.4s ease;
 		display: flex;
 		flex-direction: column;
+		position: relative;
 	}
 
 	.community-page.mounted {
 		opacity: 1;
+	}
+
+	/* ASCII art background - fixed to viewport (same as products page) */
+	.community-ascii-bg {
+		position: fixed;
+		right: -35%;
+		top: 10%;
+		width: 50%;
+		height: 100vh;
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		padding: 2rem;
+		pointer-events: none;
+		z-index: 0;
+	}
+
+	.community-ascii-art {
+		font-family: var(--ascii-font);
+		font-size: 1.5rem;
+		line-height: 1.2;
+		background: linear-gradient(90deg, #fafafa, #f0f0f0, #fafafa);
+		background-size: 200% 100%;
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+		white-space: pre;
+		margin: 0;
+		letter-spacing: 0;
+		user-select: none;
+		display: block;
+		text-align: right;
+		transform-style: preserve-3d;
+		will-change: transform;
+		animation: community-gradient-shift 8s linear infinite;
+	}
+
+	@keyframes community-gradient-shift {
+		0% { background-position: 0% 50%; }
+		50% { background-position: 100% 50%; }
+		100% { background-position: 0% 50%; }
+	}
+
+	.community-content {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		flex: 1;
 	}
 
 	.community-header {
@@ -586,6 +660,10 @@
 	}
 
 	@media (max-width: 1051px) {
+		.community-ascii-bg {
+			display: none;
+		}
+
 		.community-page {
 			padding: 2rem;
 		}

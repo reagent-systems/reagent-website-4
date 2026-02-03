@@ -1,10 +1,13 @@
 <script lang="ts">
 	import '../app.css';
 	import { onNavigate } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 
 	let { children } = $props();
+	const currentYear = new Date().getFullYear();
+	const showFooter = $derived($page.url.pathname !== '/');
 	let transitioning = $state(false);
 	let audioElement: HTMLAudioElement | null = null;
 
@@ -89,6 +92,33 @@
 	{@render children()}
 </div>
 
+{#if showFooter}
+	<footer class="site-footer">
+		<div class="footer-grid">
+			<div class="footer-col">
+				<div class="footer-brand">reagent systems</div>
+				<div class="footer-muted">Tampa, Florida</div>
+				<address class="footer-muted">
+					10523 Bermuda Isle Dr<br />
+					Tampa, FL 33647
+				</address>
+			</div>
+			<div class="footer-col">
+				<div class="footer-heading">links</div>
+				<a href="/research" class="footer-link">research</a>
+				<a href="/products" class="footer-link">products</a>
+				<a href="/community" class="footer-link">community</a>
+				<a href="/privacy" class="footer-link">privacy</a>
+			</div>
+			<div class="footer-col">
+				<div class="footer-heading">contact</div>
+				<a href="mailto:support@reagent-systems.com" class="footer-link">support@reagent-systems.com</a>
+			</div>
+		</div>
+		<div class="footer-copy">© {currentYear} reagent systems. All rights reserved.</div>
+	</footer>
+{/if}
+
 <audio
 	bind:this={audioElement}
 	src="/audio/ambience.mp3"
@@ -106,5 +136,89 @@
 
 	.page-wrapper.transitioning {
 		opacity: 0;
+	}
+
+	.site-footer {
+		position: relative;
+		z-index: 10;
+		background-color: #fafafa;
+		border-top: 1px solid #e8e8e8;
+		margin-top: auto;
+		padding: 3rem 4rem 0;
+		font-family: var(--main-font);
+	}
+
+	.footer-grid {
+		display: grid;
+		grid-template-columns: 1.2fr 1fr 1fr;
+		gap: 2rem;
+		max-width: 1200px;
+		margin: 0 auto;
+	}
+
+	.footer-brand {
+		font-size: 1.25rem;
+		font-weight: 300;
+		color: #1a1a1a;
+		text-transform: lowercase;
+		margin-bottom: 0.5rem;
+	}
+
+	.footer-heading {
+		font-size: 0.95rem;
+		font-weight: 300;
+		color: #1a1a1a;
+		text-transform: lowercase;
+		margin-bottom: 0.75rem;
+	}
+
+	.footer-muted {
+		font-size: 1rem;
+		font-weight: 300;
+		color: #6b6b6b;
+		line-height: 1.6;
+		font-style: normal;
+	}
+
+	.footer-link {
+		display: block;
+		font-size: 1rem;
+		font-weight: 300;
+		color: #6b6b6b;
+		text-decoration: none;
+		text-transform: lowercase;
+		margin-bottom: 0.35rem;
+		transition: color 0.2s ease;
+	}
+
+	.footer-link:hover {
+		color: #1a1a1a;
+	}
+
+	.footer-copy {
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 1.25rem 4rem 3rem;
+		font-size: 0.9rem;
+		font-weight: 300;
+		color: #6b6b6b;
+		border-top: 1px solid #e8e8e8;
+		margin-top: 2rem;
+	}
+
+	@media (max-width: 768px) {
+		.site-footer {
+			padding: 2rem 2rem 0;
+		}
+
+		.footer-grid {
+			grid-template-columns: 1fr;
+			gap: 1.5rem;
+		}
+
+		.footer-copy {
+			padding: 1rem 2rem 2rem;
+			margin-top: 1.5rem;
+		}
 	}
 </style>

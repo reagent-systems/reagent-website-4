@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
+	import { asciiArt } from '$lib/ascii-art-2';
 
 	interface Repository {
 		name: string;
@@ -17,6 +18,14 @@
 	let animationId: number | null = null;
 	let startTime = Date.now();
 	const imageOffsets = new Map<HTMLElement, number>();
+	// ASCII background animation (same as main page)
+	let asciiRotateX = $state(0);
+	let asciiRotateY = $state(0);
+	let asciiScale = $state(1);
+	const asciiMaxRotation = 15;
+	const asciiAnimationSpeed = 0.0003;
+	const asciiBreathingSpeed = 0.0005;
+	const asciiBreathingAmount = 0.05;
 
 	// Custom descriptions for products
 	const customDescriptions: Record<string, string> = {
@@ -86,6 +95,13 @@
 					`perspective(1000px) rotateY(${rotateY}deg) scale(${scale})`;
 			});
 		}
+
+		// ASCII background animation (mirrors main page)
+		const asciiElapsed = (Date.now() - startTime) * asciiAnimationSpeed;
+		const asciiBreathingElapsed = (Date.now() - startTime) * asciiBreathingSpeed;
+		asciiRotateX = Math.sin(-asciiElapsed) * asciiMaxRotation;
+		asciiRotateY = Math.cos(-asciiElapsed) * asciiMaxRotation;
+		asciiScale = 1 + Math.sin(asciiBreathingElapsed) * asciiBreathingAmount;
 		
 		animationId = requestAnimationFrame(animate);
 	}
@@ -258,9 +274,16 @@
 </svelte:head>
 
 <div class="products-page" class:mounted>
-	<div class="products-header">
-		<h1 class="products-title">products</h1>
+	<div class="products-ascii-bg" aria-hidden="true">
+		<pre
+			class="products-ascii-art"
+			style="transform: perspective(1000px) rotateX({asciiRotateX}deg) rotateY({asciiRotateY}deg) scale({asciiScale});"
+		>{asciiArt}</pre>
 	</div>
+	<div class="products-content">
+		<div class="products-header">
+			<h1 class="products-title">products</h1>
+		</div>
 
 	{#if loading}
 		<div class="loading">loading products...</div>
@@ -330,11 +353,12 @@
 		</div>
 	{/if}
 
-	<nav class="products-nav">
-		<a href="/" class="nav-link">home</a>
-		<a href="/research" class="nav-link">research</a>
-		<a href="/community" class="nav-link">community</a>
-	</nav>
+		<nav class="products-nav">
+			<a href="/" class="nav-link">home</a>
+			<a href="/research" class="nav-link">research</a>
+			<a href="/community" class="nav-link">community</a>
+		</nav>
+	</div>
 </div>
 
 <style>
@@ -345,10 +369,60 @@
 		transition: opacity 0.4s ease;
 		display: flex;
 		flex-direction: column;
+		position: relative;
 	}
 
 	.products-page.mounted {
 		opacity: 1;
+	}
+
+	/* ASCII art background - fixed to viewport (locked to scroll, like research Three.js) */
+	.products-ascii-bg {
+		position: fixed;
+		right: -35%;
+		top: 10%;
+		width: 50%;
+		height: 100vh;
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		padding: 2rem;
+		pointer-events: none;
+		z-index: 0;
+	}
+
+	.products-ascii-art {
+		font-family: var(--ascii-font);
+		font-size: 1.5rem;
+		line-height: 1.2;
+		background: linear-gradient(90deg, #fafafa, #f0f0f0, #fafafa);
+		background-size: 200% 100%;
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+		white-space: pre;
+		margin: 0;
+		letter-spacing: 0;
+		user-select: none;
+		display: block;
+		text-align: right;
+		transform-style: preserve-3d;
+		will-change: transform;
+		animation: products-gradient-shift 8s linear infinite;
+	}
+
+	@keyframes products-gradient-shift {
+		0% { background-position: 0% 50%; }
+		50% { background-position: 100% 50%; }
+		100% { background-position: 0% 50%; }
+	}
+
+	.products-content {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		flex: 1;
 	}
 
 	.products-header {
@@ -514,6 +588,10 @@
 	@media (max-width: 768px) {
 		.products-page {
 			padding: 2rem;
+		}
+
+		.products-ascii-bg {
+			display: none;
 		}
 
 		.products-title {
