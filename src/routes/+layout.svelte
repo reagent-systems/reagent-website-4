@@ -2,14 +2,11 @@
 	import '../app.css';
 	import { onNavigate } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
-	import { browser } from '$app/environment';
 
 	let { children } = $props();
 	const currentYear = new Date().getFullYear();
 	const showFooter = $derived($page.url.pathname !== '/');
 	let transitioning = $state(false);
-	let audioElement: HTMLAudioElement | null = null;
 
 	onNavigate(() => {
 		transitioning = true;
@@ -19,37 +16,6 @@
 				resolve();
 			}, 400);
 		});
-	});
-
-	onMount(() => {
-		if (browser && audioElement) {
-			// Set volume to a reasonable level
-			audioElement.volume = 0.5;
-			
-			// Try to play immediately on page load
-			const playAudio = () => {
-				if (audioElement) {
-					audioElement.play().catch(() => {
-						// Autoplay blocked, will try again on user interaction
-					});
-				}
-			};
-			
-			// Try to play immediately
-			playAudio();
-			
-			// Also try to play on any user interaction as fallback
-			const events = ['click', 'touchstart', 'keydown', 'scroll'];
-			const playOnInteraction = () => {
-				if (audioElement && audioElement.paused) {
-					playAudio();
-				}
-			};
-			
-			events.forEach(event => {
-				document.addEventListener(event, playOnInteraction, { once: true });
-			});
-		}
 	});
 </script>
 
@@ -118,15 +84,6 @@
 		<div class="footer-copy">© {currentYear} reagent systems. All rights reserved.</div>
 	</footer>
 {/if}
-
-<audio
-	bind:this={audioElement}
-	src="/audio/ambience.mp3"
-	loop
-	autoplay
-	preload="auto"
-	style="display: none;"
-></audio>
 
 <style>
 	.page-wrapper {
