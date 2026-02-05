@@ -16,15 +16,25 @@
 	const breathingAmount = 0.05; // Amount of scale change (5% zoom in/out)
 
 	function animate() {
-		const elapsed = (Date.now() - startTime) * animationSpeed;
-		const breathingElapsed = (Date.now() - startTime) * breathingSpeed;
+		// Use requestAnimationFrame timestamp for better performance
+		const now = performance.now();
+		const elapsed = (now - startTime) * animationSpeed;
+		const breathingElapsed = (now - startTime) * breathingSpeed;
 		
 		// Use sine and cosine for smooth circular motion (clockwise)
-		rotateX = Math.sin(-elapsed) * maxRotation;
-		rotateY = Math.cos(-elapsed) * maxRotation;
+		// Only update if values actually change to reduce reflows
+		const newRotateX = Math.sin(-elapsed) * maxRotation;
+		const newRotateY = Math.cos(-elapsed) * maxRotation;
+		const newScale = 1 + Math.sin(breathingElapsed) * breathingAmount;
 		
-		// Breathing effect - slow zoom in and out
-		scale = 1 + Math.sin(breathingElapsed) * breathingAmount;
+		// Batch DOM updates
+		if (Math.abs(newRotateX - rotateX) > 0.01 || 
+		    Math.abs(newRotateY - rotateY) > 0.01 || 
+		    Math.abs(newScale - scale) > 0.001) {
+			rotateX = newRotateX;
+			rotateY = newRotateY;
+			scale = newScale;
+		}
 		
 		animationId = requestAnimationFrame(animate);
 	}

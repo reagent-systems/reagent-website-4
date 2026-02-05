@@ -6,5 +6,9 @@ export default defineConfig({
 	server: {
 		host: true, // Listen on all network interfaces
 		port: 5173
+	},
+	build: {
+		cssMinify: true,
+		minify: 'esbuild' // Use esbuild for faster builds
 	}
 });

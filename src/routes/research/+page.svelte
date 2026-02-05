@@ -1,25 +1,27 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
-	import * as THREE from 'three';
-	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-	import { AsciiEffect } from 'three/addons/effects/AsciiEffect.js';
+	// Lazy load Three.js to reduce initial bundle size
+	let threeModule: typeof import('three') | null = null;
+	let OrbitControlsClass: typeof import('three/addons/controls/OrbitControls.js').OrbitControls | null = null;
+	let AsciiEffectClass: typeof import('three/addons/effects/AsciiEffect.js').AsciiEffect | null = null;
 	
 	let mounted = $state(false);
 	let container: HTMLDivElement | null = null;
-	let scene: THREE.Scene | null = null;
-	let camera: THREE.PerspectiveCamera | null = null;
-	let renderer: THREE.WebGLRenderer | null = null;
-	let controls: OrbitControls | null = null;
-	let moon: THREE.Mesh | null = null;
+	let scene: any = null;
+	let camera: any = null;
+	let renderer: any = null;
+	let controls: any = null;
+	let moon: any = null;
 	let animationId: number | null = null;
 	let resizeHandler: (() => void) | null = null;
-	let effect: AsciiEffect | null = null;
+	let effect: any = null;
 	let containerAnimationId: number | null = null;
 	let rotateX = $state(0);
 	let rotateY = $state(0);
 	let scale = $state(1);
 	let startTime = Date.now();
+	let isMobile = $state(false);
 
 	const textureURL = "https://s3-us-west-2.amazonaws.com/s.cdpn.io/17271/lroc_color_poles_1k.jpg";
 	const displacementURL = "https://s3-us-west-2.amazonaws.com/s.cdpn.io/17271/ldem_3_8bit.jpg";
@@ -31,6 +33,8 @@
 	const breathingAmount = 0.05; // Amount of scale change (5% zoom in/out)
 
 	function animateContainer() {
+		if (isMobile) return;
+		
 		const elapsed = (Date.now() - startTime) * animationSpeed;
 		const breathingElapsed = (Date.now() - startTime) * breathingSpeed;
 		
@@ -43,10 +47,29 @@
 		
 		containerAnimationId = requestAnimationFrame(animateContainer);
 	}
+	
+	function checkMobile() {
+		if (browser && typeof window !== 'undefined') {
+			isMobile = window.innerWidth <= 768;
+		}
+	}
 
-	function init() {
-		if (!container || !browser || typeof window === 'undefined') return;
-
+	async function init() {
+		if (!container || !browser || typeof window === 'undefined' || isMobile) return;
+		
+		// Lazy load Three.js only when needed (desktop, not mobile)
+		if (!threeModule) {
+			threeModule = await import('three');
+			const controlsModule = await import('three/addons/controls/OrbitControls.js');
+			const effectModule = await import('three/addons/effects/AsciiEffect.js');
+			
+			OrbitControlsClass = controlsModule.OrbitControls;
+			AsciiEffectClass = effectModule.AsciiEffect;
+		}
+		
+		if (!threeModule || !OrbitControlsClass || !AsciiEffectClass) return;
+		
+		const THREE = threeModule;
 		scene = new THREE.Scene();
 
 		const width = container.clientWidth;
@@ -59,7 +82,7 @@
 		// Don't append renderer.domElement directly - AsciiEffect will handle it
 
 		// Create ASCII effect
-		effect = new AsciiEffect(renderer, ' .:-=+*#%@', {
+		effect = new AsciiEffectClass(renderer, ' .:-=+*#%@', {
 			resolution: 0.15,
 			color: false
 		});
@@ -71,7 +94,7 @@
 		effect.domElement.className = 'ascii-effect';
 		container.appendChild(effect.domElement);
 
-		controls = new OrbitControls(camera, effect.domElement);
+		controls = new OrbitControlsClass(camera, effect.domElement);
 		controls.enablePan = false;
 		controls.enableZoom = false;
 
@@ -146,8 +169,46 @@
 
 	onMount(() => {
 		mounted = true;
-		init();
-		animateContainer();
+		checkMobile();
+		
+		// Only initialize Three.js if not on mobile
+		if (!isMobile) {
+			init();
+			animateContainer();
+		}
+		
+		// Listen for resize to handle orientation changes
+		if (browser && typeof window !== 'undefined') {
+			const mobileResizeHandler = () => {
+				const wasMobile = isMobile;
+				checkMobile();
+				// If switching from desktop to mobile, clean up
+				if (wasMobile !== isMobile && isMobile) {
+					if (animationId !== null) {
+						cancelAnimationFrame(animationId);
+						animationId = null;
+					}
+					if (containerAnimationId !== null) {
+						cancelAnimationFrame(containerAnimationId);
+						containerAnimationId = null;
+					}
+				}
+				// If switching from mobile to desktop, initialize
+				if (wasMobile !== isMobile && !isMobile) {
+					init();
+					animateContainer();
+				}
+			};
+			window.addEventListener('resize', mobileResizeHandler);
+			
+			return () => {
+				if (containerAnimationId !== null) {
+					cancelAnimationFrame(containerAnimationId);
+				}
+				window.removeEventListener('resize', mobileResizeHandler);
+			};
+		}
+		
 		return () => {
 			if (containerAnimationId !== null) {
 				cancelAnimationFrame(containerAnimationId);
@@ -180,6 +241,7 @@
 
 <svelte:head>
 	<title>research - reagent systems</title>
+	<meta name="description" content="reagent systems research: long-term exploration, interdisciplinary collaboration, and autonomous inquiry in AI, computer science, and emerging technologies." />
 </svelte:head>
 
 <div class="research-page" class:mounted>
@@ -391,6 +453,12 @@
 		transition: transform 0.1s ease-out;
 	}
 
+	@media (max-width: 768px) {
+		.test-container {
+			display: none;
+		}
+	}
+
 	:global(.test-container canvas) {
 		width: 100%;
 		height: 100%;
@@ -403,19 +471,7 @@
 		-webkit-background-clip: text;
 		background-clip: text;
 		color: transparent;
-		animation: gradient-shift 8s linear infinite;
-	}
-
-	@keyframes gradient-shift {
-		0% {
-			background-position: 0% 50%;
-		}
-		50% {
-			background-position: 100% 50%;
-		}
-		100% {
-			background-position: 0% 50%;
-		}
+		/* Removed gradient-shift animation to avoid non-composited animations */
 	}
 
 	@media (max-width: 768px) {
