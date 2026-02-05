@@ -45,13 +45,13 @@
 	<meta property="og:image:alt" content="reagent systems - the idea factory" />
 	
 	<!-- Twitter -->
-	<meta property="twitter:card" content="summary_large_image" />
-	<meta property="twitter:url" content="https://reagent-systems.com/" />
-	<meta property="twitter:title" content="reagent systems - the idea factory" />
-	<meta property="twitter:description" content="we make cool stuff in the open / a bootstrapped research lab & startup foundry. promoting a free and open internet, decentralization, and open distribution of AI." />
-	<meta property="twitter:creator" content="@Reagent_Systems" />
-	<meta property="twitter:image" content="https://reagent-systems.com/og-image.png" />
-	<meta property="twitter:image:alt" content="reagent systems - the idea factory" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:url" content="https://reagent-systems.com/" />
+	<meta name="twitter:title" content="reagent systems - the idea factory" />
+	<meta name="twitter:description" content="we make cool stuff in the open / a bootstrapped research lab & startup foundry. promoting a free and open internet, decentralization, and open distribution of AI." />
+	<meta name="twitter:creator" content="@Reagent_Systems" />
+	<meta name="twitter:image" content="https://reagent-systems.com/og-image.png" />
+	<meta name="twitter:image:alt" content="reagent systems - the idea factory" />
 	
 	<!-- Additional Meta Tags -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
