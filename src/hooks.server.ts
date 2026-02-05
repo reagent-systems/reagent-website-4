@@ -13,6 +13,22 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (response.headers.get('content-type')?.includes('text/html')) {
 		let html = await response.text();
 		
+		// Fix viewport meta tag - remove maximum-scale for accessibility
+		html = html.replace(
+			/<meta[^>]+name=["']viewport["'][^>]*>/gi,
+			(match) => {
+				// Remove maximum-scale and user-scalable=no
+				let fixed = match
+					.replace(/maximum-scale=["']?\d+["']?/gi, '')
+					.replace(/user-scalable=["']?no["']?/gi, '')
+					.replace(/\s+/g, ' ')
+					.replace(/\s*>/g, '>');
+				// Clean up any double spaces or trailing commas
+				fixed = fixed.replace(/,\s*,/g, ',').replace(/,\s*>/g, '>');
+				return fixed;
+			}
+		);
+		
 		// Remove unused preconnect hints
 		// These are often added by platforms but not actually used
 		const unusedPreconnects = [
@@ -21,19 +37,19 @@ export const handle: Handle = async ({ event, resolve }) => {
 		];
 		
 		unusedPreconnects.forEach(origin => {
-			// Remove preconnect links for unused origins
-			const preconnectRegex = new RegExp(
-				`<link[^>]+rel=["']preconnect["'][^>]*href=["']https?://${origin.replace(/\./g, '\\.')}[^"']*["'][^>]*>`,
-				'gi'
-			);
-			html = html.replace(preconnectRegex, '');
+			// Remove preconnect links for unused origins (handle various formats)
+			const patterns = [
+				// Standard preconnect
+				new RegExp(`<link[^>]+rel=["']preconnect["'][^>]*href=["']https?://${origin.replace(/\./g, '\\.')}[^"']*["'][^>]*>`, 'gi'),
+				// With crossorigin
+				new RegExp(`<link[^>]+crossorigin[^>]*href=["']https?://${origin.replace(/\./g, '\\.')}[^"']*["'][^>]*>`, 'gi'),
+				// HTTP header format in HTML comments or meta
+				new RegExp(`<[^>]*${origin.replace(/\./g, '\\.')}[^>]*rel=["']preconnect["'][^>]*>`, 'gi')
+			];
 			
-			// Also remove any crossorigin preconnect
-			const crossoriginRegex = new RegExp(
-				`<link[^>]+crossorigin[^>]*href=["']https?://${origin.replace(/\./g, '\\.')}[^"']*["'][^>]*>`,
-				'gi'
-			);
-			html = html.replace(crossoriginRegex, '');
+			patterns.forEach(regex => {
+				html = html.replace(regex, '');
+			});
 		});
 		
 		// Polyfill for browsers that don't support onload on link elements
@@ -54,29 +70,34 @@ export const handle: Handle = async ({ event, resolve }) => {
 		});
 		
 		// Second pass: defer non-critical stylesheets
+		// More aggressive: defer ALL stylesheets except the very first one
 		html = html.replace(linkRegex, (match) => {
 			// Skip if already has defer, async, or preload
 			if (match.includes('defer') || match.includes('async') || match.includes('preload')) {
 				return match;
 			}
 			
-			// Keep first stylesheet synchronous (critical/base CSS)
-			// Usually the layout CSS which contains base styles
-			if (isFirst && (match.includes('_layout') || match.includes('app') || match.includes('0.'))) {
+			// Keep ONLY the very first stylesheet synchronous (critical/base CSS)
+			// This ensures at least base styles load immediately
+			if (isFirst) {
 				isFirst = false;
-				return match;
+				// Only keep first if it's clearly the base/layout CSS
+				if (match.includes('_layout') || match.includes('app') || match.includes('0.') || match.includes('immutable/assets/0.')) {
+					return match;
+				}
+				// If first isn't clearly base CSS, defer it too and mark as deferred
+				hasDeferred = true;
+			} else {
+				hasDeferred = true;
 			}
 			
-			isFirst = false;
-			hasDeferred = true;
-			
-			// Extract href
+			// Extract href (handle query strings)
 			const hrefMatch = match.match(/href=["']([^"']+)["']/);
 			if (!hrefMatch) return match;
 			
 			const href = hrefMatch[1];
 			
-			// Extract other attributes
+			// Extract other attributes (preserve integrity, crossorigin, etc.)
 			const otherAttrs = match
 				.replace(/rel=["']stylesheet["']/gi, '')
 				.replace(/href=["'][^"']+["']/gi, '')
