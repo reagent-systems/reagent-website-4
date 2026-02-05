@@ -20,6 +20,7 @@
 	let rotateY = $state(0);
 	let scale = $state(1);
 	let startTime = Date.now();
+	let isMobile = $state(false);
 
 	const textureURL = "https://s3-us-west-2.amazonaws.com/s.cdpn.io/17271/lroc_color_poles_1k.jpg";
 	const displacementURL = "https://s3-us-west-2.amazonaws.com/s.cdpn.io/17271/ldem_3_8bit.jpg";
@@ -31,6 +32,8 @@
 	const breathingAmount = 0.05; // Amount of scale change (5% zoom in/out)
 
 	function animateContainer() {
+		if (isMobile) return;
+		
 		const elapsed = (Date.now() - startTime) * animationSpeed;
 		const breathingElapsed = (Date.now() - startTime) * breathingSpeed;
 		
@@ -43,9 +46,15 @@
 		
 		containerAnimationId = requestAnimationFrame(animateContainer);
 	}
+	
+	function checkMobile() {
+		if (browser && typeof window !== 'undefined') {
+			isMobile = window.innerWidth <= 768;
+		}
+	}
 
 	function init() {
-		if (!container || !browser || typeof window === 'undefined') return;
+		if (!container || !browser || typeof window === 'undefined' || isMobile) return;
 
 		scene = new THREE.Scene();
 
@@ -146,8 +155,46 @@
 
 	onMount(() => {
 		mounted = true;
-		init();
-		animateContainer();
+		checkMobile();
+		
+		// Only initialize Three.js if not on mobile
+		if (!isMobile) {
+			init();
+			animateContainer();
+		}
+		
+		// Listen for resize to handle orientation changes
+		if (browser && typeof window !== 'undefined') {
+			const mobileResizeHandler = () => {
+				const wasMobile = isMobile;
+				checkMobile();
+				// If switching from desktop to mobile, clean up
+				if (wasMobile !== isMobile && isMobile) {
+					if (animationId !== null) {
+						cancelAnimationFrame(animationId);
+						animationId = null;
+					}
+					if (containerAnimationId !== null) {
+						cancelAnimationFrame(containerAnimationId);
+						containerAnimationId = null;
+					}
+				}
+				// If switching from mobile to desktop, initialize
+				if (wasMobile !== isMobile && !isMobile) {
+					init();
+					animateContainer();
+				}
+			};
+			window.addEventListener('resize', mobileResizeHandler);
+			
+			return () => {
+				if (containerAnimationId !== null) {
+					cancelAnimationFrame(containerAnimationId);
+				}
+				window.removeEventListener('resize', mobileResizeHandler);
+			};
+		}
+		
 		return () => {
 			if (containerAnimationId !== null) {
 				cancelAnimationFrame(containerAnimationId);
@@ -391,6 +438,12 @@
 		transition: transform 0.1s ease-out;
 	}
 
+	@media (max-width: 768px) {
+		.test-container {
+			display: none;
+		}
+	}
+
 	:global(.test-container canvas) {
 		width: 100%;
 		height: 100%;
@@ -403,19 +456,7 @@
 		-webkit-background-clip: text;
 		background-clip: text;
 		color: transparent;
-		animation: gradient-shift 8s linear infinite;
-	}
-
-	@keyframes gradient-shift {
-		0% {
-			background-position: 0% 50%;
-		}
-		50% {
-			background-position: 100% 50%;
-		}
-		100% {
-			background-position: 0% 50%;
-		}
+		/* Removed gradient-shift animation to avoid non-composited animations */
 	}
 
 	@media (max-width: 768px) {

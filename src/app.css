@@ -98,7 +98,9 @@ body {
 	transform-style: preserve-3d;
 	transition: transform 0.1s ease-out, font-size 0.3s linear;
 	will-change: transform;
-	animation: gradient-shift 8s linear infinite;
+	/* Removed gradient-shift animation to avoid non-composited animations */
+	position: relative;
+	contain: layout style paint;
 }
 
 /* Content - Right Side */
@@ -178,17 +180,8 @@ body {
 	width: 100%;
 }
 
-@keyframes gradient-shift {
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
-}
+/* Removed gradient-shift animation - background-position is not GPU-accelerated */
+/* If gradient animation is needed, use a different technique or remove it */
 
 /* Responsive Design - ASCII Art Color and Position */
 @media (max-width: 1200px) {

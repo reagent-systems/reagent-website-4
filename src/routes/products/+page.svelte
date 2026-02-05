@@ -71,12 +71,15 @@
 			return;
 		}
 
-		const baseElapsed = (Date.now() - startTime) * animationSpeed;
-		const baseBreathingElapsed = (Date.now() - startTime) * breathingSpeed;
+		// Use performance.now() for better accuracy and performance
+		const now = performance.now();
+		const baseElapsed = (now - startTime) * animationSpeed;
+		const baseBreathingElapsed = (now - startTime) * breathingSpeed;
 		
 		// Apply transform to all product image wrappers with their individual offsets
 		const wrappers = document.querySelectorAll('.product-image-wrapper');
 		if (wrappers.length > 0) {
+			// Batch DOM updates using requestAnimationFrame
 			wrappers.forEach((wrapper) => {
 				const htmlWrapper = wrapper as HTMLElement;
 				const offset = imageOffsets.get(htmlWrapper) || 0;
@@ -97,8 +100,8 @@
 		}
 
 		// ASCII background animation (mirrors main page)
-		const asciiElapsed = (Date.now() - startTime) * asciiAnimationSpeed;
-		const asciiBreathingElapsed = (Date.now() - startTime) * asciiBreathingSpeed;
+		const asciiElapsed = (now - startTime) * asciiAnimationSpeed;
+		const asciiBreathingElapsed = (now - startTime) * asciiBreathingSpeed;
 		asciiRotateX = Math.sin(-asciiElapsed) * asciiMaxRotation;
 		asciiRotateY = Math.cos(-asciiElapsed) * asciiMaxRotation;
 		asciiScale = 1 + Math.sin(asciiBreathingElapsed) * asciiBreathingAmount;
