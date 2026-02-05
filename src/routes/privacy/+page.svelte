@@ -11,7 +11,7 @@
 <svelte:head>
 	<title>privacy - reagent systems</title>
 	<meta name="title" content="privacy - reagent systems" />
-	<meta name="description" content="Privacy statement for reagent.systems. How we collect, use, and protect your information." />
+	<meta name="description" content="Privacy statement for reagent-systems.com. How we collect, use, and protect your information." />
 	<meta name="robots" content="index, follow" />
 </svelte:head>
 
@@ -25,7 +25,7 @@
 		<section class="privacy-section">
 			<h2>1. Introduction</h2>
 			<p>
-				reagent systems (“we,” “us,” or “our”) operates the website <a href="https://reagent.systems">reagent.systems</a> (the “Site”). This Privacy Statement describes how we collect, use, and disclose information when you visit the Site. We do not sell your personal information.
+				reagent systems (“we,” “us,” or “our”) operates the website <a href="https://reagent-systems.com">reagent-systems.com</a> (the “Site”). This Privacy Statement describes how we collect, use, and disclose information when you visit the Site. We do not sell your personal information.
 			</p>
 		</section>
 

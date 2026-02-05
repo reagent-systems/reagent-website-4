@@ -33,12 +33,12 @@
 	
 	<!-- Open Graph / Facebook -->
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://reagent.systems/" />
+	<meta property="og:url" content="https://reagent-systems.com/" />
 	<meta property="og:title" content="reagent" />
 	<meta property="og:description" content="we make cool stuff in the open / a bootstrapped research lab & startup foundry. promoting a free and open internet, decentralization, and open distribution of AI." />
 	<meta property="og:site_name" content="reagent systems" />
-	<meta property="og:image" content="https://reagent.systems/og-image.png" />
-	<meta property="og:image:secure_url" content="https://reagent.systems/og-image.png" />
+	<meta property="og:image" content="https://reagent-systems.com/og-image.png" />
+	<meta property="og:image:secure_url" content="https://reagent-systems.com/og-image.png" />
 	<meta property="og:image:type" content="image/png" />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
@@ -46,11 +46,11 @@
 	
 	<!-- Twitter -->
 	<meta property="twitter:card" content="summary_large_image" />
-	<meta property="twitter:url" content="https://reagent.systems/" />
+	<meta property="twitter:url" content="https://reagent-systems.com/" />
 	<meta property="twitter:title" content="reagent systems - the idea factory" />
 	<meta property="twitter:description" content="we make cool stuff in the open / a bootstrapped research lab & startup foundry. promoting a free and open internet, decentralization, and open distribution of AI." />
 	<meta property="twitter:creator" content="@Reagent_Systems" />
-	<meta property="twitter:image" content="https://reagent.systems/og-image.png" />
+	<meta property="twitter:image" content="https://reagent-systems.com/og-image.png" />
 	<meta property="twitter:image:alt" content="reagent systems - the idea factory" />
 	
 	<!-- Additional Meta Tags -->
