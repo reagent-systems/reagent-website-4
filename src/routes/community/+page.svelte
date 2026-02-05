@@ -197,6 +197,7 @@
 
 <svelte:head>
 	<title>community - reagent systems</title>
+	<meta name="description" content="Meet the reagent systems team. A diverse group of researchers, engineers, and innovators working on open source projects and cutting-edge research." />
 </svelte:head>
 
 <div class="community-page" class:mounted>

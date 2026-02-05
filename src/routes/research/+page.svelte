@@ -241,6 +241,7 @@
 
 <svelte:head>
 	<title>research - reagent systems</title>
+	<meta name="description" content="reagent systems research: long-term exploration, interdisciplinary collaboration, and autonomous inquiry in AI, computer science, and emerging technologies." />
 </svelte:head>
 
 <div class="research-page" class:mounted>
