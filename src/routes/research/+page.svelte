@@ -1,20 +1,21 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
-	import * as THREE from 'three';
-	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-	import { AsciiEffect } from 'three/addons/effects/AsciiEffect.js';
+	// Lazy load Three.js to reduce initial bundle size
+	let threeModule: typeof import('three') | null = null;
+	let OrbitControlsClass: typeof import('three/addons/controls/OrbitControls.js').OrbitControls | null = null;
+	let AsciiEffectClass: typeof import('three/addons/effects/AsciiEffect.js').AsciiEffect | null = null;
 	
 	let mounted = $state(false);
 	let container: HTMLDivElement | null = null;
-	let scene: THREE.Scene | null = null;
-	let camera: THREE.PerspectiveCamera | null = null;
-	let renderer: THREE.WebGLRenderer | null = null;
-	let controls: OrbitControls | null = null;
-	let moon: THREE.Mesh | null = null;
+	let scene: any = null;
+	let camera: any = null;
+	let renderer: any = null;
+	let controls: any = null;
+	let moon: any = null;
 	let animationId: number | null = null;
 	let resizeHandler: (() => void) | null = null;
-	let effect: AsciiEffect | null = null;
+	let effect: any = null;
 	let containerAnimationId: number | null = null;
 	let rotateX = $state(0);
 	let rotateY = $state(0);
@@ -53,9 +54,22 @@
 		}
 	}
 
-	function init() {
+	async function init() {
 		if (!container || !browser || typeof window === 'undefined' || isMobile) return;
-
+		
+		// Lazy load Three.js only when needed (desktop, not mobile)
+		if (!threeModule) {
+			threeModule = await import('three');
+			const controlsModule = await import('three/addons/controls/OrbitControls.js');
+			const effectModule = await import('three/addons/effects/AsciiEffect.js');
+			
+			OrbitControlsClass = controlsModule.OrbitControls;
+			AsciiEffectClass = effectModule.AsciiEffect;
+		}
+		
+		if (!threeModule || !OrbitControlsClass || !AsciiEffectClass) return;
+		
+		const THREE = threeModule;
 		scene = new THREE.Scene();
 
 		const width = container.clientWidth;
@@ -68,7 +82,7 @@
 		// Don't append renderer.domElement directly - AsciiEffect will handle it
 
 		// Create ASCII effect
-		effect = new AsciiEffect(renderer, ' .:-=+*#%@', {
+		effect = new AsciiEffectClass(renderer, ' .:-=+*#%@', {
 			resolution: 0.15,
 			color: false
 		});
@@ -80,7 +94,7 @@
 		effect.domElement.className = 'ascii-effect';
 		container.appendChild(effect.domElement);
 
-		controls = new OrbitControls(camera, effect.domElement);
+		controls = new OrbitControlsClass(camera, effect.domElement);
 		controls.enablePan = false;
 		controls.enableZoom = false;
 
