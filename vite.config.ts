@@ -9,13 +9,6 @@ export default defineConfig({
 	},
 	build: {
 		cssMinify: true,
-		minify: 'esbuild', // Use esbuild for faster builds
-		rollupOptions: {
-			output: {
-				manualChunks: {
-					vendor: ['three', 'troika-three-text']
-				}
-			}
-		}
+		minify: 'esbuild' // Use esbuild for faster builds
 	}
 });
