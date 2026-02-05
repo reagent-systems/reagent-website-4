@@ -1,25 +1,60 @@
 import type { Handle } from '@sveltejs/kit';
 
 /**
- * Defer non-critical CSS to reduce render blocking
- * Converts stylesheet links to async-loaded stylesheets
+ * Optimize network requests:
+ * 1. Defer non-critical CSS to reduce render blocking
+ * 2. Remove unused preconnect hints
+ * 3. Ensure CSS loads in parallel
  */
 export const handle: Handle = async ({ event, resolve }) => {
 	const response = await resolve(event);
 	
 	// Only modify HTML responses
 	if (response.headers.get('content-type')?.includes('text/html')) {
-		const html = await response.text();
+		let html = await response.text();
+		
+		// Remove unused preconnect hints
+		// These are often added by platforms but not actually used
+		const unusedPreconnects = [
+			'avatars.githubusercontent.com',
+			'assets.vercel.com'
+		];
+		
+		unusedPreconnects.forEach(origin => {
+			// Remove preconnect links for unused origins
+			const preconnectRegex = new RegExp(
+				`<link[^>]+rel=["']preconnect["'][^>]*href=["']https?://${origin.replace(/\./g, '\\.')}[^"']*["'][^>]*>`,
+				'gi'
+			);
+			html = html.replace(preconnectRegex, '');
+			
+			// Also remove any crossorigin preconnect
+			const crossoriginRegex = new RegExp(
+				`<link[^>]+crossorigin[^>]*href=["']https?://${origin.replace(/\./g, '\\.')}[^"']*["'][^>]*>`,
+				'gi'
+			);
+			html = html.replace(crossoriginRegex, '');
+		});
 		
 		// Polyfill for browsers that don't support onload on link elements
 		const polyfill = `<script>!function(e){"use strict";var t=function(t,n,o){var i,r=e.document,a=r.createElement("link");if(o)i=o;else{var l=(r.body||r.getElementsByTagName("head")[0]).childNodes;i=l[l.length-1]}var d=r.styleSheets;a.rel="stylesheet",a.href=t,a.media="only x",function e(t){if(r.body)return t();setTimeout(function(){e(t)})}(function(){i.parentNode.insertBefore(a,o?i:i.nextSibling)});var f=function(e){for(var t=a.href,n=d.length;n--;)if(d[n].href===t)return e();setTimeout(function(){f(e)})};return a.addEventListener&&a.addEventListener("load",function(){this.media=o||"all"}),a.onloadcssdefined=f,f(function(){a.media!==o&&(a.media=o||"all")}),a};"undefined"!=typeof exports?exports.loadCSS=t:e.loadCSS=t}("undefined"!=typeof global?global:this);</script>`;
 		
-		// Find all stylesheet links
+		// Find all stylesheet links and defer non-critical ones
 		const linkRegex = /<link[^>]+rel=["']stylesheet["'][^>]*>/gi;
 		let isFirst = true;
 		let hasDeferred = false;
+		const stylesheetMatches: string[] = [];
 		
-		const modifiedHtml = html.replace(linkRegex, (match) => {
+		// First pass: collect all stylesheets
+		html.replace(linkRegex, (match) => {
+			if (!match.includes('defer') && !match.includes('async') && !match.includes('preload')) {
+				stylesheetMatches.push(match);
+			}
+			return match;
+		});
+		
+		// Second pass: defer non-critical stylesheets
+		html = html.replace(linkRegex, (match) => {
 			// Skip if already has defer, async, or preload
 			if (match.includes('defer') || match.includes('async') || match.includes('preload')) {
 				return match;
@@ -47,14 +82,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 				.replace(/href=["'][^"']+["']/gi, '')
 				.trim();
 			
-			// Convert to preload with onload
+			// Convert to preload with onload for parallel loading
+			// This allows all CSS to load in parallel instead of sequentially
 			return `<link rel="preload" as="style" href="${href}" ${otherAttrs} onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="${href}" ${otherAttrs}></noscript>`;
 		});
 		
 		// Add polyfill if we deferred any CSS
 		const finalHtml = hasDeferred && !html.includes('loadCSS')
-			? modifiedHtml.replace('</head>', `${polyfill}</head>`)
-			: modifiedHtml;
+			? html.replace('</head>', `${polyfill}</head>`)
+			: html;
 		
 		return new Response(finalHtml, {
 			status: response.status,
