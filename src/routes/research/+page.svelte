@@ -153,18 +153,40 @@
 
 		animate();
 
-		function onResize() {
-			if (!camera || !renderer || !container || !effect || typeof window === 'undefined') return;
-			const width = container.clientWidth;
-			const height = container.clientHeight;
-			camera.aspect = width / height;
-			camera.updateProjectionMatrix();
-			renderer.setSize(width, height);
-			effect.setSize(width, height);
+		// Use ResizeObserver to avoid forced reflows from reading clientWidth/clientHeight
+		if (typeof ResizeObserver !== 'undefined') {
+			const resizeObserver = new ResizeObserver((entries) => {
+				// Batch all layout reads before any writes
+				if (!camera || !renderer || !effect) return;
+				
+				for (const entry of entries) {
+					const { width, height } = entry.contentRect;
+					if (width > 0 && height > 0) {
+						camera.aspect = width / height;
+						camera.updateProjectionMatrix();
+						renderer.setSize(width, height);
+						effect.setSize(width, height);
+					}
+				}
+			});
+			
+			resizeObserver.observe(container);
+			resizeHandler = () => resizeObserver.disconnect();
+		} else {
+			// Fallback for browsers without ResizeObserver
+			function onResize() {
+				if (!camera || !renderer || !container || !effect || typeof window === 'undefined') return;
+				// Batch layout reads
+				const width = container.clientWidth;
+				const height = container.clientHeight;
+				camera.aspect = width / height;
+				camera.updateProjectionMatrix();
+				renderer.setSize(width, height);
+				effect.setSize(width, height);
+			}
+			resizeHandler = onResize;
+			window.addEventListener('resize', resizeHandler);
 		}
-
-		resizeHandler = onResize;
-		window.addEventListener('resize', resizeHandler);
 	}
 
 	onMount(() => {
