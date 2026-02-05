@@ -71,6 +71,17 @@
 		});
 	}
 
+	// Cache DOM queries to avoid forced reflows
+	let cachedAvatars: NodeListOf<Element> | null = null;
+	
+	function getAvatars() {
+		// Only re-query if cache is invalid
+		if (!cachedAvatars || cachedAvatars.length === 0) {
+			cachedAvatars = document.querySelectorAll('.member-avatar');
+		}
+		return cachedAvatars;
+	}
+
 	function animate() {
 		if (!isDesktop || !mounted) {
 			animationId = requestAnimationFrame(animate);
@@ -83,7 +94,7 @@
 		const baseBreathingElapsed = (now - startTime) * breathingSpeed;
 		
 		// Apply transform to all avatars with their individual offsets
-		const avatars = document.querySelectorAll('.member-avatar');
+		const avatars = getAvatars();
 		if (avatars.length > 0) {
 			avatars.forEach((avatar) => {
 				const htmlAvatar = avatar as HTMLElement;
@@ -181,6 +192,8 @@
 		// Start animation after a small delay to ensure DOM is ready
 		setTimeout(() => {
 			initializeAvatarOffsets();
+			// Cache avatars after DOM is ready
+			cachedAvatars = document.querySelectorAll('.member-avatar');
 			animate();
 		}, 100);
 		window.addEventListener('resize', checkDesktop);
@@ -191,6 +204,7 @@
 			}
 			window.removeEventListener('resize', checkDesktop);
 			avatarOffsets.clear();
+			cachedAvatars = null;
 		};
 	});
 </script>

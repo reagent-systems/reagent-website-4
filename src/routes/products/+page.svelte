@@ -65,6 +65,17 @@
 		});
 	}
 
+	// Cache DOM queries to avoid forced reflows
+	let cachedWrappers: NodeListOf<Element> | null = null;
+	
+	function getWrappers() {
+		// Only re-query if cache is invalid
+		if (!cachedWrappers || cachedWrappers.length === 0) {
+			cachedWrappers = document.querySelectorAll('.product-image-wrapper');
+		}
+		return cachedWrappers;
+	}
+
 	function animate() {
 		if (!mounted) {
 			animationId = requestAnimationFrame(animate);
@@ -77,7 +88,7 @@
 		const baseBreathingElapsed = (now - startTime) * breathingSpeed;
 		
 		// Apply transform to all product image wrappers with their individual offsets
-		const wrappers = document.querySelectorAll('.product-image-wrapper');
+		const wrappers = getWrappers();
 		if (wrappers.length > 0) {
 			// Batch DOM updates using requestAnimationFrame
 			wrappers.forEach((wrapper) => {
@@ -237,6 +248,8 @@
 			
 			repositories = productsWithImages;
 			loading = false;
+			// Invalidate cache when products load (DOM changes)
+			cachedWrappers = null;
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load products';
 			loading = false;
@@ -253,12 +266,15 @@
 		// Initialize offsets after a short delay to ensure DOM is ready
 		setTimeout(() => {
 			initializeImageOffsets();
+			// Cache wrappers after DOM is ready
+			cachedWrappers = document.querySelectorAll('.product-image-wrapper');
 		}, 100);
 		
 		return () => {
 			if (animationId !== null) {
 				cancelAnimationFrame(animationId);
 			}
+			cachedWrappers = null;
 		};
 	});
 
