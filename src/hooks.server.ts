@@ -98,14 +98,17 @@ export const handle: Handle = async ({ event, resolve }) => {
 			const href = hrefMatch[1];
 			
 			// Extract other attributes (preserve integrity, crossorigin, etc.)
+			// Strip rel, href, and any trailing ">" so we don't close the tag early
 			const otherAttrs = match
 				.replace(/rel=["']stylesheet["']/gi, '')
 				.replace(/href=["'][^"']+["']/gi, '')
+				.replace(/>\s*$/, '')
 				.trim();
 			
 			// Convert to preload with onload for parallel loading
 			// This allows all CSS to load in parallel instead of sequentially
-			return `<link rel="preload" as="style" href="${href}" ${otherAttrs} onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="${href}" ${otherAttrs}></noscript>`;
+			const attrs = otherAttrs ? ` ${otherAttrs}` : '';
+			return `<link rel="preload" as="style" href="${href}"${attrs} onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="${href}"${attrs}></noscript>`;
 		});
 		
 		// Add polyfill if we deferred any CSS
