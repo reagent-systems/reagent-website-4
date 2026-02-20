@@ -2,9 +2,10 @@
 	import '../app.css';
 	import { onNavigate } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { dev } from '$app/environment';
 	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 
-	injectAnalytics();
+	injectAnalytics({ mode: dev ? 'development' : 'production' });
 
 	let { children } = $props();
 	const currentYear = new Date().getFullYear();
