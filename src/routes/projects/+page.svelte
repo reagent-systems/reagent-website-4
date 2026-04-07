@@ -33,7 +33,6 @@
 		'tetra': 'An AI-powered Android automation agent that can understand screen content and perform actions autonomously using OpenAI\'s GPT models and Android\'s Accessibility Services. Features AI-powered screen analysis, autonomous actions, voice input support, and real-time screen parsing.',
 		'Simple-Agent-Core': 'A sophisticated yet minimalist AI agent framework focused on simplicity, modularity, and intelligent execution. Designed with the belief that AI agents don\'t need to be complex to be useful. Features minimalist design, dynamic tool loading, loop detection, and intelligent execution management.',
 		'website': 'Temporary repository for the reagent website.',
-		'mcp-x-posting': 'A standalone Python-based Model Context Protocol (MCP) server that integrates with Cursor to automatically generate draft X (Twitter) posts based on your coding progress. Captures screenshots of browser preview, analyzes recent git changes, and uses a local AI model in LM Studio to craft engaging posts. Keeps your workflow private and local—no cloud services or extensions required.',
 		'summariser-bot': 'A Discord bot that summarises chat conversations using Google\'s Gemini AI. Features a /summarise slash command to summarise recent messages with an optional parameter to specify number of messages (1-100, default: 10). Uses Google Gemini for intelligent summarisation and ignores bot messages for cleaner summaries.',
 		'dither': 'A Python GUI application for creating artistic dithering effects on images. Dither Dock allows you to apply various dithering algorithms and shape-based patterns to transform your images into stylized, pixelated artwork. Features multiple dithering algorithms (Floyd-Steinberg, Ordered, and Atkinson), shape-based dithering with circles, squares, or triangles, real-time preview, and image adjustments for brightness, contrast, and saturation.',
 		'Spark': 'Spark turns your Android phone into a powerful AI chat companion by running Large Language Models directly on your device. Chat privately with no cloud dependencies, and even use it as a local API server for your applications. Currently in early development with active community support.',
@@ -46,7 +45,9 @@
 		'Simple-Agent-Websocket': 'A lightweight WebSocket wrapper around SimpleAgent Core that provides real-time web interface capabilities without duplicating the core codebase. Follows the "Don\'t Repeat Yourself" (DRY) principle by not duplicating the SimpleAgent core code, using git submodules to reference the official SimpleAgent Core repository, and acting as a thin wrapper that adds WebSocket functionality.',
 		'Simple-Agent-Protocol': 'A WebSocket-based server that coordinates multiple Simple-Agent-Websocket (SAW) instances, managing task delegation and capability registration in real-time. Serves as the central coordination hub for a network of SAW instances, providing intelligent task delegation, capability management, and real-time monitoring of distributed AI agents.',
 		'Simple-Agent-Discord-Bot': 'A Discord bot that integrates with the Simple Agent WebSocket system to provide AI assistance through Discord slash commands with real-time updates in threads. Features slash commands, thread creation for each task, real-time updates, and interactive sessions where you can respond to agent questions directly in threads.',
-		'KIT_Caller': 'A Unity Android application that provides a voice-interactive AI assistant named "Kit" with full-screen reminder call functionality. The app creates realistic incoming call UIs for reminders and features conversational AI capabilities.'
+		'KIT_Caller': 'A Unity Android application that provides a voice-interactive AI assistant named "Kit" with full-screen reminder call functionality. The app creates realistic incoming call UIs for reminders and features conversational AI capabilities.',
+		'forgecast': 'Free, open-source terminal manager for desktop (Electron + xterm.js) with a mobile companion: pair over QR, mirror sessions, type from your phone, and get push alerts when Claude finishes. Session persistence across restarts, LAN access or optional relay for remote use, plus an Android logcat bridge for mobile debugging.',
+		'BRICK': 'Code. Share. Listen. A developer dashboard that connects to your IDE via MCP—git and agent context feed context-aware drafting for X, Reddit, and more, with tone calibration so posts sound like you. A single monospace inbox aggregates questions, bugs, requests, and praise from across channels. Desktop and mobile builds; open source at reagent-systems/BRICK on GitHub.'
 	};
 
 	// Animation parameters - only Y rotation (swivel), no X rotation
@@ -123,6 +124,18 @@
 	// Static list of projects (excluding .github and website repos)
 	const staticProjects: Omit<Repository, 'readme'>[] = [
 		{
+			name: 'forgecast',
+			description: customDescriptions['forgecast'],
+			html_url: 'https://forgecast.dev/',
+			image_url: undefined
+		},
+		{
+			name: 'BRICK',
+			description: customDescriptions['BRICK'],
+			html_url: 'https://brick.reagent-systems.com/',
+			image_url: undefined
+		},
+		{
 			name: 'openlawn',
 			description: customDescriptions['openlawn'],
 			html_url: 'https://github.com/reagent-systems/openlawn',
@@ -138,12 +151,6 @@
 			name: 'Simple-Agent-Core',
 			description: customDescriptions['Simple-Agent-Core'],
 			html_url: 'https://github.com/reagent-systems/Simple-Agent-Core',
-			image_url: undefined
-		},
-		{
-			name: 'mcp-x-posting',
-			description: customDescriptions['mcp-x-posting'],
-			html_url: 'https://github.com/reagent-systems/mcp-x-posting',
 			image_url: undefined
 		},
 		{
@@ -218,7 +225,7 @@
 		if (!browser) return;
 		
 		try {
-			// Check for static images in product-images folder (both .png and .jpg)
+			// Check for static images in project-images folder (both .png and .jpg)
 			const projectsWithImages = await Promise.all(
 				staticProjects.map(async (project) => {
 					let imageUrl = project.image_url;
@@ -226,7 +233,7 @@
 					// Check for .mp4, .png, then .jpg
 					const extensions = ['.mp4', '.png', '.jpg'];
 					for (const ext of extensions) {
-						const staticMediaUrl = `/product-images/${project.name}${ext}`;
+						const staticMediaUrl = `/project-images/${project.name}${ext}`;
 						try {
 							const mediaCheck = await fetch(staticMediaUrl, { method: 'HEAD' });
 							if (mediaCheck.ok) {
