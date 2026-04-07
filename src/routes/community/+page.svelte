@@ -8,7 +8,7 @@
 	let isDesktop = $state(false);
 	const avatarOffsets = new Map<HTMLElement, number>();
 	let expandedTitles = $state(new Set<number>());
-	// ASCII background animation (same as products page)
+	// ASCII background animation (same as projects page)
 	let asciiRotateX = $state(0);
 	let asciiRotateY = $state(0);
 	let asciiScale = $state(1);
@@ -121,7 +121,7 @@
 			});
 		}
 
-		// ASCII background animation (same as products page)
+		// ASCII background animation (same as projects page)
 		const asciiElapsed = (now - startTime) * asciiAnimationSpeed;
 		const asciiBreathingElapsed = (now - startTime) * asciiBreathingSpeed;
 		asciiRotateX = Math.sin(-asciiElapsed) * asciiMaxRotation;
@@ -336,7 +336,7 @@
 		<nav class="community-nav">
 			<a href="/" class="nav-link">home</a>
 			<a href="/research" class="nav-link">research</a>
-			<a href="/products" class="nav-link">products</a>
+			<a href="/projects" class="nav-link">projects</a>
 		</nav>
 	</div>
 </div>
@@ -356,7 +356,7 @@
 		opacity: 1;
 	}
 
-	/* ASCII art background - fixed to viewport (same as products page) */
+	/* ASCII art background - fixed to viewport (same as projects page) */
 	.community-ascii-bg {
 		position: fixed;
 		right: -35%;

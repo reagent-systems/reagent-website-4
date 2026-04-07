@@ -27,7 +27,7 @@
 	const asciiBreathingSpeed = 0.0005;
 	const asciiBreathingAmount = 0.05;
 
-	// Custom descriptions for products
+	// Custom descriptions for projects
 	const customDescriptions: Record<string, string> = {
 		'openlawn': 'The ultimate AI-powered CRM platform for modern lawn care businesses. Features multi-crew management, smart route optimization with Google Maps integration, real-time GPS tracking, complete customer relationship management, and AI-powered customer summaries with automated insights and service recommendations.',
 		'tetra': 'An AI-powered Android automation agent that can understand screen content and perform actions autonomously using OpenAI\'s GPT models and Android\'s Accessibility Services. Features AI-powered screen analysis, autonomous actions, voice input support, and real-time screen parsing.',
@@ -56,7 +56,7 @@
 	const breathingAmount = 0.05; // Amount of scale change (5% zoom in/out)
 
 	function initializeImageOffsets() {
-		const wrappers = document.querySelectorAll('.product-image-wrapper');
+		const wrappers = document.querySelectorAll('.project-image-wrapper');
 		wrappers.forEach((wrapper) => {
 			const htmlWrapper = wrapper as HTMLElement;
 			if (!imageOffsets.has(htmlWrapper)) {
@@ -71,7 +71,7 @@
 	function getWrappers() {
 		// Only re-query if cache is invalid
 		if (!cachedWrappers || cachedWrappers.length === 0) {
-			cachedWrappers = document.querySelectorAll('.product-image-wrapper');
+			cachedWrappers = document.querySelectorAll('.project-image-wrapper');
 		}
 		return cachedWrappers;
 	}
@@ -87,7 +87,7 @@
 		const baseElapsed = (now - startTime) * animationSpeed;
 		const baseBreathingElapsed = (now - startTime) * breathingSpeed;
 		
-		// Apply transform to all product image wrappers with their individual offsets
+		// Apply transform to all project image wrappers with their individual offsets
 		const wrappers = getWrappers();
 		if (wrappers.length > 0) {
 			// Batch DOM updates using requestAnimationFrame
@@ -120,8 +120,8 @@
 		animationId = requestAnimationFrame(animate);
 	}
 
-	// Static list of products (excluding .github and website repos)
-	const staticProducts: Omit<Repository, 'readme'>[] = [
+	// Static list of projects (excluding .github and website repos)
+	const staticProjects: Omit<Repository, 'readme'>[] = [
 		{
 			name: 'openlawn',
 			description: customDescriptions['openlawn'],
@@ -214,19 +214,19 @@
 		}
 	];
 
-	async function loadProducts() {
+	async function loadProjects() {
 		if (!browser) return;
 		
 		try {
-			// Check for static images in product-images folder (both .png and .jpg)
-			const productsWithImages = await Promise.all(
-				staticProducts.map(async (product) => {
-					let imageUrl = product.image_url;
+			// Check for static images in project-images folder (both .png and .jpg)
+			const projectsWithImages = await Promise.all(
+				staticProjects.map(async (project) => {
+					let imageUrl = project.image_url;
 					
 					// Check for .mp4, .png, then .jpg
 					const extensions = ['.mp4', '.png', '.jpg'];
 					for (const ext of extensions) {
-						const staticMediaUrl = `/product-images/${product.name}${ext}`;
+						const staticMediaUrl = `/project-images/${project.name}${ext}`;
 						try {
 							const mediaCheck = await fetch(staticMediaUrl, { method: 'HEAD' });
 							if (mediaCheck.ok) {
@@ -239,27 +239,27 @@
 					}
 					
 					return {
-						...product,
+						...project,
 						image_url: imageUrl,
 						readme: ''
 					};
 				})
 			);
 			
-			repositories = productsWithImages;
+			repositories = projectsWithImages;
 			loading = false;
-			// Invalidate cache when products load (DOM changes)
+			// Invalidate cache when projects load (DOM changes)
 			cachedWrappers = null;
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'Failed to load products';
+			error = err instanceof Error ? err.message : 'Failed to load projects';
 			loading = false;
-			console.error('Error loading products:', err);
+			console.error('Error loading projects:', err);
 		}
 	}
 
 	onMount(() => {
 		mounted = true;
-		loadProducts();
+		loadProjects();
 		startTime = Date.now();
 		animate();
 		
@@ -267,7 +267,7 @@
 		setTimeout(() => {
 			initializeImageOffsets();
 			// Cache wrappers after DOM is ready
-			cachedWrappers = document.querySelectorAll('.product-image-wrapper');
+			cachedWrappers = document.querySelectorAll('.project-image-wrapper');
 		}, 100);
 		
 		return () => {
@@ -286,49 +286,49 @@
 </script>
 
 <svelte:head>
-	<title>reagent's products - reagent systems</title>
-	<meta name="title" content="reagent's products - reagent systems" />
-	<meta name="description" content="explore reagent systems' open source products and projects" />
+	<title>reagent's projects - reagent systems</title>
+	<meta name="title" content="reagent's projects - reagent systems" />
+	<meta name="description" content="explore reagent systems' open source projects" />
 	<meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 
-<div class="products-page" class:mounted>
-	<div class="products-ascii-bg" aria-hidden="true">
+<div class="projects-page" class:mounted>
+	<div class="projects-ascii-bg" aria-hidden="true">
 		<pre
-			class="products-ascii-art"
+			class="projects-ascii-art"
 			style="transform: perspective(1000px) rotateX({asciiRotateX}deg) rotateY({asciiRotateY}deg) scale({asciiScale});"
 		>{asciiArt}</pre>
 	</div>
-	<div class="products-content">
-		<div class="products-header">
-			<h1 class="products-title">products</h1>
+	<div class="projects-content">
+		<div class="projects-header">
+			<h1 class="projects-title">projects</h1>
 		</div>
 
 	{#if loading}
-		<div class="loading">loading products...</div>
+		<div class="loading">loading projects...</div>
 	{:else if error}
 		<div class="error">{error}</div>
 	{:else if repositories.length === 0}
-		<div class="no-products">no products found</div>
+		<div class="no-projects">no projects found</div>
 	{:else}
-		<div class="products-grid">
+		<div class="projects-grid">
 			{#each repositories as repo, index}
-				<div class="product-image-container">
+				<div class="project-image-container">
 					{#if repo.image_url}
-						<div class="product-image-wrapper">
+						<div class="project-image-wrapper">
 							{#if repo.image_url.endsWith('.mp4')}
 								<video
 									src={repo.image_url}
-									class="product-image"
+									class="project-image"
 									autoplay
 									loop
 									muted
 									playsinline
 									onerror={(e) => {
 										(e.target as HTMLVideoElement).style.display = 'none';
-										const container = (e.target as HTMLVideoElement).closest('.product-image-container');
+										const container = (e.target as HTMLVideoElement).closest('.project-image-container');
 										if (container) {
-											const placeholder = container.querySelector('.product-image-placeholder');
+											const placeholder = container.querySelector('.project-image-placeholder');
 											if (placeholder) {
 												(placeholder as HTMLElement).style.display = 'flex';
 											}
@@ -339,12 +339,12 @@
 								<img 
 									src={repo.image_url} 
 									alt="{repo.name}"
-									class="product-image"
+									class="project-image"
 									onerror={(e) => {
 										(e.target as HTMLImageElement).style.display = 'none';
-										const container = (e.target as HTMLImageElement).closest('.product-image-container');
+										const container = (e.target as HTMLImageElement).closest('.project-image-container');
 										if (container) {
-											const placeholder = container.querySelector('.product-image-placeholder');
+											const placeholder = container.querySelector('.project-image-placeholder');
 											if (placeholder) {
 												(placeholder as HTMLElement).style.display = 'flex';
 											}
@@ -353,26 +353,26 @@
 								/>
 							{/if}
 						</div>
-						<div class="product-image-placeholder" style="display: none;">
+						<div class="project-image-placeholder" style="display: none;">
 							<span>{repo.name.charAt(0).toUpperCase()}</span>
 						</div>
 					{:else}
-						<div class="product-image-placeholder">
+						<div class="project-image-placeholder">
 							<span>{repo.name.charAt(0).toUpperCase()}</span>
 						</div>
 					{/if}
 				</div>
-				<div class="product-content">
-					<h2 class="product-name">
+				<div class="project-content">
+					<h2 class="project-name">
 						<a href={repo.html_url} target="_blank" rel="noopener noreferrer">{repo.name}</a>
 					</h2>
-					<p class="product-description">{repo.description}</p>
+					<p class="project-description">{repo.description}</p>
 				</div>
 			{/each}
 		</div>
 	{/if}
 
-		<nav class="products-nav">
+		<nav class="projects-nav">
 			<a href="/" class="nav-link">home</a>
 			<a href="/research" class="nav-link">research</a>
 			<a href="/community" class="nav-link">community</a>
@@ -381,7 +381,7 @@
 </div>
 
 <style>
-	.products-page {
+	.projects-page {
 		min-height: 100vh;
 		padding: 4rem 4rem 4rem 8rem;
 		opacity: 0;
@@ -391,12 +391,12 @@
 		position: relative;
 	}
 
-	.products-page.mounted {
+	.projects-page.mounted {
 		opacity: 1;
 	}
 
 	/* ASCII art background - fixed to viewport (locked to scroll, like research Three.js) */
-	.products-ascii-bg {
+	.projects-ascii-bg {
 		position: fixed;
 		right: -35%;
 		top: 10%;
@@ -410,7 +410,7 @@
 		z-index: 0;
 	}
 
-	.products-ascii-art {
+	.projects-ascii-art {
 		font-family: var(--ascii-font);
 		font-size: 1.5rem;
 		line-height: 1.2;
@@ -427,16 +427,16 @@
 		text-align: right;
 		transform-style: preserve-3d;
 		will-change: transform;
-		animation: products-gradient-shift 8s linear infinite;
+		animation: projects-gradient-shift 8s linear infinite;
 	}
 
-	@keyframes products-gradient-shift {
+	@keyframes projects-gradient-shift {
 		0% { background-position: 0% 50%; }
 		50% { background-position: 100% 50%; }
 		100% { background-position: 0% 50%; }
 	}
 
-	.products-content {
+	.projects-content {
 		position: relative;
 		z-index: 1;
 		display: flex;
@@ -444,11 +444,11 @@
 		flex: 1;
 	}
 
-	.products-header {
+	.projects-header {
 		margin-bottom: 6rem;
 	}
 
-	.products-title {
+	.projects-title {
 		font-size: 6rem;
 		font-weight: 100;
 		color: #1a1a1a;
@@ -458,13 +458,13 @@
 		font-family: var(--main-font);
 	}
 
-	.loading, .error, .no-products {
+	.loading, .error, .no-projects {
 		font-size: 1.5rem;
 		color: #6b6b6b;
 		margin-bottom: 6rem;
 	}
 
-	.products-grid {
+	.projects-grid {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 4rem 2rem;
@@ -472,7 +472,7 @@
 		max-width: 1200px;
 	}
 
-	.product-image-container {
+	.project-image-container {
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -483,7 +483,7 @@
 		overflow: visible;
 	}
 
-	.product-image-wrapper {
+	.project-image-wrapper {
 		border-radius: 20px;
 		overflow: hidden;
 		max-width: 500px;
@@ -495,7 +495,7 @@
 		will-change: transform;
 	}
 
-	.product-image {
+	.project-image {
 		width: 100%;
 		height: auto;
 		max-width: 500px;
@@ -506,11 +506,11 @@
 		display: block;
 	}
 
-	.products-page.mounted .product-image {
+	.projects-page.mounted .project-image {
 		opacity: 1;
 	}
 
-	.product-image-placeholder {
+	.project-image-placeholder {
 		width: 100%;
 		height: 100%;
 		max-width: 500px;
@@ -525,18 +525,18 @@
 		transition: opacity 0.6s ease;
 	}
 
-	.products-page.mounted .product-image-placeholder {
+	.projects-page.mounted .project-image-placeholder {
 		opacity: 1;
 	}
 
-	.product-content {
+	.project-content {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		padding: 2rem;
 	}
 
-	.product-name {
+	.project-name {
 		font-size: 2rem;
 		font-weight: 300;
 		color: #1a1a1a;
@@ -545,17 +545,17 @@
 		text-transform: lowercase;
 	}
 
-	.product-name a {
+	.project-name a {
 		color: #1a1a1a;
 		text-decoration: none;
 		transition: color 0.3s ease;
 	}
 
-	.product-name a:hover {
+	.project-name a:hover {
 		color: #6b6b6b;
 	}
 
-	.product-description {
+	.project-description {
 		font-size: 1.5rem;
 		font-weight: 300;
 		color: #6b6b6b;
@@ -565,13 +565,13 @@
 		text-align: justify;
 	}
 
-	.products-nav {
+	.projects-nav {
 		display: flex;
 		gap: 3rem;
 		margin-top: auto;
 	}
 
-	.products-nav .nav-link {
+	.projects-nav .nav-link {
 		font-size: 1.5rem;
 		font-weight: 300;
 		color: #6b6b6b;
@@ -584,7 +584,7 @@
 		position: relative;
 	}
 
-	.products-nav .nav-link::after {
+	.projects-nav .nav-link::after {
 		content: '';
 		position: absolute;
 		bottom: 0;
@@ -596,45 +596,45 @@
 		transition: width 0.3s ease;
 	}
 
-	.products-nav .nav-link:hover {
+	.projects-nav .nav-link:hover {
 		color: #000000;
 	}
 
-	.products-nav .nav-link:hover::after {
+	.projects-nav .nav-link:hover::after {
 		width: 100%;
 	}
 
 	@media (max-width: 768px) {
-		.products-page {
+		.projects-page {
 			padding: 2rem;
 		}
 
-		.products-ascii-bg {
+		.projects-ascii-bg {
 			display: none;
 		}
 
-		.products-title {
+		.projects-title {
 			font-size: 4rem;
 		}
 
-		.products-grid {
+		.projects-grid {
 			grid-template-columns: 1fr;
 			gap: 3rem;
 		}
 
-		.product-image-container {
+		.project-image-container {
 			grid-column: 1;
 		}
 
-		.product-content {
+		.project-content {
 			grid-column: 1;
 		}
 
-		.product-name {
+		.project-name {
 			font-size: 1.75rem;
 		}
 
-		.product-description {
+		.project-description {
 			font-size: 1.25rem;
 		}
 	}

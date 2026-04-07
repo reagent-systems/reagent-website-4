@@ -65,7 +65,7 @@
 		</div>
 		<nav class="nav-links">
 			<a href="/research" class="nav-link">research</a>
-			<a href="/products" class="nav-link">products</a>
+			<a href="/projects" class="nav-link">projects</a>
 			<a href="/community" class="nav-link">community</a>
 		</nav>
 	</div>
