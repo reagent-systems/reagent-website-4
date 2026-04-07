@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { asciiArt } from '$lib/ascii-art-2';
+	import PageSubnav from '$lib/PageSubnav.svelte';
 
 	let mounted = $state(false);
 	let animationId: number | null = null;
@@ -333,13 +334,7 @@
 		</div>
 	</div>
 
-		<nav class="community-nav">
-			<a href="/" class="nav-link">home</a>
-			<a href="/plan" class="nav-link">plan</a>
-			<a href="/research" class="nav-link">research</a>
-			<a href="/models" class="nav-link">models</a>
-			<a href="/projects" class="nav-link">projects</a>
-		</nav>
+		<PageSubnav />
 	</div>
 </div>
 
@@ -637,48 +632,6 @@
 		transform: scale(1.1);
 	}
 
-	.community-nav {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 2rem 3rem;
-		margin-top: auto;
-	}
-
-	.community-nav .nav-link {
-		font-size: 1.5rem;
-		font-weight: 300;
-		color: #6b6b6b;
-		background: none;
-		text-decoration: none;
-		text-transform: lowercase;
-		letter-spacing: 0.05em;
-		transition: color 0.3s ease;
-		font-family: 'Raleway Variable', var(--main-font);
-		-webkit-background-clip: initial;
-		background-clip: initial;
-		position: relative;
-	}
-
-	.community-nav .nav-link::after {
-		content: '';
-		position: absolute;
-		bottom: 0;
-		left: 50%;
-		width: 0;
-		height: 1px;
-		background-color: #6b6b6b;
-		transform: translateX(-50%);
-		transition: width 0.3s ease;
-	}
-
-	.community-nav .nav-link:hover {
-		color: #000000;
-	}
-
-	.community-nav .nav-link:hover::after {
-		width: 100%;
-	}
-
 	@media (max-width: 1051px) {
 		.community-ascii-bg {
 			display: none;
@@ -855,12 +808,6 @@
 		.social-icon img {
 			width: 64px;
 			height: 64px;
-		}
-
-		.community-nav {
-			flex-direction: column;
-			gap: 1.5rem;
-			align-items: flex-start;
 		}
 	}
 </style>

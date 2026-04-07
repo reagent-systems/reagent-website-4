@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { asciiArt } from '$lib/ascii-art';
+	import PageSubnav from '$lib/PageSubnav.svelte';
 
 	let rotateX = $state(0);
 	let rotateY = $state(0);
@@ -63,12 +64,8 @@
 			<h1 class="main-title">idea</h1>
 			<h1 class="main-title">factory</h1>
 		</div>
-		<nav class="nav-links">
-			<a href="/plan" class="nav-link">plan</a>
-			<a href="/research" class="nav-link">research</a>
-			<a href="/models" class="nav-link">models</a>
-			<a href="/projects" class="nav-link">projects</a>
-			<a href="/community" class="nav-link">community</a>
-		</nav>
+		<div class="home-subnav-wrapper">
+			<PageSubnav />
+		</div>
 	</div>
 </div>

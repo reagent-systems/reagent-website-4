@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
+	import PageSubnav from '$lib/PageSubnav.svelte';
 	// Lazy load Three.js to reduce initial bundle size
 	let threeModule: typeof import('three') | null = null;
 	let OrbitControlsClass: typeof import('three/addons/controls/OrbitControls.js').OrbitControls | null = null;
@@ -318,13 +319,7 @@
 		</section>
 	</div>
 
-	<nav class="plan-nav">
-		<a href="/" class="nav-link">home</a>
-		<a href="/research" class="nav-link">research</a>
-		<a href="/models" class="nav-link">models</a>
-		<a href="/projects" class="nav-link">projects</a>
-		<a href="/community" class="nav-link">community</a>
-	</nav>
+	<PageSubnav />
 </div>
 
 <div 
@@ -425,48 +420,6 @@
 		text-align: justify;
 	}
 
-	.plan-nav {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 2rem 3rem;
-		margin-top: auto;
-	}
-
-	.plan-nav .nav-link {
-		font-size: 1.5rem;
-		font-weight: 300;
-		color: #6b6b6b;
-		background: none;
-		text-decoration: none;
-		text-transform: lowercase;
-		letter-spacing: 0.05em;
-		transition: color 0.3s ease;
-		font-family: 'Raleway Variable', var(--main-font);
-		-webkit-background-clip: initial;
-		background-clip: initial;
-		position: relative;
-	}
-
-	.plan-nav .nav-link::after {
-		content: '';
-		position: absolute;
-		bottom: 0;
-		left: 50%;
-		width: 0;
-		height: 1px;
-		background-color: #6b6b6b;
-		transform: translateX(-50%);
-		transition: width 0.3s ease;
-	}
-
-	.plan-nav .nav-link:hover {
-		color: #000000;
-	}
-
-	.plan-nav .nav-link:hover::after {
-		width: 100%;
-	}
-
 	.test-container {
 		width: 50%;
 		height: 100vh;
@@ -516,10 +469,5 @@
 			font-size: 1.5rem;
 		}
 
-		.plan-nav {
-			flex-direction: column;
-			gap: 1.5rem;
-			align-items: flex-start;
-		}
 	}
 </style>

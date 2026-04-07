@@ -1,12 +1,23 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { asciiArt } from '$lib/ascii-art-2';
+	import PageSubnav from '$lib/PageSubnav.svelte';
 
 	interface ResearchRepo {
 		name: string;
 		description: string;
 		html_url: string;
 	}
+
+	const models = [
+		{
+			name: 'Bently Coder 7B',
+			id: 'Bentlybro/bently-coder-7b',
+			url: 'https://huggingface.co/Bentlybro/bently-coder-7b',
+			description:
+				'Apache-2.0 coding model fine-tuned from Qwen2.5-Coder-7B-Instruct with QLoRA on personal GitHub repositories—strong gains on BigCodeBench Hard and HumanEval compared to the base model.'
+		}
+	] as const;
 
 	const repositories: ResearchRepo[] = [
 		{
@@ -75,7 +86,7 @@
 	<meta name="title" content="research - reagent systems" />
 	<meta
 		name="description"
-		content="open repositories where we pursue deeper systems and agent research at reagent systems."
+		content="open research repositories and Hugging Face models from reagent systems—systems research, agents, and code LLMs."
 	/>
 	<meta name="robots" content="index, follow" />
 </svelte:head>
@@ -103,13 +114,20 @@
 			{/each}
 		</div>
 
-		<nav class="research-nav">
-			<a href="/" class="nav-link">home</a>
-			<a href="/plan" class="nav-link">plan</a>
-			<a href="/models" class="nav-link">models</a>
-			<a href="/projects" class="nav-link">projects</a>
-			<a href="/community" class="nav-link">community</a>
-		</nav>
+		<h2 class="research-section-heading">models</h2>
+		<div class="research-models">
+			{#each models as m}
+				<article class="research-model-card">
+					<h3 class="research-model-name">
+						<a href={m.url} target="_blank" rel="noopener noreferrer">{m.name}</a>
+					</h3>
+					<p class="research-model-id">{m.id}</p>
+					<p class="research-model-description">{m.description}</p>
+				</article>
+			{/each}
+		</div>
+
+		<PageSubnav />
 	</div>
 </div>
 
@@ -233,44 +251,58 @@
 		text-align: justify;
 	}
 
-	.research-nav {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 2rem 3rem;
-		margin-top: auto;
+	.research-section-heading {
+		font-size: 2.25rem;
+		font-weight: 100;
+		color: #1a1a1a;
+		text-transform: lowercase;
+		margin: 2rem 0 1.5rem 0;
+		font-family: var(--main-font);
 	}
 
-	.research-nav .nav-link {
+	.research-models {
+		display: flex;
+		flex-direction: column;
+		gap: 2.5rem;
+		max-width: 800px;
+		margin-bottom: 6rem;
+	}
+
+	.research-model-name {
 		font-size: 1.5rem;
 		font-weight: 300;
-		color: #6b6b6b;
-		background: none;
-		text-decoration: none;
+		color: #1a1a1a;
+		margin: 0 0 0.35rem 0;
+		font-family: var(--main-font);
 		text-transform: lowercase;
-		letter-spacing: 0.05em;
+	}
+
+	.research-model-name a {
+		color: #1a1a1a;
+		text-decoration: none;
 		transition: color 0.3s ease;
-		font-family: 'Raleway Variable', var(--main-font);
-		position: relative;
 	}
 
-	.research-nav .nav-link::after {
-		content: '';
-		position: absolute;
-		bottom: 0;
-		left: 50%;
-		width: 0;
-		height: 1px;
-		background-color: #6b6b6b;
-		transform: translateX(-50%);
-		transition: width 0.3s ease;
+	.research-model-name a:hover {
+		color: #6b6b6b;
 	}
 
-	.research-nav .nav-link:hover {
-		color: #000000;
+	.research-model-id {
+		font-size: 1rem;
+		font-weight: 300;
+		color: #888;
+		margin: 0 0 0.75rem 0;
+		font-family: var(--main-font);
 	}
 
-	.research-nav .nav-link:hover::after {
-		width: 100%;
+	.research-model-description {
+		font-size: 1.35rem;
+		font-weight: 300;
+		color: #6b6b6b;
+		line-height: 1.65;
+		margin: 0;
+		font-family: var(--main-font);
+		text-align: justify;
 	}
 
 	@media (max-width: 768px) {
@@ -290,10 +322,8 @@
 			font-size: 1.2rem;
 		}
 
-		.research-nav {
-			flex-direction: column;
-			gap: 1.5rem;
-			align-items: flex-start;
+		.research-model-description {
+			font-size: 1.2rem;
 		}
 	}
 </style>

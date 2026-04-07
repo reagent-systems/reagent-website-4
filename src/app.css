@@ -141,46 +141,10 @@ body {
 	transition: font-size 0.3s linear;
 }
 
-/* Navigation Links */
-.nav-links {
-	display: flex;
-	gap: 3rem;
+/* Home page bottom nav (grid lives in PageSubnav.svelte) */
+.home-subnav-wrapper {
 	margin-top: auto;
-}
-
-.nav-link {
-	font-size: 1.5rem;
-	font-weight: 300;
-	color: #6b6b6b;
-	background: none;
-	text-decoration: none;
-	text-transform: lowercase;
-	letter-spacing: 0.05em;
-	transition: color 0.3s ease;
-	font-family: 'Raleway Variable', var(--main-font);
-	-webkit-background-clip: initial;
-	background-clip: initial;
-	position: relative;
-}
-
-.nav-link::after {
-	content: '';
-	position: absolute;
-	bottom: 0;
-	left: 50%;
-	width: 0;
-	height: 1px;
-	background-color: #6b6b6b;
-	transform: translateX(-50%);
-	transition: width 0.3s ease;
-}
-
-.nav-link:hover {
-	color: #000000;
-}
-
-.nav-link:hover::after {
-	width: 100%;
+	align-self: flex-end;
 }
 
 /* Removed gradient-shift animation - background-position is not GPU-accelerated */
@@ -243,10 +207,7 @@ body {
 		padding-right: 2rem;
 	}
 	
-	.nav-links {
-		flex-direction: column;
-		gap: 1.5rem;
-		align-items: flex-start;
+	.home-subnav-wrapper {
 		align-self: flex-start;
 		margin-left: -12rem;
 	}
@@ -280,10 +241,7 @@ body {
 		padding-right: 2rem;
 	}
 	
-	.nav-links {
-		flex-direction: column;
-		gap: 1.5rem;
-		align-items: flex-start;
+	.home-subnav-wrapper {
 		align-self: flex-start;
 		margin-left: -12rem;
 	}

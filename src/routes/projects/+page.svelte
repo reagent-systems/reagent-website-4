@@ -2,6 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 	import { asciiArt } from '$lib/ascii-art-2';
+	import PageSubnav from '$lib/PageSubnav.svelte';
 
 	interface Repository {
 		name: string;
@@ -379,13 +380,7 @@
 		</div>
 	{/if}
 
-		<nav class="projects-nav">
-			<a href="/" class="nav-link">home</a>
-			<a href="/plan" class="nav-link">plan</a>
-			<a href="/research" class="nav-link">research</a>
-			<a href="/models" class="nav-link">models</a>
-			<a href="/community" class="nav-link">community</a>
-		</nav>
+		<PageSubnav />
 	</div>
 </div>
 
@@ -572,46 +567,6 @@
 		margin: 0;
 		font-family: var(--main-font);
 		text-align: justify;
-	}
-
-	.projects-nav {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 2rem 3rem;
-		margin-top: auto;
-	}
-
-	.projects-nav .nav-link {
-		font-size: 1.5rem;
-		font-weight: 300;
-		color: #6b6b6b;
-		background: none;
-		text-decoration: none;
-		text-transform: lowercase;
-		letter-spacing: 0.05em;
-		transition: color 0.3s ease;
-		font-family: 'Raleway Variable', var(--main-font);
-		position: relative;
-	}
-
-	.projects-nav .nav-link::after {
-		content: '';
-		position: absolute;
-		bottom: 0;
-		left: 50%;
-		width: 0;
-		height: 1px;
-		background-color: #6b6b6b;
-		transform: translateX(-50%);
-		transition: width 0.3s ease;
-	}
-
-	.projects-nav .nav-link:hover {
-		color: #000000;
-	}
-
-	.projects-nav .nav-link:hover::after {
-		width: 100%;
 	}
 
 	@media (max-width: 768px) {
