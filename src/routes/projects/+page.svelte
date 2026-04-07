@@ -289,7 +289,7 @@
 	<title>reagent's projects - reagent systems</title>
 	<meta name="title" content="reagent's projects - reagent systems" />
 	<meta name="description" content="explore reagent systems' open source projects" />
-	<meta name="robots" content="noindex, nofollow" />
+	<meta name="robots" content="index, follow" />
 </svelte:head>
 
 <div class="projects-page" class:mounted>
@@ -374,7 +374,9 @@
 
 		<nav class="projects-nav">
 			<a href="/" class="nav-link">home</a>
+			<a href="/plan" class="nav-link">plan</a>
 			<a href="/research" class="nav-link">research</a>
+			<a href="/models" class="nav-link">models</a>
 			<a href="/community" class="nav-link">community</a>
 		</nav>
 	</div>
@@ -395,7 +397,7 @@
 		opacity: 1;
 	}
 
-	/* ASCII art background - fixed to viewport (locked to scroll, like research Three.js) */
+	/* ASCII art background - fixed to viewport (locked to scroll, like plan Three.js) */
 	.projects-ascii-bg {
 		position: fixed;
 		right: -35%;
@@ -567,7 +569,8 @@
 
 	.projects-nav {
 		display: flex;
-		gap: 3rem;
+		flex-wrap: wrap;
+		gap: 2rem 3rem;
 		margin-top: auto;
 	}
 

@@ -335,7 +335,9 @@
 
 		<nav class="community-nav">
 			<a href="/" class="nav-link">home</a>
+			<a href="/plan" class="nav-link">plan</a>
 			<a href="/research" class="nav-link">research</a>
+			<a href="/models" class="nav-link">models</a>
 			<a href="/projects" class="nav-link">projects</a>
 		</nav>
 	</div>
@@ -637,7 +639,8 @@
 
 	.community-nav {
 		display: flex;
-		gap: 3rem;
+		flex-wrap: wrap;
+		gap: 2rem 3rem;
 		margin-top: auto;
 	}
 

@@ -79,7 +79,9 @@
 			</div>
 			<div class="footer-col">
 				<div class="footer-heading">links</div>
+				<a href="/plan" class="footer-link">plan</a>
 				<a href="/research" class="footer-link">research</a>
+				<a href="/models" class="footer-link">models</a>
 				<a href="/projects" class="footer-link">projects</a>
 				<a href="/community" class="footer-link">community</a>
 				<a href="/privacy" class="footer-link">privacy</a>

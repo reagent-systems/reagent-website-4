@@ -64,7 +64,9 @@
 			<h1 class="main-title">factory</h1>
 		</div>
 		<nav class="nav-links">
+			<a href="/plan" class="nav-link">plan</a>
 			<a href="/research" class="nav-link">research</a>
+			<a href="/models" class="nav-link">models</a>
 			<a href="/projects" class="nav-link">projects</a>
 			<a href="/community" class="nav-link">community</a>
 		</nav>

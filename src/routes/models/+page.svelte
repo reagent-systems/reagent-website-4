@@ -2,38 +2,15 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { asciiArt } from '$lib/ascii-art-2';
 
-	interface ResearchRepo {
-		name: string;
-		description: string;
-		html_url: string;
-	}
-
-	const repositories: ResearchRepo[] = [
+	const models = [
 		{
-			name: 'mcp-dock',
+			name: 'Bently Coder 7B',
+			id: 'Bentlybro/bently-coder-7b',
+			url: 'https://huggingface.co/Bentlybro/bently-coder-7b',
 			description:
-				'Desktop application for running and organizing Model Context Protocol servers—Electron, Vite, and React. Ships as an installable MCP Dock with a modern UI for local tool orchestration.',
-			html_url: 'https://github.com/reagent-systems/mcp-dock'
-		},
-		{
-			name: 'dandelion',
-			description:
-				'Research codebase mixing CUDA, Python, and neuro-symbolic prototypes—exploratory infrastructure for algorithms and systems we want to understand deeply before productizing.',
-			html_url: 'https://github.com/reagent-systems/dandelion'
-		},
-		{
-			name: 'Simple-Agent-Core',
-			description:
-				'Minimalist Python agent framework: dynamic tool loading, loop detection, sandboxed file work, and providers including OpenAI, LM Studio, and Google Gemini.',
-			html_url: 'https://github.com/reagent-systems/Simple-Agent-Core'
-		},
-		{
-			name: 'phone-agent',
-			description:
-				'TypeScript agent stack and examples oriented toward phone-centric workflows, with Docker-friendly deployment for experimentation and services.',
-			html_url: 'https://github.com/reagent-systems/phone-agent'
+				'Apache-2.0 coding model fine-tuned from Qwen2.5-Coder-7B-Instruct with QLoRA on personal GitHub repositories—strong gains on BigCodeBench Hard and HumanEval compared to the base model.'
 		}
-	];
+	] as const;
 
 	let mounted = $state(false);
 	let animationId: number | null = null;
@@ -71,42 +48,40 @@
 </script>
 
 <svelte:head>
-	<title>research - reagent systems</title>
-	<meta name="title" content="research - reagent systems" />
-	<meta
-		name="description"
-		content="open repositories where we pursue deeper systems and agent research at reagent systems."
-	/>
+	<title>models - reagent systems</title>
+	<meta name="title" content="models - reagent systems" />
+	<meta name="description" content="open language models released by the reagent systems community on Hugging Face." />
 	<meta name="robots" content="index, follow" />
 </svelte:head>
 
-<div class="research-page" class:mounted>
-	<div class="research-ascii-bg" aria-hidden="true">
+<div class="models-page" class:mounted>
+	<div class="models-ascii-bg" aria-hidden="true">
 		<pre
-			class="research-ascii-art"
+			class="models-ascii-art"
 			style="transform: perspective(1000px) rotateX({asciiRotateX}deg) rotateY({asciiRotateY}deg) scale({asciiScale});"
 		>{asciiArt}</pre>
 	</div>
-	<div class="research-content">
-		<div class="research-header">
-			<h1 class="research-title">research</h1>
+	<div class="models-content">
+		<div class="models-header">
+			<h1 class="models-title">models</h1>
 		</div>
 
-		<div class="research-list">
-			{#each repositories as repo}
-				<article class="research-repo">
-					<h2 class="research-repo-name">
-						<a href={repo.html_url} target="_blank" rel="noopener noreferrer">{repo.name}</a>
+		<div class="models-list">
+			{#each models as m}
+				<article class="model-card">
+					<h2 class="model-name">
+						<a href={m.url} target="_blank" rel="noopener noreferrer">{m.name}</a>
 					</h2>
-					<p class="research-repo-description">{repo.description}</p>
+					<p class="model-id">{m.id}</p>
+					<p class="model-description">{m.description}</p>
 				</article>
 			{/each}
 		</div>
 
-		<nav class="research-nav">
+		<nav class="models-nav">
 			<a href="/" class="nav-link">home</a>
 			<a href="/plan" class="nav-link">plan</a>
-			<a href="/models" class="nav-link">models</a>
+			<a href="/research" class="nav-link">research</a>
 			<a href="/projects" class="nav-link">projects</a>
 			<a href="/community" class="nav-link">community</a>
 		</nav>
@@ -114,7 +89,7 @@
 </div>
 
 <style>
-	.research-page {
+	.models-page {
 		min-height: 100vh;
 		padding: 4rem 4rem 4rem 8rem;
 		opacity: 0;
@@ -124,11 +99,11 @@
 		position: relative;
 	}
 
-	.research-page.mounted {
+	.models-page.mounted {
 		opacity: 1;
 	}
 
-	.research-ascii-bg {
+	.models-ascii-bg {
 		position: fixed;
 		right: -35%;
 		top: 10%;
@@ -142,7 +117,7 @@
 		z-index: 0;
 	}
 
-	.research-ascii-art {
+	.models-ascii-art {
 		font-family: var(--ascii-font);
 		font-size: 1.5rem;
 		line-height: 1.2;
@@ -159,10 +134,10 @@
 		text-align: right;
 		transform-style: preserve-3d;
 		will-change: transform;
-		animation: research-gradient-shift 8s linear infinite;
+		animation: models-gradient-shift 8s linear infinite;
 	}
 
-	@keyframes research-gradient-shift {
+	@keyframes models-gradient-shift {
 		0% {
 			background-position: 0% 50%;
 		}
@@ -174,7 +149,7 @@
 		}
 	}
 
-	.research-content {
+	.models-content {
 		position: relative;
 		z-index: 1;
 		display: flex;
@@ -182,11 +157,11 @@
 		flex: 1;
 	}
 
-	.research-header {
+	.models-header {
 		margin-bottom: 4rem;
 	}
 
-	.research-title {
+	.models-title {
 		font-size: 6rem;
 		font-weight: 100;
 		color: #1a1a1a;
@@ -196,34 +171,42 @@
 		font-family: var(--main-font);
 	}
 
-	.research-list {
+	.models-list {
 		display: flex;
 		flex-direction: column;
-		gap: 3.5rem;
+		gap: 3rem;
 		max-width: 800px;
 		margin-bottom: 6rem;
 	}
 
-	.research-repo-name {
+	.model-name {
 		font-size: 1.75rem;
 		font-weight: 300;
 		color: #1a1a1a;
-		margin: 0 0 0.75rem 0;
+		margin: 0 0 0.35rem 0;
 		font-family: var(--main-font);
 		text-transform: lowercase;
 	}
 
-	.research-repo-name a {
+	.model-name a {
 		color: #1a1a1a;
 		text-decoration: none;
 		transition: color 0.3s ease;
 	}
 
-	.research-repo-name a:hover {
+	.model-name a:hover {
 		color: #6b6b6b;
 	}
 
-	.research-repo-description {
+	.model-id {
+		font-size: 1rem;
+		font-weight: 300;
+		color: #888;
+		margin: 0 0 1rem 0;
+		font-family: var(--main-font);
+	}
+
+	.model-description {
 		font-size: 1.35rem;
 		font-weight: 300;
 		color: #6b6b6b;
@@ -233,14 +216,14 @@
 		text-align: justify;
 	}
 
-	.research-nav {
+	.models-nav {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 2rem 3rem;
 		margin-top: auto;
 	}
 
-	.research-nav .nav-link {
+	.models-nav .nav-link {
 		font-size: 1.5rem;
 		font-weight: 300;
 		color: #6b6b6b;
@@ -253,7 +236,7 @@
 		position: relative;
 	}
 
-	.research-nav .nav-link::after {
+	.models-nav .nav-link::after {
 		content: '';
 		position: absolute;
 		bottom: 0;
@@ -265,32 +248,32 @@
 		transition: width 0.3s ease;
 	}
 
-	.research-nav .nav-link:hover {
+	.models-nav .nav-link:hover {
 		color: #000000;
 	}
 
-	.research-nav .nav-link:hover::after {
+	.models-nav .nav-link:hover::after {
 		width: 100%;
 	}
 
 	@media (max-width: 768px) {
-		.research-page {
+		.models-page {
 			padding: 2rem;
 		}
 
-		.research-ascii-bg {
+		.models-ascii-bg {
 			display: none;
 		}
 
-		.research-title {
+		.models-title {
 			font-size: 4rem;
 		}
 
-		.research-repo-description {
+		.model-description {
 			font-size: 1.2rem;
 		}
 
-		.research-nav {
+		.models-nav {
 			flex-direction: column;
 			gap: 1.5rem;
 			align-items: flex-start;
