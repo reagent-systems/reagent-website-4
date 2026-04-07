@@ -218,7 +218,7 @@
 		if (!browser) return;
 		
 		try {
-			// Check for static images in project-images folder (both .png and .jpg)
+			// Check for static images in product-images folder (both .png and .jpg)
 			const projectsWithImages = await Promise.all(
 				staticProjects.map(async (project) => {
 					let imageUrl = project.image_url;
@@ -226,7 +226,7 @@
 					// Check for .mp4, .png, then .jpg
 					const extensions = ['.mp4', '.png', '.jpg'];
 					for (const ext of extensions) {
-						const staticMediaUrl = `/project-images/${project.name}${ext}`;
+						const staticMediaUrl = `/product-images/${project.name}${ext}`;
 						try {
 							const mediaCheck = await fetch(staticMediaUrl, { method: 'HEAD' });
 							if (mediaCheck.ok) {
