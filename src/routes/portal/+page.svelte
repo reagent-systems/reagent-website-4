@@ -1,40 +1,201 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
-	import { asciiArt } from '$lib/ascii-art-2';
+	import { onMount } from 'svelte';
+	import { asciiArt } from '$lib/ascii-art';
 	import PageSubnav from '$lib/PageSubnav.svelte';
 
-	let mounted = $state(false);
+	const typewriterMessages = [
+		'\\\\ What do you want to make?',
+		"\\\\ What should exist—but doesn't yet?",
+		'\\\\ Name the thing you\x27re about to ship',
+		'\\\\ What are we building?',
+		"\\\\ One line: what's the idea?",
+		'\\\\ Sketch the project in a single sentence',
+		'\\\\ What tool do you wish you had today?',
+		"\\\\ What's worth a weekend of focus?",
+		'\\\\ Type the premise—no pitch deck required',
+		'\\\\ What do you want to exist in the world?'
+	];
+
+	const TYPE_MS = 42;
+	const DELETE_MS = 28;
+	const PAUSE_FULL_MS = 2200;
+	const PAUSE_EMPTY_MS = 600;
+
+	let rotateX = $state(0);
+	let rotateY = $state(0);
+	let scale = $state(1);
 	let animationId: number | null = null;
 	let startTime = Date.now();
-	let asciiRotateX = $state(0);
-	let asciiRotateY = $state(0);
-	let asciiScale = $state(1);
-	const asciiMaxRotation = 15;
-	const asciiAnimationSpeed = 0.0003;
-	const asciiBreathingSpeed = 0.0005;
-	const asciiBreathingAmount = 0.05;
+	let mounted = $state(false);
+	let entryValue = $state('');
+	let ghostText = $state('');
+	let userHasTyped = $state(false);
+	let inputRef: HTMLInputElement | null = $state(null);
+	let isInputFocused = $state(false);
+	/** Caret index for typed-phase overlay (must match input layout, not canvas measurement) */
+	let caretIndex = $state(0);
+
+	/** Read by the typewriter loop (async); not reactive inside the loop */
+	let stopTypewriter = false;
+
+	let showGhost = $derived(!userHasTyped && entryValue === '');
+	let showTypedBlockCursor = $derived(isInputFocused && !showGhost);
+
+	/** Horizontally scroll text + block overlay together (native scrollLeft). */
+	let inputScrollLeft = $state(0);
+
+	let measureCanvas: HTMLCanvasElement | null = null;
+
+	function measureTextWidthInput(el: HTMLInputElement, text: string): number {
+		if (typeof document === 'undefined' || text.length === 0) return 0;
+		if (!measureCanvas) measureCanvas = document.createElement('canvas');
+		const ctx = measureCanvas.getContext('2d');
+		if (!ctx) return 0;
+		ctx.font = getComputedStyle(el).font;
+		return ctx.measureText(text).width;
+	}
+
+	/** Keep caret + block inside the visible text area (input horizontal scroll). */
+	function scrollCaretIntoView(el: HTMLInputElement) {
+		const caret = el.selectionStart ?? 0;
+		const before = el.value.slice(0, caret);
+		const prefixW = measureTextWidthInput(el, before);
+		const cs = getComputedStyle(el);
+		const padL = parseFloat(cs.paddingLeft) || 0;
+		const padR = parseFloat(cs.paddingRight) || 0;
+		const inner = Math.max(0, el.clientWidth - padL - padR);
+		const cursorW = Math.max(1, measureTextWidthInput(el, '0'));
+		const margin = Math.min(32, Math.max(8, inner * 0.08));
+		let sl = el.scrollLeft;
+
+		if (prefixW < sl + margin) {
+			sl = Math.max(0, prefixW - margin);
+		} else if (prefixW + cursorW > sl + inner - margin) {
+			sl = Math.max(0, prefixW + cursorW - inner + margin);
+		}
+
+		if (sl !== el.scrollLeft) el.scrollLeft = sl;
+	}
+
+	function syncScrollLeftFromInput(el: HTMLInputElement | null) {
+		if (!el) return;
+		inputScrollLeft = el.scrollLeft;
+	}
+
+	function updateTypedCursorPos() {
+		const el = inputRef;
+		if (!el || showGhost) return;
+		caretIndex = el.selectionStart ?? 0;
+		scrollCaretIntoView(el);
+		syncScrollLeftFromInput(el);
+	}
+
+	function handleInput(e: Event & { currentTarget: HTMLInputElement }) {
+		if (e.currentTarget.value.length > 0) {
+			stopTypewriter = true;
+			userHasTyped = true;
+			ghostText = '';
+		}
+		updateTypedCursorPos();
+	}
+
+	$effect(() => {
+		if (isInputFocused && !showGhost) {
+			entryValue;
+			showGhost;
+			updateTypedCursorPos();
+		}
+	});
+
+	$effect(() => {
+		if (showGhost) {
+			inputScrollLeft = 0;
+			const el = inputRef;
+			if (el) el.scrollLeft = 0;
+		}
+	});
+
+	const maxRotation = 15;
+	const animationSpeed = 0.0003;
+	const breathingSpeed = 0.0005;
+	const breathingAmount = 0.05;
 
 	function animate() {
 		const now = performance.now();
-		const asciiElapsed = (now - startTime) * asciiAnimationSpeed;
-		const asciiBreathingElapsed = (now - startTime) * asciiBreathingSpeed;
-		asciiRotateX = Math.sin(-asciiElapsed) * asciiMaxRotation;
-		asciiRotateY = Math.cos(-asciiElapsed) * asciiMaxRotation;
-		asciiScale = 1 + Math.sin(asciiBreathingElapsed) * asciiBreathingAmount;
+		const elapsed = (now - startTime) * animationSpeed;
+		const breathingElapsed = (now - startTime) * breathingSpeed;
+
+		const newRotateX = Math.sin(-elapsed) * maxRotation;
+		const newRotateY = Math.cos(-elapsed) * maxRotation;
+		const newScale = 1 + Math.sin(breathingElapsed) * breathingAmount;
+
+		if (
+			Math.abs(newRotateX - rotateX) > 0.01 ||
+			Math.abs(newRotateY - rotateY) > 0.01 ||
+			Math.abs(newScale - scale) > 0.001
+		) {
+			rotateX = newRotateX;
+			rotateY = newRotateY;
+			scale = newScale;
+		}
+
 		animationId = requestAnimationFrame(animate);
 	}
 
 	onMount(() => {
 		mounted = true;
-		startTime = Date.now();
 		animate();
-		return () => {
-			if (animationId !== null) cancelAnimationFrame(animationId);
-		};
-	});
 
-	onDestroy(() => {
-		if (animationId !== null) cancelAnimationFrame(animationId);
+		function onDocSelectionChange() {
+			const el = inputRef;
+			if (el && document.activeElement === el) {
+				updateTypedCursorPos();
+			}
+		}
+		document.addEventListener('selectionchange', onDocSelectionChange);
+
+		let cancelled = false;
+		let delayId: ReturnType<typeof setTimeout> | null = null;
+
+		function delay(ms: number) {
+			return new Promise<void>((resolve) => {
+				delayId = setTimeout(() => {
+					delayId = null;
+					resolve();
+				}, ms);
+			});
+		}
+
+		async function typewriterLoop() {
+			let mi = 0;
+			while (!cancelled && !stopTypewriter) {
+				const full = typewriterMessages[mi % typewriterMessages.length];
+				for (let c = 0; c <= full.length; c++) {
+					if (cancelled || stopTypewriter) return;
+					ghostText = full.slice(0, c);
+					await delay(TYPE_MS);
+				}
+				await delay(PAUSE_FULL_MS);
+				for (let c = full.length; c >= 0; c--) {
+					if (cancelled || stopTypewriter) return;
+					ghostText = full.slice(0, c);
+					await delay(DELETE_MS);
+				}
+				await delay(PAUSE_EMPTY_MS);
+				mi++;
+			}
+		}
+
+		typewriterLoop();
+
+		return () => {
+			document.removeEventListener('selectionchange', onDocSelectionChange);
+			cancelled = true;
+			if (delayId !== null) clearTimeout(delayId);
+			if (animationId !== null) {
+				cancelAnimationFrame(animationId);
+			}
+		};
 	});
 </script>
 
@@ -48,157 +209,243 @@
 	<meta name="robots" content="index, follow" />
 </svelte:head>
 
-<div class="portal-page" class:mounted>
-	<div class="portal-ascii-bg" aria-hidden="true">
+<div class="container" class:mounted>
+	<div class="graphic-container">
 		<pre
-			class="portal-ascii-art"
-			style="transform: perspective(1000px) rotateX({asciiRotateX}deg) rotateY({asciiRotateY}deg) scale({asciiScale});"
+			class="ascii-art"
+			style="transform: perspective(1000px) rotateX({rotateX}deg) rotateY({rotateY}deg) scale({scale});"
 		>{asciiArt}</pre>
 	</div>
-	<div class="portal-content">
-		<div class="portal-header">
-			<h1 class="portal-title">portal</h1>
+	<div class="portal-entry-layer">
+		<label class="portal-entry-label" for="portal-entry">Portal prompt</label>
+		<div class="portal-entry-wrap">
+			<input
+				bind:this={inputRef}
+				id="portal-entry"
+				class="portal-entry"
+				class:portal-entry--ghosting={showGhost}
+				type="text"
+				name="portal-entry"
+				autocomplete="off"
+				spellcheck={false}
+				bind:value={entryValue}
+				oninput={handleInput}
+				onfocus={() => {
+					isInputFocused = true;
+					updateTypedCursorPos();
+				}}
+				onblur={() => {
+					isInputFocused = false;
+				}}
+				onscroll={(e) => syncScrollLeftFromInput(e.currentTarget)}
+				onselect={() => updateTypedCursorPos()}
+				onclick={() => updateTypedCursorPos()}
+				onkeyup={() => updateTypedCursorPos()}
+			/>
+			{#if showGhost}
+				<div class="portal-entry-ghost" aria-hidden="true">
+					<div
+						class="portal-entry-overlay-track"
+						style="transform: translateX(-{inputScrollLeft}px)"
+					>
+						<span class="portal-entry-ghost-text">{ghostText}</span><span class="portal-entry-cursor"></span>
+					</div>
+				</div>
+			{/if}
+			{#if showTypedBlockCursor}
+				<div class="portal-entry-typed-cursor-layer" aria-hidden="true">
+					<div
+						class="portal-entry-overlay-track"
+						style="transform: translateX(-{inputScrollLeft}px)"
+					>
+						<span class="portal-entry-typed-prefix">{entryValue.slice(0, caretIndex)}</span><span class="portal-entry-cursor"></span>
+					</div>
+				</div>
+			{/if}
 		</div>
-
-		<section class="portal-section">
-			<p class="portal-text">
-				This space is for teammates, collaborators, and partners—shared pointers to builds, dashboards, and
-				documentation we use day to day. If you need access, reach out through the contact on the main site or
-				your reagent point of contact.
-			</p>
-			<p class="portal-text">
-				Looking to join the team? See <a href="/careers" class="portal-inline-link">careers</a>.
-			</p>
-		</section>
-
-		<PageSubnav />
+	</div>
+	<div class="content-container">
+		<div class="home-subnav-wrapper">
+			<PageSubnav />
+		</div>
 	</div>
 </div>
 
 <style>
-	.portal-page {
-		min-height: 100vh;
-		padding: 4rem 4rem 4rem 8rem;
-		opacity: 0;
-		transition: opacity 0.4s ease;
-		display: flex;
-		flex-direction: column;
-		position: relative;
-	}
-
-	.portal-page.mounted {
-		opacity: 1;
-	}
-
-	.portal-ascii-bg {
-		position: fixed;
-		right: -35%;
-		top: 10%;
-		width: 50%;
-		height: 100vh;
+	.portal-entry-layer {
+		position: absolute;
+		inset: 0;
 		display: flex;
 		align-items: center;
-		justify-content: flex-end;
-		padding: 2rem;
+		justify-content: center;
 		pointer-events: none;
-		z-index: 0;
+		z-index: 2;
+		padding: 1rem;
+		box-sizing: border-box;
 	}
 
-	.portal-ascii-art {
-		font-family: var(--ascii-font);
-		font-size: 1.5rem;
-		line-height: 1.2;
-		background: linear-gradient(90deg, #fafafa, #f0f0f0, #fafafa);
-		background-size: 200% 100%;
-		-webkit-background-clip: text;
-		background-clip: text;
-		color: transparent;
-		white-space: pre;
-		margin: 0;
-		letter-spacing: 0;
-		user-select: none;
-		display: block;
-		text-align: right;
-		transform-style: preserve-3d;
-		will-change: transform;
-		animation: portal-gradient-shift 8s linear infinite;
+	.portal-entry-label {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
 	}
 
-	@keyframes portal-gradient-shift {
-		0% {
-			background-position: 0% 50%;
-		}
-		50% {
-			background-position: 100% 50%;
-		}
-		100% {
-			background-position: 0% 50%;
-		}
-	}
-
-	.portal-content {
+	.portal-entry-wrap {
 		position: relative;
-		z-index: 1;
-		display: flex;
-		flex-direction: column;
-		flex: 1;
+		pointer-events: auto;
+		width: min(56rem, calc(100vw - 2rem));
 	}
 
-	.portal-header {
-		margin-bottom: 4rem;
-	}
-
-	.portal-title {
-		font-size: 6rem;
-		font-weight: 100;
-		color: #1a1a1a;
-		text-transform: lowercase;
-		letter-spacing: -0.02em;
-		margin: 0;
-		font-family: var(--main-font);
-	}
-
-	.portal-section {
-		max-width: 800px;
-		margin-bottom: 6rem;
-	}
-
-	.portal-text {
-		font-size: 1.35rem;
+	.portal-entry {
+		display: block;
+		width: 100%;
+		min-width: 0;
+		overflow-x: auto;
+		overflow-y: hidden;
+		scrollbar-width: none;
+		-webkit-appearance: none;
+		appearance: none;
+		box-sizing: border-box;
+		background: #000000;
+		color: var(--page-background);
+		border: 8pt solid var(--page-background);
+		border-radius: 9999px;
+		padding: 0.5rem 1.5rem;
+		font-family: var(--ascii-font);
+		font-size: 1rem;
 		font-weight: 300;
-		color: #6b6b6b;
-		line-height: 1.65;
-		margin: 0 0 1.5rem 0;
-		font-family: var(--main-font);
-		text-align: justify;
+		line-height: 1.35;
+		letter-spacing: 0;
+		outline: none;
+		box-shadow: none;
+		transition: border-color 0.15s ease;
+		caret-color: transparent;
+		/* Match native input: preserve spaces; parent overlay used nowrap which collapses without this */
+		white-space: pre;
 	}
 
-	.portal-inline-link {
-		color: #1a1a1a;
-		text-decoration: underline;
-		text-underline-offset: 0.15em;
-		transition: color 0.2s ease;
+	.portal-entry::-webkit-scrollbar {
+		display: none;
 	}
 
-	.portal-inline-link:hover {
-		color: #6b6b6b;
+	.portal-entry--ghosting {
+		color: transparent;
+	}
+
+	.portal-entry:focus {
+		border: 8pt solid var(--page-background);
+		box-shadow: none;
+	}
+
+	/* Same border + radius as .portal-entry so text inset matches native <input> */
+	.portal-entry-ghost,
+	.portal-entry-typed-cursor-layer {
+		border: 8pt solid transparent;
+		border-radius: 9999px;
+	}
+
+	.portal-entry-overlay-track {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: nowrap;
+		align-items: center;
+		min-width: min-content;
+		flex-shrink: 0;
+	}
+
+	.portal-entry-ghost {
+		position: absolute;
+		inset: 0;
+		box-sizing: border-box;
+		padding: 0.5rem 1.5rem;
+		display: flex;
+		align-items: center;
+		pointer-events: none;
+		z-index: 1;
+		font-family: var(--ascii-font);
+		font-size: 1rem;
+		font-weight: 300;
+		line-height: 1.35;
+		letter-spacing: 0;
+		white-space: nowrap;
+		overflow: hidden;
+	}
+
+	.portal-entry-ghost-text {
+		color: color-mix(in srgb, var(--page-background) 55%, transparent);
+		white-space: pre;
+	}
+
+	.portal-entry-typed-cursor-layer {
+		position: absolute;
+		inset: 0;
+		box-sizing: border-box;
+		padding: 0.5rem 1.5rem;
+		display: flex;
+		align-items: center;
+		pointer-events: none;
+		z-index: 1;
+		font-family: var(--ascii-font);
+		font-size: 1rem;
+		font-weight: 300;
+		line-height: 1.35;
+		letter-spacing: 0;
+		white-space: nowrap;
+		overflow: hidden;
+	}
+
+	/* Invisible copy of text before caret — same glyph widths as input */
+	.portal-entry-typed-prefix {
+		flex-shrink: 0;
+		color: transparent;
+		user-select: none;
+		pointer-events: none;
+		/* Override inherited nowrap from layer: must preserve every space char */
+		white-space: pre;
+	}
+
+	.portal-entry-cursor {
+		display: inline-block;
+		flex-shrink: 0;
+		width: 1ch;
+		height: 1.2em;
+		margin-left: 0;
+		background: var(--page-background);
+		vertical-align: text-bottom;
+		animation: portal-cursor-blink 0.85s steps(1, end) infinite;
+	}
+
+	@keyframes portal-cursor-blink {
+		0%,
+		45% {
+			opacity: 1;
+		}
+		50%,
+		100% {
+			opacity: 0;
+		}
 	}
 
 	@media (max-width: 768px) {
-		.portal-page {
-			padding: 2rem;
+		.portal-entry {
+			font-size: 0.9rem;
+			padding: 0.45rem 1.25rem;
 		}
 
-		.portal-ascii-bg {
-			display: none;
+		.portal-entry-ghost {
+			font-size: 0.9rem;
+			padding: 0.45rem 1.25rem;
 		}
 
-		.portal-title {
-			font-size: 4rem;
-		}
-
-		.portal-text {
-			font-size: 1.2rem;
+		.portal-entry-typed-cursor-layer {
+			font-size: 0.9rem;
+			padding: 0.45rem 1.25rem;
 		}
 	}
 </style>

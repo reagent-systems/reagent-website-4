@@ -31,6 +31,22 @@ html {
 
 @font-face {
 	font-family: 'IBM Plex Mono';
+	src: url('/fonts/IBMPlexMono-Light.ttf') format('truetype');
+	font-weight: 300;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'IBM Plex Mono';
+	src: url('/fonts/IBMPlexMono-Regular.ttf') format('truetype');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'IBM Plex Mono';
 	src: url('/fonts/IBMPlexMono-Bold.ttf') format('truetype');
 	font-weight: 700;
 	font-style: normal;
@@ -40,11 +56,17 @@ html {
 :root {
 	--main-font: 'Raleway', sans-serif;
 	--ascii-font: 'IBM Plex Mono', monospace;
+	/* Warm off-white canvas (home / portal behind ASCII); matches footer-adjacent tones */
+	--page-background: #fafafa;
+}
+
+html {
+	background-color: var(--page-background);
 }
 
 body {
 	font-family: var(--main-font);
-	background-color: #ffffff;
+	background-color: var(--page-background);
 	color: #1a1a1a;
 	min-height: 100vh;
 	overflow-x: hidden;
@@ -62,6 +84,7 @@ body {
 	overflow-y: hidden;
 	opacity: 0;
 	transition: opacity 0.4s ease;
+	background-color: var(--page-background);
 }
 
 .container.mounted {
@@ -85,6 +108,7 @@ body {
 
 .ascii-art {
 	font-family: var(--ascii-font);
+	font-weight: 700;
 	font-size: 1rem;
 	line-height: 1.2;
 	background: linear-gradient(90deg, #2d4a8a, #800020, #2d4a8a);
