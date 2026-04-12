@@ -1,0 +1,17 @@
+---
+description: Do not put env/setup/credential messaging in visible product UI
+alwaysApply: true
+---
+
+# No operational or setup copy in the UI
+
+Do **not** add visible user-facing copy that explains:
+
+- Environment variable names, API key names, or token names
+- What to set in `.env`, deployment dashboards, or config to “enable” a feature
+- Whether credentials are required, absent, or unnecessary
+- Phrases like “runs on your machine”, “no credentials needed”, “in the browser”, “this tab”, or similar setup/privacy reassurance (unless the user explicitly asks for that copy)
+
+This applies to titles, subtitles, body text, empty states, banners, footnotes, tooltips, and inline code in the default UI.
+
+Operational instructions belong in **README**, **internal docs**, or comments in server-only code—not in the shipped interface.
