@@ -104,7 +104,7 @@ export const METRICS: MetricDefinition[] = [
 	{
 		id: 'commits',
 		label: 'Commits',
-		value: 980,
+		value: 0,
 		format: 'number',
 		sourceHint: 'GitHub commit search: comma-separated authors + org (same query as automation; max 1000)'
 	},
