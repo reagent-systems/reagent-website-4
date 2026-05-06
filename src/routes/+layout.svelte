@@ -89,7 +89,9 @@
 			</div>
 			<div class="footer-col">
 				<div class="footer-heading">contact</div>
-				<a href="mailto:support@reagent-systems.com" class="footer-link">support@reagent-systems.com</a>
+				<a href="mailto:help@reagent-systems.com" class="footer-link">help@reagent-systems.com</a>
+				<a href="mailto:sales@reagent-systems.com" class="footer-link">sales@reagent-systems.com</a>
+				<a href="mailto:developers@reagent-systems.com" class="footer-link">developers@reagent-systems.com</a>
 			</div>
 		</div>
 		<div class="footer-copy">© {currentYear} reagent systems. All rights reserved.</div>
