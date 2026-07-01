@@ -328,7 +328,7 @@
 			<a href="https://x.com/Reagent_Systems" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="x">
 				<img src="/social-icons/x_logo.svg" alt="X" width="24" height="24" />
 			</a>
-			<a href="https://discord.gg/reagent" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="discord">
+			<a href="https://discord.reagent-systems.com/" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="discord">
 				<img src="/social-icons/Discord-Symbol-White.svg" alt="Discord" width="24" height="24" />
 			</a>
 		</div>
