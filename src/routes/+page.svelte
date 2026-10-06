@@ -81,5 +81,23 @@
 		width: 100%;
 		min-height: 100vh;
 		background-color: var(--page-background);
+		overflow-x: clip;
+	}
+
+	/* Let the ASCII 3D transform breathe; default .container clips overflow. */
+	.home-page :global(.home-hero.container) {
+		min-height: 100vh;
+		height: auto;
+		overflow: visible;
+		padding-bottom: clamp(2rem, 5vh, 4rem);
+	}
+
+	.home-page :global(.home-hero .graphic-container) {
+		overflow: visible;
+	}
+
+	.home-page :global(.home-hero .ascii-art) {
+		contain: layout style;
+		transform-origin: center center;
 	}
 </style>

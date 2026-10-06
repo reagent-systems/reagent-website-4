@@ -11,6 +11,7 @@
 </script>
 
 <section class="friends-strip" aria-labelledby="home-friends-heading">
+	<div class="friends-veil" aria-hidden="true"></div>
 	<h2 id="home-friends-heading" class="friends-heading">friends of reagent</h2>
 
 	<div class="friends-scroll">
@@ -75,19 +76,34 @@
 		position: relative;
 		z-index: 2;
 		width: 100%;
-		margin-top: clamp(7rem, 22vh, 14rem);
-		padding: 3rem 0 clamp(2.5rem, 5vw, 3.5rem);
+		margin-top: clamp(4.5rem, 14vh, 8.5rem);
+		padding: 2.75rem 0 clamp(2.5rem, 5vw, 3.5rem);
 		border: none;
-		background: color-mix(in srgb, var(--friends-veil) 58%, transparent);
-		backdrop-filter: blur(18px) saturate(1.08);
-		-webkit-backdrop-filter: blur(18px) saturate(1.08);
+		background: transparent;
+		isolation: isolate;
+	}
+
+	.friends-veil {
+		position: absolute;
+		inset: -4.5rem 0 0;
+		pointer-events: none;
+		z-index: -1;
+		background: linear-gradient(
+			to bottom,
+			color-mix(in srgb, var(--friends-veil) 0%, transparent) 0%,
+			color-mix(in srgb, var(--friends-veil) 42%, transparent) 38%,
+			color-mix(in srgb, var(--friends-veil) 72%, transparent) 100%
+		);
+		backdrop-filter: blur(22px) saturate(1.05);
+		-webkit-backdrop-filter: blur(22px) saturate(1.05);
 		box-shadow:
-			0 0 64px 32px var(--friends-veil),
-			0 28px 56px 28px var(--friends-veil),
-			0 -28px 56px 28px var(--friends-veil);
+			0 -48px 64px 48px color-mix(in srgb, var(--friends-veil) 92%, transparent),
+			0 32px 72px 56px color-mix(in srgb, var(--friends-veil) 88%, transparent);
 	}
 
 	.friends-heading {
+		position: relative;
+		z-index: 1;
 		margin: 0 0 1.5rem;
 		padding: 0 4rem;
 		font-size: 0.95rem;
@@ -99,6 +115,8 @@
 	}
 
 	.friends-scroll {
+		position: relative;
+		z-index: 1;
 		overflow-x: auto;
 		overflow-y: hidden;
 		-webkit-overflow-scrolling: touch;
@@ -197,8 +215,12 @@
 
 	@media (max-width: 768px) {
 		.friends-strip {
-			margin-top: 1.5rem;
+			margin-top: clamp(2.5rem, 10vh, 4rem);
 			padding: 2.25rem 0 clamp(3rem, 12vw, 4.5rem);
+		}
+
+		.friends-veil {
+			inset: -3rem 0 0;
 		}
 
 		.friends-heading {
