@@ -6,6 +6,7 @@
 	import ResearchReleasesSection from '$lib/ResearchReleasesSection.svelte';
 	import HomeProjectsSection from '$lib/HomeProjectsSection.svelte';
 	import HomeCommunitySection from '$lib/HomeCommunitySection.svelte';
+	import HomeMissionSection from '$lib/HomeMissionSection.svelte';
 
 	let rotateX = $state(0);
 	let rotateY = $state(0);
@@ -78,6 +79,7 @@
 	<ResearchReleasesSection linkTitleToResearch />
 	<HomeProjectsSection />
 	<HomeCommunitySection />
+	<HomeMissionSection />
 </div>
 
 <style>
