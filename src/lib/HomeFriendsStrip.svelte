@@ -183,6 +183,7 @@
 		max-width: clamp(8rem, 18vw, 14rem);
 		object-fit: contain;
 		opacity: 0.88;
+		filter: grayscale(1);
 		transition: opacity 0.25s ease;
 	}
 
