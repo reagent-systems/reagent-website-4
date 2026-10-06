@@ -79,7 +79,13 @@
 		margin-top: clamp(3rem, 11vh, 6.5rem);
 		padding: 2.75rem 0 clamp(2.5rem, 5vw, 3.5rem);
 		border: none;
-		background: transparent;
+		background: color-mix(in srgb, var(--friends-veil) 58%, transparent);
+		backdrop-filter: blur(18px) saturate(1.08);
+		-webkit-backdrop-filter: blur(18px) saturate(1.08);
+		box-shadow:
+			0 0 64px 32px var(--friends-veil),
+			0 28px 56px 28px var(--friends-veil),
+			0 -28px 56px 28px var(--friends-veil);
 		isolation: isolate;
 	}
 
@@ -88,17 +94,10 @@
 		inset: -3rem 0 0;
 		pointer-events: none;
 		z-index: -1;
-		background: linear-gradient(
-			to bottom,
-			color-mix(in srgb, var(--friends-veil) 0%, transparent) 0%,
-			color-mix(in srgb, var(--friends-veil) 42%, transparent) 38%,
-			color-mix(in srgb, var(--friends-veil) 72%, transparent) 100%
-		);
-		backdrop-filter: blur(22px) saturate(1.05);
-		-webkit-backdrop-filter: blur(22px) saturate(1.05);
-		box-shadow:
-			0 -48px 64px 48px color-mix(in srgb, var(--friends-veil) 92%, transparent),
-			0 32px 72px 56px color-mix(in srgb, var(--friends-veil) 88%, transparent);
+		background: color-mix(in srgb, var(--friends-veil) 58%, transparent);
+		backdrop-filter: blur(18px) saturate(1.08);
+		-webkit-backdrop-filter: blur(18px) saturate(1.08);
+		box-shadow: 0 -28px 56px 28px var(--friends-veil);
 	}
 
 	.friends-heading {
