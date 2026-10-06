@@ -8,6 +8,46 @@
 	let { projects = featuredProjects }: Props = $props();
 </script>
 
+{#snippet projectCard(project: FeaturedProject)}
+	<article class="home-project-card">
+		<a
+			class="home-project-card-link"
+			href={project.href}
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			<div class="home-project-media">
+				{#if project.mediaType === 'video'}
+					<video
+						class="home-project-visual"
+						src={project.image}
+						autoplay
+						loop
+						muted
+						playsinline
+						preload="metadata"
+					></video>
+				{:else}
+					<img
+						class="home-project-visual"
+						src={project.image}
+						alt=""
+						width="480"
+						height="560"
+						loading="lazy"
+						decoding="async"
+					/>
+				{/if}
+			</div>
+			<div class="home-project-body">
+				<span class="home-project-category">{project.category}</span>
+				<h3 class="home-project-name">{project.name}</h3>
+				<p class="home-project-tagline">{project.tagline}</p>
+			</div>
+		</a>
+	</article>
+{/snippet}
+
 <section class="home-projects" aria-labelledby="home-projects-title">
 	<header class="home-projects-header">
 		<h2 id="home-projects-title" class="home-projects-title">
@@ -16,52 +56,31 @@
 		<p class="home-projects-lede">open repos we ship and maintain</p>
 	</header>
 
-	<div class="home-projects-rail">
-		{#each projects as project (project.id)}
-			<article class="home-project-card">
-				<a
-					class="home-project-card-link"
-					href={project.href}
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<div class="home-project-media">
-						{#if project.mediaType === 'video'}
-							<video
-								class="home-project-visual"
-								src={project.image}
-								autoplay
-								loop
-								muted
-								playsinline
-								preload="metadata"
-							></video>
-						{:else}
-							<img
-								class="home-project-visual"
-								src={project.image}
-								alt=""
-								width="480"
-								height="560"
-								loading="lazy"
-								decoding="async"
-							/>
-						{/if}
-					</div>
-					<div class="home-project-body">
-						<span class="home-project-category">{project.category}</span>
-						<h3 class="home-project-name">{project.name}</h3>
-						<p class="home-project-tagline">{project.tagline}</p>
-					</div>
-				</a>
-			</article>
-		{/each}
+	<div class="home-projects-carousel">
+		<div class="home-projects-track">
+			{#each [0, 1] as copy (copy)}
+				<div class="home-projects-row" aria-hidden={copy === 1 ? true : undefined}>
+					{#each projects as project (copy + project.id)}
+						{@render projectCard(project)}
+					{/each}
+				</div>
+			{/each}
+		</div>
 	</div>
+
+	<ul class="home-projects-sr-list">
+		{#each projects as project (project.id)}
+			<li>
+				<a href={project.href}>{project.name}</a>
+			</li>
+		{/each}
+	</ul>
 </section>
 
 <style>
 	.home-projects {
 		--projects-veil: var(--page-background);
+		--projects-marquee-gap: clamp(1.25rem, 2.5vw, 1.75rem);
 
 		position: relative;
 		z-index: 1;
@@ -79,6 +98,8 @@
 	}
 
 	.home-projects-header {
+		position: relative;
+		z-index: 1;
 		max-width: 72rem;
 		margin: 0 auto clamp(1.75rem, 3.5vw, 2.5rem);
 		padding: 0 clamp(2rem, 4vw, 4rem);
@@ -115,30 +136,51 @@
 		letter-spacing: 0.03em;
 	}
 
-	.home-projects-rail {
+	.home-projects-carousel {
+		position: relative;
+		z-index: 1;
+		overflow: hidden;
+		padding-inline: clamp(2rem, 4vw, 4rem);
+		mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+	}
+
+	.home-projects-track {
 		display: flex;
-		gap: clamp(1.25rem, 2.5vw, 1.75rem);
-		overflow-x: auto;
-		overflow-y: hidden;
-		padding: 0.25rem clamp(2rem, 4vw, 4rem) 0.5rem;
-		scroll-snap-type: x proximity;
-		-webkit-overflow-scrolling: touch;
-		scrollbar-width: thin;
-		scrollbar-color: #d8d8d8 transparent;
+		width: max-content;
+		gap: var(--projects-marquee-gap);
+		will-change: transform;
+		animation: projects-marquee 72s linear infinite;
 	}
 
-	.home-projects-rail::-webkit-scrollbar {
-		height: 6px;
+	.home-projects-carousel:hover .home-projects-track {
+		animation-play-state: paused;
 	}
 
-	.home-projects-rail::-webkit-scrollbar-thumb {
-		background: #d0d0d0;
-		border-radius: 999px;
+	@media (prefers-reduced-motion: reduce) {
+		.home-projects-track {
+			animation: none;
+		}
+
+		.home-projects-carousel {
+			overflow-x: auto;
+			scrollbar-width: none;
+			mask-image: none;
+		}
+
+		.home-projects-carousel::-webkit-scrollbar {
+			display: none;
+		}
+	}
+
+	.home-projects-row {
+		display: flex;
+		flex: 0 0 auto;
+		gap: var(--projects-marquee-gap);
 	}
 
 	.home-project-card {
 		flex: 0 0 min(78vw, 19rem);
-		scroll-snap-align: start;
+		width: min(78vw, 19rem);
 	}
 
 	.home-project-card-link {
@@ -216,9 +258,31 @@
 		overflow: hidden;
 	}
 
+	.home-projects-sr-list {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	@keyframes projects-marquee {
+		from {
+			transform: translate3d(0, 0, 0);
+		}
+		to {
+			transform: translate3d(calc(-50% - var(--projects-marquee-gap) / 2), 0, 0);
+		}
+	}
+
 	@media (min-width: 900px) {
 		.home-project-card {
 			flex-basis: 17.5rem;
+			width: 17.5rem;
 		}
 	}
 </style>
