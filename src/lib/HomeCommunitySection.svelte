@@ -1,10 +1,11 @@
 <section class="home-community" aria-labelledby="home-community-title">
-	<div class="home-community-inner">
+	<div class="home-community-header">
 		<h2 id="home-community-title" class="home-community-title">
 			<a class="home-community-title-link" href="/community">community</a>
 		</h2>
+	</div>
 
-		<div class="home-community-links">
+	<div class="home-community-links">
 		<a
 			href="https://x.com/Reagent_Systems"
 			target="_blank"
@@ -34,6 +35,7 @@
 		z-index: 1;
 		width: 100%;
 		padding: clamp(2.25rem, 5vw, 3.5rem) clamp(2rem, 4vw, 4rem) clamp(4rem, 9vw, 6rem);
+		box-sizing: border-box;
 		border: none;
 		background: color-mix(in srgb, var(--community-veil) 58%, transparent);
 		backdrop-filter: blur(18px) saturate(1.08);
@@ -45,9 +47,14 @@
 		isolation: isolate;
 		display: flex;
 		flex-direction: column;
-		align-items: center;
+		align-items: stretch;
 		gap: clamp(1.5rem, 3vw, 2.25rem);
-		text-align: center;
+	}
+
+	.home-community-header {
+		width: 100%;
+		max-width: 72rem;
+		margin: 0 auto;
 	}
 
 	.home-community-title {

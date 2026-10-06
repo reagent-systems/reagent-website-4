@@ -87,7 +87,8 @@
 		z-index: 1;
 		width: 100%;
 		margin-top: clamp(1.5rem, 3.5vw, 2.75rem);
-		padding: 0 0 clamp(3.5rem, 8vw, 5.5rem);
+		padding: 0 clamp(2rem, 4vw, 4rem) clamp(3.5rem, 8vw, 5.5rem);
+		box-sizing: border-box;
 		overflow: visible;
 		border: none;
 		background: color-mix(in srgb, var(--projects-veil) 58%, transparent);
@@ -105,7 +106,7 @@
 		z-index: 2;
 		max-width: 72rem;
 		margin: clamp(-2rem, -4vw, -1.25rem) auto clamp(5.5rem, 11vw, 8rem);
-		padding: 0 clamp(2rem, 4vw, 4rem);
+		padding: 0;
 	}
 
 	.home-projects-title {
