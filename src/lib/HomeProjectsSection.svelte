@@ -7,9 +7,7 @@
 
 	let { projects = featuredProjects }: Props = $props();
 
-	/** Extra slots on the ring so more projects sit in the front arc at once. */
-	const cylinderPanels = $derived([...projects, ...projects.slice(0, 4)]);
-	const count = $derived(cylinderPanels.length);
+	const count = $derived(projects.length);
 </script>
 
 {#snippet projectCard(project: FeaturedProject)}
@@ -59,7 +57,7 @@
 
 	<div class="cylinder-scene">
 		<div class="cylinder" style="--cylinder-count: {count}">
-			{#each cylinderPanels as project, i (`${i}-${project.id}`)}
+			{#each projects as project, i (project.id)}
 				<div class="cylinder-panel" style="--cylinder-index: {i}">
 					{@render projectCard(project)}
 				</div>
@@ -79,9 +77,9 @@
 <style>
 	.home-projects {
 		--projects-veil: var(--page-background);
-		--cylinder-card-w: min(42vw, 7.75rem);
-		--cylinder-card-h: 14.25rem;
-		--cylinder-radius: clamp(8.75rem, 24vw, 10.5rem);
+		--cylinder-card-w: min(58vw, 10.5rem);
+		--cylinder-card-h: 16.5rem;
+		--cylinder-radius: clamp(28rem, 72vw, 44rem);
 
 		position: relative;
 		z-index: 1;
@@ -132,11 +130,10 @@
 		position: relative;
 		z-index: 1;
 		width: 100%;
-		max-width: none;
-		min-height: calc(var(--cylinder-card-h) + 6rem);
-		padding: 2rem 0 2.5rem;
-		perspective: clamp(380px, 52vw, 520px);
-		perspective-origin: 50% 50%;
+		min-height: calc(var(--cylinder-card-h) + 8rem);
+		padding: 2.5rem 0 3.5rem;
+		perspective: clamp(1000px, 120vw, 1600px);
+		perspective-origin: 50% 48%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -161,7 +158,6 @@
 		.cylinder-scene {
 			height: auto;
 			perspective: none;
-			mask-image: none;
 			overflow-x: auto;
 			justify-content: flex-start;
 			padding: 0 clamp(2rem, 4vw, 4rem) 0.5rem;
@@ -195,8 +191,7 @@
 		-webkit-transform-style: preserve-3d;
 		backface-visibility: hidden;
 		transform: rotateY(calc(var(--cylinder-index) * (360deg / var(--cylinder-count))))
-			translateZ(var(--cylinder-radius))
-			rotateY(calc(var(--cylinder-index) * (-360deg / var(--cylinder-count))));
+			translateZ(var(--cylinder-radius));
 	}
 
 	.home-project-card-link {
@@ -300,24 +295,9 @@
 
 	@media (min-width: 900px) {
 		.home-projects {
-			--cylinder-card-w: 7.35rem;
-			--cylinder-card-h: 13.75rem;
-			--cylinder-radius: 10.25rem;
-		}
-
-		.cylinder-scene {
-			perspective: 460px;
-		}
-	}
-
-	@media (min-width: 1280px) {
-		.home-projects {
-			--cylinder-card-w: 7.65rem;
-			--cylinder-radius: 10.75rem;
-		}
-
-		.cylinder-scene {
-			perspective: 500px;
+			--cylinder-card-w: 10rem;
+			--cylinder-card-h: 16rem;
+			--cylinder-radius: 42rem;
 		}
 	}
 </style>
