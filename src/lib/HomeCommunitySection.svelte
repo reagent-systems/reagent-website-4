@@ -51,12 +51,11 @@
 
 	.home-community-title {
 		margin: 0;
-		font-size: clamp(2rem, 5vw, 3rem);
+		font-size: clamp(1.5rem, 3vw, 2.1rem);
 		font-weight: 100;
-		line-height: 1.05;
 		font-family: var(--main-font);
 		text-transform: lowercase;
-		letter-spacing: -0.02em;
+		letter-spacing: -0.01em;
 	}
 
 	.home-community-title-link {
@@ -83,16 +82,12 @@
 		align-items: center;
 		justify-content: center;
 		text-decoration: none;
-		transition:
-			filter 0.25s ease,
-			transform 0.25s ease;
 	}
 
 	.home-community-social img {
 		width: clamp(4.25rem, 14vw, 6.75rem);
 		height: clamp(4.25rem, 14vw, 6.75rem);
 		object-fit: contain;
-		/* Match site body gray (#6b6b6b) from white SVG assets */
 		filter: brightness(0) saturate(100%) invert(42%) sepia(0%) saturate(0%) hue-rotate(187deg)
 			brightness(95%) contrast(89%);
 		transition:

@@ -110,12 +110,11 @@
 
 	.home-projects-title {
 		margin: 0;
-		font-size: clamp(2rem, 5vw, 3rem);
+		font-size: clamp(1.5rem, 3vw, 2.1rem);
 		font-weight: 100;
-		line-height: 1.05;
 		font-family: var(--main-font);
 		text-transform: lowercase;
-		letter-spacing: -0.02em;
+		letter-spacing: -0.01em;
 	}
 
 	.home-projects-title-link {
