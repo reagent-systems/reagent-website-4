@@ -101,9 +101,9 @@
 
 	.home-projects-header {
 		position: relative;
-		z-index: 1;
+		z-index: 2;
 		max-width: 72rem;
-		margin: 0 auto clamp(1.75rem, 3.5vw, 2.5rem);
+		margin: clamp(-4rem, -8vw, -2.75rem) auto clamp(1.75rem, 3.5vw, 2.5rem);
 		padding: 0 clamp(2rem, 4vw, 4rem);
 	}
 
