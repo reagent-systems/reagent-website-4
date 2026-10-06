@@ -6,8 +6,6 @@
 	}
 
 	let { friends = homeFriends }: Props = $props();
-
-	const trackFriends = $derived([...friends, ...friends]);
 </script>
 
 <section class="friends-strip" aria-labelledby="home-friends-heading">
@@ -15,44 +13,46 @@
 	<h2 id="home-friends-heading" class="friends-heading">friends of reagent</h2>
 
 	<div class="friends-scroll">
-		<div class="friends-track" aria-hidden="true">
-			<ul class="friends-row">
-				{#each trackFriends as friend, index (friend.id + index)}
-					<li class="friends-item">
-						{#if friend.href}
-							<a
-								class="friend-link"
-								href={friend.href}
-								rel="noopener noreferrer"
-								target="_blank"
-								aria-label={friend.name}
-							>
-								<img
-									class="friend-logo"
-									src={friend.logoSrc}
-									alt={friend.logoAlt}
-									width="160"
-									height="48"
-									loading="lazy"
-									decoding="async"
-								/>
-							</a>
-						{:else}
-							<span class="friend-logo-wrap" aria-label={friend.name}>
-								<img
-									class="friend-logo"
-									src={friend.logoSrc}
-									alt={friend.logoAlt}
-									width="160"
-									height="48"
-									loading="lazy"
-									decoding="async"
-								/>
-							</span>
-						{/if}
-					</li>
-				{/each}
-			</ul>
+		<div class="friends-track">
+			{#each [0, 1] as copy (copy)}
+				<ul class="friends-row" aria-hidden={copy === 1 ? true : undefined}>
+					{#each friends as friend (copy + friend.id)}
+						<li class="friends-item">
+							{#if friend.href}
+								<a
+									class="friend-link"
+									href={friend.href}
+									rel="noopener noreferrer"
+									target="_blank"
+									aria-label={friend.name}
+								>
+									<img
+										class="friend-logo"
+										src={friend.logoSrc}
+										alt={friend.logoAlt}
+										width="160"
+										height="48"
+										loading="lazy"
+										decoding="async"
+									/>
+								</a>
+							{:else}
+								<span class="friend-logo-wrap" aria-label={friend.name}>
+									<img
+										class="friend-logo"
+										src={friend.logoSrc}
+										alt={friend.logoAlt}
+										width="160"
+										height="48"
+										loading="lazy"
+										decoding="async"
+									/>
+								</span>
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			{/each}
 		</div>
 	</div>
 
@@ -72,6 +72,7 @@
 <style>
 	.friends-strip {
 		--friends-veil: var(--page-background);
+		--friends-marquee-gap: clamp(2.5rem, 6vw, 4.5rem);
 
 		position: relative;
 		z-index: 2;
@@ -116,21 +117,17 @@
 	.friends-scroll {
 		position: relative;
 		z-index: 1;
-		overflow-x: auto;
-		overflow-y: hidden;
-		-webkit-overflow-scrolling: touch;
-		scrollbar-width: none;
+		overflow: hidden;
+		padding-inline: 4rem;
 		mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
-	}
-
-	.friends-scroll::-webkit-scrollbar {
-		display: none;
 	}
 
 	.friends-track {
 		display: flex;
 		width: max-content;
-		animation: friends-marquee 52s linear infinite;
+		gap: var(--friends-marquee-gap);
+		will-change: transform;
+		animation: friends-marquee 48s linear infinite;
 	}
 
 	.friends-scroll:hover .friends-track {
@@ -141,14 +138,24 @@
 		.friends-track {
 			animation: none;
 		}
+
+		.friends-scroll {
+			overflow-x: auto;
+			scrollbar-width: none;
+		}
+
+		.friends-scroll::-webkit-scrollbar {
+			display: none;
+		}
 	}
 
 	.friends-row {
 		display: flex;
 		align-items: center;
-		gap: clamp(2.5rem, 6vw, 4.5rem);
+		flex: 0 0 auto;
+		gap: var(--friends-marquee-gap);
 		margin: 0;
-		padding: 0 4rem;
+		padding: 0;
 		list-style: none;
 	}
 
@@ -206,10 +213,10 @@
 
 	@keyframes friends-marquee {
 		from {
-			transform: translateX(0);
+			transform: translate3d(0, 0, 0);
 		}
 		to {
-			transform: translateX(-50%);
+			transform: translate3d(calc(-50% - var(--friends-marquee-gap) / 2), 0, 0);
 		}
 	}
 
@@ -227,8 +234,8 @@
 			padding: 0 2rem;
 		}
 
-		.friends-row {
-			padding: 0 2rem;
+		.friends-scroll {
+			padding-inline: 2rem;
 		}
 	}
 </style>
