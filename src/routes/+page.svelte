@@ -73,7 +73,7 @@
 		</div>
 	</div>
 	<HomeFriendsStrip />
-	<ResearchReleasesSection showResearchLink />
+	<ResearchReleasesSection linkTitleToResearch />
 </div>
 
 <style>

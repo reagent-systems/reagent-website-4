@@ -4,25 +4,30 @@
 
 	interface Props {
 		rows?: ResearchReleaseRow[];
-		/** When true, show a button linking to the full research page (home embed). */
-		showResearchLink?: boolean;
+		/** Home embed: section title reads "research" and links to /research. */
+		linkTitleToResearch?: boolean;
 		/** When true, show the top divider used on the research route. */
 		showTopRule?: boolean;
 	}
 
-	let { rows = researchReleases, showResearchLink = false, showTopRule = false }: Props = $props();
+	let { rows = researchReleases, linkTitleToResearch = false, showTopRule = false }: Props = $props();
+
+	const sectionTitleId = $derived(linkTitleToResearch ? 'home-research-title' : 'releases-title');
 </script>
 
 <section
 	class="research-releases"
-	class:research-releases--home={showResearchLink}
+	class:research-releases--home={linkTitleToResearch}
 	class:research-releases--ruled={showTopRule}
-	aria-labelledby="releases-title"
+	aria-labelledby={sectionTitleId}
 >
 	<header class="releases-header">
-		<h2 id="releases-title" class="research-releases-title">releases</h2>
-		{#if showResearchLink}
-			<a class="research-route-button" href="/research">research</a>
+		{#if linkTitleToResearch}
+			<h2 id={sectionTitleId} class="research-releases-title">
+				<a class="research-releases-title-link" href="/research">research</a>
+			</h2>
+		{:else}
+			<h2 id={sectionTitleId} class="research-releases-title">releases</h2>
 		{/if}
 	</header>
 	<div class="releases-scroll">
@@ -100,32 +105,15 @@
 		letter-spacing: -0.01em;
 	}
 
-	.research-route-button {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		padding: 0.65rem 1.35rem;
-		font-family: var(--main-font);
-		font-size: 1rem;
-		font-weight: 300;
-		color: #1a1a1a;
-		text-transform: lowercase;
+	.research-releases-title-link {
+		color: inherit;
 		text-decoration: none;
-		letter-spacing: 0.04em;
-		background: rgba(26, 26, 26, 0.06);
-		border: none;
-		border-radius: 999px;
-		transition:
-			background-color 0.25s ease,
-			color 0.25s ease,
-			transform 0.25s ease;
+		transition: color 0.25s ease;
 	}
 
-	.research-route-button:hover,
-	.research-route-button:focus-visible {
-		background: rgba(26, 26, 26, 0.12);
-		color: #1a1a1a;
-		transform: translateY(-1px);
+	.research-releases-title-link:hover,
+	.research-releases-title-link:focus-visible {
+		color: #6b6b6b;
 	}
 
 	.releases-scroll {
