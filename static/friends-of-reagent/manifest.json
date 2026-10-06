@@ -1,0 +1,13 @@
+{
+	"description": "Logo slots for the home page friends of reagent carousel. Replace SVG placeholders with final artwork.",
+	"slots": [
+		{ "id": "friend-01", "file": "friend-01.svg" },
+		{ "id": "friend-02", "file": "friend-02.svg" },
+		{ "id": "friend-03", "file": "friend-03.svg" },
+		{ "id": "friend-04", "file": "friend-04.svg" },
+		{ "id": "friend-05", "file": "friend-05.svg" },
+		{ "id": "friend-06", "file": "friend-06.svg" },
+		{ "id": "friend-07", "file": "friend-07.svg" },
+		{ "id": "friend-08", "file": "friend-08.svg" }
+	]
+}

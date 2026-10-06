@@ -2,7 +2,8 @@
 	import { onMount } from 'svelte';
 	import { asciiArt } from '$lib/ascii-art';
 	import PageSubnav from '$lib/PageSubnav.svelte';
-	import HomePartnersStrip from '$lib/HomePartnersStrip.svelte';
+	import HomeFriendsStrip from '$lib/HomeFriendsStrip.svelte';
+	import HomeResearchSection from '$lib/HomeResearchSection.svelte';
 
 	let rotateX = $state(0);
 	let rotateY = $state(0);
@@ -71,7 +72,8 @@
 			</div>
 		</div>
 	</div>
-	<HomePartnersStrip />
+	<HomeFriendsStrip />
+	<HomeResearchSection />
 </div>
 
 <style>
