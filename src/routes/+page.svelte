@@ -85,7 +85,7 @@
 		width: 100%;
 		min-height: 100vh;
 		background-color: var(--page-background);
-		overflow-x: clip;
+		overflow-x: visible;
 	}
 
 	/* Let the ASCII 3D transform breathe; default .container clips overflow. */

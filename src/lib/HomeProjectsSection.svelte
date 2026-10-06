@@ -77,14 +77,15 @@
 <style>
 	.home-projects {
 		--projects-veil: var(--page-background);
-		--cylinder-card-w: min(68vw, 12.5rem);
-		--cylinder-card-h: 18.5rem;
-		--cylinder-radius: clamp(24rem, 62vw, 38rem);
+		--cylinder-card-w: min(62vw, 11.25rem);
+		--cylinder-card-h: 17.25rem;
+		--cylinder-radius: clamp(13.5rem, 34vw, 16.5rem);
 
 		position: relative;
 		z-index: 1;
 		width: 100%;
 		padding: clamp(2.25rem, 5vw, 3.5rem) 0 clamp(3.5rem, 8vw, 5.5rem);
+		overflow: visible;
 		border: none;
 		background: color-mix(in srgb, var(--projects-veil) 58%, transparent);
 		backdrop-filter: blur(18px) saturate(1.08);
@@ -129,15 +130,15 @@
 		position: relative;
 		z-index: 1;
 		width: 100%;
-		min-height: calc(var(--cylinder-card-h) + 4rem);
-		padding: 1.5rem 0 2rem;
-		perspective: clamp(1100px, 140vw, 1800px);
+		max-width: none;
+		min-height: calc(var(--cylinder-card-h) + 7rem);
+		padding: 2.5rem clamp(0.5rem, 2vw, 1rem) 3rem;
+		perspective: clamp(720px, 95vw, 1100px);
 		perspective-origin: 50% 50%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		overflow: visible;
-		mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
 	}
 
 	.cylinder {
@@ -296,8 +297,9 @@
 
 	@media (min-width: 900px) {
 		.home-projects {
-			--cylinder-card-w: 12rem;
-			--cylinder-card-h: 17.75rem;
+			--cylinder-card-w: 10.75rem;
+			--cylinder-card-h: 16.75rem;
+			--cylinder-radius: 16rem;
 		}
 	}
 </style>
