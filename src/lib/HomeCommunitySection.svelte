@@ -84,7 +84,7 @@
 		justify-content: center;
 		text-decoration: none;
 		transition:
-			opacity 0.25s ease,
+			filter 0.25s ease,
 			transform 0.25s ease;
 	}
 
@@ -92,12 +92,18 @@
 		width: clamp(4.25rem, 14vw, 6.75rem);
 		height: clamp(4.25rem, 14vw, 6.75rem);
 		object-fit: contain;
-		filter: brightness(0);
+		/* Match site body gray (#6b6b6b) from white SVG assets */
+		filter: brightness(0) saturate(100%) invert(42%) sepia(0%) saturate(0%) hue-rotate(187deg)
+			brightness(95%) contrast(89%);
+		transition:
+			filter 0.25s ease,
+			transform 0.25s ease;
 	}
 
-	.home-community-social:hover,
-	.home-community-social:focus-visible {
-		opacity: 0.65;
+	.home-community-social:hover img,
+	.home-community-social:focus-visible img {
+		filter: brightness(0) saturate(100%) invert(9%) sepia(0%) saturate(0%) hue-rotate(187deg)
+			brightness(95%) contrast(89%);
 		transform: scale(1.04);
 	}
 </style>
