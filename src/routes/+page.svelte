@@ -4,6 +4,7 @@
 	import PageSubnav from '$lib/PageSubnav.svelte';
 	import HomeFriendsStrip from '$lib/HomeFriendsStrip.svelte';
 	import ResearchReleasesSection from '$lib/ResearchReleasesSection.svelte';
+	import HomeProjectsSection from '$lib/HomeProjectsSection.svelte';
 
 	let rotateX = $state(0);
 	let rotateY = $state(0);
@@ -74,6 +75,7 @@
 	</div>
 	<HomeFriendsStrip />
 	<ResearchReleasesSection linkTitleToResearch />
+	<HomeProjectsSection />
 </div>
 
 <style>
