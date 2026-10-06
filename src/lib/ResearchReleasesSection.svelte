@@ -76,14 +76,34 @@
 	}
 
 	.research-releases--home {
+		--research-veil: var(--page-background);
+
 		position: relative;
 		z-index: 1;
+		width: 100%;
+		max-width: none;
+		margin-left: 0;
+		margin-right: 0;
+		margin-bottom: 0;
+		padding: clamp(2rem, 4vw, 3rem) clamp(2rem, 4vw, 4rem) clamp(3rem, 7vw, 5rem);
+		box-sizing: border-box;
+		border: none;
+		background: color-mix(in srgb, var(--research-veil) 58%, transparent);
+		backdrop-filter: blur(18px) saturate(1.08);
+		-webkit-backdrop-filter: blur(18px) saturate(1.08);
+		box-shadow:
+			0 0 64px 32px var(--research-veil),
+			0 28px 56px 28px var(--research-veil),
+			0 -28px 56px 28px var(--research-veil);
+		isolation: isolate;
+	}
+
+	.research-releases--home .releases-header,
+	.research-releases--home .releases-scroll {
 		max-width: 72rem;
 		margin-left: auto;
 		margin-right: auto;
-		padding: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 4vw, 4rem) clamp(3rem, 7vw, 5rem);
-		margin-bottom: 0;
-		box-sizing: border-box;
+		width: 100%;
 	}
 
 	.releases-header {
