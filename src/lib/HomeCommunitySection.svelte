@@ -1,9 +1,10 @@
 <section class="home-community" aria-labelledby="home-community-title">
-	<h2 id="home-community-title" class="home-community-title">
-		<a class="home-community-title-link" href="/community">community</a>
-	</h2>
+	<div class="home-community-inner">
+		<h2 id="home-community-title" class="home-community-title">
+			<a class="home-community-title-link" href="/community">community</a>
+		</h2>
 
-	<div class="home-community-links">
+		<div class="home-community-links">
 		<a
 			href="https://x.com/Reagent_Systems"
 			target="_blank"
