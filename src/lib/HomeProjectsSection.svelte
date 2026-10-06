@@ -53,7 +53,6 @@
 		<h2 id="home-projects-title" class="home-projects-title">
 			<a class="home-projects-title-link" href="/projects">projects</a>
 		</h2>
-		<p class="home-projects-lede">open repos we ship and maintain</p>
 	</header>
 
 	<div class="cylinder-scene">
@@ -78,9 +77,9 @@
 <style>
 	.home-projects {
 		--projects-veil: var(--page-background);
-		--cylinder-card-w: min(78vw, 19rem);
-		--cylinder-card-h: 26.5rem;
-		--cylinder-radius: clamp(17rem, 44vw, 27rem);
+		--cylinder-card-w: min(68vw, 12.5rem);
+		--cylinder-card-h: 18.5rem;
+		--cylinder-radius: clamp(24rem, 62vw, 38rem);
 
 		position: relative;
 		z-index: 1;
@@ -126,28 +125,19 @@
 		color: #6b6b6b;
 	}
 
-	.home-projects-lede {
-		margin: 0.65rem 0 0;
-		font-size: clamp(1rem, 1.8vw, 1.15rem);
-		font-weight: 300;
-		color: #888;
-		font-family: var(--main-font);
-		text-transform: lowercase;
-		letter-spacing: 0.03em;
-	}
-
 	.cylinder-scene {
 		position: relative;
 		z-index: 1;
 		width: 100%;
-		height: calc(var(--cylinder-card-h) + 3rem);
-		perspective: clamp(900px, 120vw, 1400px);
-		perspective-origin: 50% 42%;
+		min-height: calc(var(--cylinder-card-h) + 4rem);
+		padding: 1.5rem 0 2rem;
+		perspective: clamp(1100px, 140vw, 1800px);
+		perspective-origin: 50% 50%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		overflow: hidden;
-		mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+		overflow: visible;
+		mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
 	}
 
 	.cylinder {
@@ -245,8 +235,8 @@
 	.home-project-body {
 		display: flex;
 		flex-direction: column;
-		gap: 0.4rem;
-		padding: 1.1rem 1.15rem 1.25rem;
+		gap: 0.25rem;
+		padding: 0.75rem 0.85rem 0.9rem;
 		flex: 0 0 auto;
 	}
 
@@ -261,7 +251,7 @@
 
 	.home-project-name {
 		margin: 0;
-		font-size: clamp(1.15rem, 2vw, 1.35rem);
+		font-size: clamp(0.95rem, 1.6vw, 1.1rem);
 		font-weight: 300;
 		line-height: 1.2;
 		color: #1a1a1a;
@@ -271,15 +261,15 @@
 
 	.home-project-tagline {
 		margin: 0;
-		font-size: clamp(0.92rem, 1.5vw, 1rem);
+		font-size: clamp(0.78rem, 1.2vw, 0.88rem);
 		font-weight: 300;
-		line-height: 1.45;
+		line-height: 1.4;
 		color: #6b6b6b;
 		font-family: var(--main-font);
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 3;
-		line-clamp: 3;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
 		overflow: hidden;
 	}
 
@@ -306,7 +296,8 @@
 
 	@media (min-width: 900px) {
 		.home-projects {
-			--cylinder-card-w: 17.5rem;
+			--cylinder-card-w: 12rem;
+			--cylinder-card-h: 17.75rem;
 		}
 	}
 </style>

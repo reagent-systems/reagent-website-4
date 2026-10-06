@@ -5,6 +5,7 @@
 	import HomeFriendsStrip from '$lib/HomeFriendsStrip.svelte';
 	import ResearchReleasesSection from '$lib/ResearchReleasesSection.svelte';
 	import HomeProjectsSection from '$lib/HomeProjectsSection.svelte';
+	import HomeCommunitySection from '$lib/HomeCommunitySection.svelte';
 
 	let rotateX = $state(0);
 	let rotateY = $state(0);
@@ -76,6 +77,7 @@
 	<HomeFriendsStrip />
 	<ResearchReleasesSection linkTitleToResearch />
 	<HomeProjectsSection />
+	<HomeCommunitySection />
 </div>
 
 <style>
