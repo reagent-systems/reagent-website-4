@@ -7,7 +7,9 @@
 
 	let { projects = featuredProjects }: Props = $props();
 
-	const count = $derived(projects.length);
+	/** Extra slots on the ring so more projects sit in the front arc at once. */
+	const cylinderPanels = $derived([...projects, ...projects.slice(0, 4)]);
+	const count = $derived(cylinderPanels.length);
 </script>
 
 {#snippet projectCard(project: FeaturedProject)}
@@ -57,7 +59,7 @@
 
 	<div class="cylinder-scene">
 		<div class="cylinder" style="--cylinder-count: {count}">
-			{#each projects as project, i (project.id)}
+			{#each cylinderPanels as project, i (`${i}-${project.id}`)}
 				<div class="cylinder-panel" style="--cylinder-index: {i}">
 					{@render projectCard(project)}
 				</div>
@@ -77,9 +79,9 @@
 <style>
 	.home-projects {
 		--projects-veil: var(--page-background);
-		--cylinder-card-w: min(62vw, 11.25rem);
-		--cylinder-card-h: 17.25rem;
-		--cylinder-radius: clamp(13.5rem, 34vw, 16.5rem);
+		--cylinder-card-w: min(42vw, 7.75rem);
+		--cylinder-card-h: 14.25rem;
+		--cylinder-radius: clamp(8.75rem, 24vw, 10.5rem);
 
 		position: relative;
 		z-index: 1;
@@ -131,9 +133,9 @@
 		z-index: 1;
 		width: 100%;
 		max-width: none;
-		min-height: calc(var(--cylinder-card-h) + 7rem);
-		padding: 2.5rem clamp(0.5rem, 2vw, 1rem) 3rem;
-		perspective: clamp(720px, 95vw, 1100px);
+		min-height: calc(var(--cylinder-card-h) + 6rem);
+		padding: 2rem 0 2.5rem;
+		perspective: clamp(380px, 52vw, 520px);
 		perspective-origin: 50% 50%;
 		display: flex;
 		align-items: center;
@@ -182,7 +184,7 @@
 		.cylinder-panel {
 			position: relative !important;
 			transform: none !important;
-			width: var(--cylinder-card-w);
+			width: min(62vw, 11rem);
 		}
 	}
 
@@ -193,7 +195,8 @@
 		-webkit-transform-style: preserve-3d;
 		backface-visibility: hidden;
 		transform: rotateY(calc(var(--cylinder-index) * (360deg / var(--cylinder-count))))
-			translateZ(var(--cylinder-radius));
+			translateZ(var(--cylinder-radius))
+			rotateY(calc(var(--cylinder-index) * (-360deg / var(--cylinder-count))));
 	}
 
 	.home-project-card-link {
@@ -297,9 +300,24 @@
 
 	@media (min-width: 900px) {
 		.home-projects {
-			--cylinder-card-w: 10.75rem;
-			--cylinder-card-h: 16.75rem;
-			--cylinder-radius: 16rem;
+			--cylinder-card-w: 7.35rem;
+			--cylinder-card-h: 13.75rem;
+			--cylinder-radius: 10.25rem;
+		}
+
+		.cylinder-scene {
+			perspective: 460px;
+		}
+	}
+
+	@media (min-width: 1280px) {
+		.home-projects {
+			--cylinder-card-w: 7.65rem;
+			--cylinder-radius: 10.75rem;
+		}
+
+		.cylinder-scene {
+			perspective: 500px;
 		}
 	}
 </style>
