@@ -104,7 +104,7 @@
 		position: relative;
 		z-index: 2;
 		max-width: 72rem;
-		margin: clamp(-2rem, -4vw, -1.25rem) auto clamp(3.25rem, 7vw, 4.75rem);
+		margin: clamp(-2rem, -4vw, -1.25rem) auto clamp(5.5rem, 11vw, 8rem);
 		padding: 0 clamp(2rem, 4vw, 4rem);
 	}
 
