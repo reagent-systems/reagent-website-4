@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { asciiArt } from '$lib/ascii-art';
 	import PageSubnav from '$lib/PageSubnav.svelte';
+	import HomePartnersStrip from '$lib/HomePartnersStrip.svelte';
 
 	let rotateX = $state(0);
 	let rotateY = $state(0);
@@ -51,21 +52,32 @@
 	});
 </script>
 
-<div class="container" class:mounted>
-	<div class="graphic-container">
-		<pre 
-			class="ascii-art" 
-			style="transform: perspective(1000px) rotateX({rotateX}deg) rotateY({rotateY}deg) scale({scale});"
-		>{asciiArt}</pre>
-	</div>
-	<div class="content-container">
-		<div class="title-container">
-			<h1 class="main-title">the</h1>
-			<h1 class="main-title">idea</h1>
-			<h1 class="main-title">factory</h1>
+<div class="home-page">
+	<div class="container home-hero" class:mounted>
+		<div class="graphic-container">
+			<pre
+				class="ascii-art"
+				style="transform: perspective(1000px) rotateX({rotateX}deg) rotateY({rotateY}deg) scale({scale});"
+			>{asciiArt}</pre>
 		</div>
-		<div class="home-subnav-wrapper">
-			<PageSubnav />
+		<div class="content-container">
+			<div class="title-container">
+				<h1 class="main-title">the</h1>
+				<h1 class="main-title">idea</h1>
+				<h1 class="main-title">factory</h1>
+			</div>
+			<div class="home-subnav-wrapper">
+				<PageSubnav />
+			</div>
 		</div>
 	</div>
+	<HomePartnersStrip />
 </div>
+
+<style>
+	.home-page {
+		width: 100%;
+		min-height: 100vh;
+		background-color: var(--page-background);
+	}
+</style>
