@@ -7,7 +7,9 @@
 
 	let { projects = featuredProjects }: Props = $props();
 
-	const count = $derived(projects.length);
+	/** Two laps on the same large ring → tighter angular spacing (~7 faces in view). */
+	const cylinderPanels = $derived([...projects, ...projects]);
+	const count = $derived(cylinderPanels.length);
 </script>
 
 {#snippet projectCard(project: FeaturedProject)}
@@ -57,7 +59,7 @@
 
 	<div class="cylinder-scene">
 		<div class="cylinder" style="--cylinder-count: {count}">
-			{#each projects as project, i (project.id)}
+			{#each cylinderPanels as project, i (`${i}-${project.id}`)}
 				<div class="cylinder-panel" style="--cylinder-index: {i}">
 					{@render projectCard(project)}
 				</div>
@@ -77,8 +79,8 @@
 <style>
 	.home-projects {
 		--projects-veil: var(--page-background);
-		--cylinder-card-w: min(58vw, 10.5rem);
-		--cylinder-card-h: 16.5rem;
+		--cylinder-card-w: min(52vw, 9.25rem);
+		--cylinder-card-h: 15.5rem;
 		--cylinder-radius: clamp(28rem, 72vw, 44rem);
 
 		position: relative;
@@ -295,8 +297,8 @@
 
 	@media (min-width: 900px) {
 		.home-projects {
-			--cylinder-card-w: 10rem;
-			--cylinder-card-h: 16rem;
+			--cylinder-card-w: 9rem;
+			--cylinder-card-h: 15.25rem;
 			--cylinder-radius: 42rem;
 		}
 	}
