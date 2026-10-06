@@ -86,7 +86,7 @@
 		position: relative;
 		z-index: 1;
 		width: 100%;
-		padding: clamp(2.25rem, 5vw, 3.5rem) 0 clamp(3.5rem, 8vw, 5.5rem);
+		padding: 0 0 clamp(3.5rem, 8vw, 5.5rem);
 		overflow: visible;
 		border: none;
 		background: color-mix(in srgb, var(--projects-veil) 58%, transparent);
