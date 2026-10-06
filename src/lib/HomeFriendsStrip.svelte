@@ -8,9 +8,8 @@
 	let { friends = homeFriends }: Props = $props();
 </script>
 
-<section class="friends-strip" aria-labelledby="home-friends-heading">
+<section class="friends-strip" aria-label="friends">
 	<div class="friends-veil" aria-hidden="true"></div>
-	<h2 id="home-friends-heading" class="friends-heading">friends of reagent</h2>
 
 	<div class="friends-scroll">
 		<div class="friends-track">

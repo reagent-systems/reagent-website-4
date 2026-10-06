@@ -85,7 +85,7 @@
 		margin-left: 0;
 		margin-right: 0;
 		margin-bottom: 0;
-		padding: clamp(2rem, 4vw, 3rem) clamp(2rem, 4vw, 4rem) clamp(4rem, 8vw, 6.25rem);
+		padding: clamp(3.25rem, 6.5vw, 5rem) clamp(2rem, 4vw, 4rem) clamp(4rem, 8vw, 6.25rem);
 		box-sizing: border-box;
 		border: none;
 		background: color-mix(in srgb, var(--research-veil) 58%, transparent);
