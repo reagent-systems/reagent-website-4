@@ -77,7 +77,7 @@
 		z-index: 2;
 		width: 100%;
 		margin-top: clamp(3rem, 11vh, 6.5rem);
-		padding: 2.75rem 0 clamp(2.5rem, 5vw, 3.5rem);
+		padding: clamp(2.25rem, 4vw, 3rem) 0 clamp(3rem, 5.5vw, 4rem);
 		border: none;
 		background: color-mix(in srgb, var(--friends-veil) 58%, transparent);
 		backdrop-filter: blur(18px) saturate(1.08);
@@ -98,19 +98,6 @@
 		backdrop-filter: blur(18px) saturate(1.08);
 		-webkit-backdrop-filter: blur(18px) saturate(1.08);
 		box-shadow: 0 -28px 56px 28px var(--friends-veil);
-	}
-
-	.friends-heading {
-		position: relative;
-		z-index: 1;
-		margin: 0 0 1.5rem;
-		padding: 0 4rem;
-		font-size: 0.95rem;
-		font-weight: 300;
-		color: #6b6b6b;
-		text-transform: lowercase;
-		letter-spacing: 0.12em;
-		font-family: var(--main-font);
 	}
 
 	.friends-scroll {
@@ -227,10 +214,6 @@
 
 		.friends-veil {
 			inset: -3rem 0 0;
-		}
-
-		.friends-heading {
-			padding: 0 2rem;
 		}
 
 		.friends-scroll {
