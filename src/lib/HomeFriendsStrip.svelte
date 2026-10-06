@@ -76,7 +76,7 @@
 		position: relative;
 		z-index: 2;
 		width: 100%;
-		margin-top: clamp(4.5rem, 14vh, 8.5rem);
+		margin-top: clamp(3rem, 11vh, 6.5rem);
 		padding: 2.75rem 0 clamp(2.5rem, 5vw, 3.5rem);
 		border: none;
 		background: transparent;
@@ -85,7 +85,7 @@
 
 	.friends-veil {
 		position: absolute;
-		inset: -4.5rem 0 0;
+		inset: -3rem 0 0;
 		pointer-events: none;
 		z-index: -1;
 		background: linear-gradient(
@@ -215,7 +215,7 @@
 
 	@media (max-width: 768px) {
 		.friends-strip {
-			margin-top: clamp(2.5rem, 10vh, 4rem);
+			margin-top: clamp(1.75rem, 8vh, 3rem);
 			padding: 2.25rem 0 clamp(3rem, 12vw, 4.5rem);
 		}
 
