@@ -75,8 +75,8 @@
 		position: relative;
 		z-index: 2;
 		width: 100%;
-		margin-top: clamp(4rem, 12vw, 8rem);
-		padding: 3rem 0 clamp(4rem, 10vw, 6rem);
+		margin-top: clamp(7rem, 22vh, 14rem);
+		padding: 3rem 0 clamp(2.5rem, 5vw, 3.5rem);
 		border: none;
 		background: color-mix(in srgb, var(--friends-veil) 58%, transparent);
 		backdrop-filter: blur(18px) saturate(1.08);
@@ -161,9 +161,9 @@
 
 	.friend-logo {
 		display: block;
-		height: clamp(1.75rem, 3vw, 2.35rem);
+		height: clamp(1.75rem, 3vw, 2.5rem);
 		width: auto;
-		max-width: clamp(7rem, 14vw, 10rem);
+		max-width: clamp(8rem, 18vw, 14rem);
 		object-fit: contain;
 		opacity: 0.88;
 		transition: opacity 0.25s ease;

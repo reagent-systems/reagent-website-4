@@ -1,27 +1,21 @@
 # Friends of reagent — logo assets
 
-Replace the placeholder files in this folder with real friend logos. The home page carousel reads paths from `src/lib/home-friends.ts`.
+Logos served on the home page carousel. Paths and links are configured in `src/lib/home-friends.ts`.
 
-## File naming
+## Current files
 
-| Slot file | Config id |
+| File | Friend |
 | --- | --- |
-| `friend-01.svg` | `friend-01` |
-| `friend-02.svg` | `friend-02` |
-| … | … |
-| `friend-08.svg` | `friend-08` |
+| `nvidia.svg` | NVIDIA |
+| `florida-poly.png` | Florida Polytechnic University |
+| `fca.webp` | Florida College of the Arts |
+| `github.png` | GitHub |
+| `nsf.svg` | National Science Foundation |
 
-You can swap in `.png` or `.webp` instead of `.svg` — update the matching `logoSrc` in `home-friends.ts`.
+Replace a file in place or add a new asset and update `homeFriends` in `src/lib/home-friends.ts`.
 
 ## Recommended specs
 
-- **Format:** SVG (preferred) or PNG with transparency
-- **Canvas:** about 320×96px (or similar wide aspect)
-- **Color:** full-color logos display on the site; placeholders are neutral gray
-- **Alt text:** set `logoAlt` and `name` in `home-friends.ts` for each friend
-- **Link:** optional `href` per entry when you want the logo to open a site
-
-## Adding or removing friends
-
-1. Add or remove logo files here.
-2. Edit the `homeFriends` array in `src/lib/home-friends.ts` (keep `id`, `logoSrc`, and metadata in sync).
+- **Format:** SVG, PNG, or WebP with transparency when possible
+- **Layout:** wide wordmarks (~320×96px or similar); display height is capped in CSS
+- **Metadata:** set `logoAlt`, `name`, and optional `href` per entry in `home-friends.ts`

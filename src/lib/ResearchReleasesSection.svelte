@@ -76,7 +76,7 @@
 		max-width: 72rem;
 		margin-left: auto;
 		margin-right: auto;
-		padding: clamp(2.5rem, 6vw, 4rem) clamp(2rem, 4vw, 4rem) clamp(3rem, 7vw, 5rem);
+		padding: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 4vw, 4rem) clamp(3rem, 7vw, 5rem);
 		margin-bottom: 0;
 		box-sizing: border-box;
 	}

@@ -72,8 +72,8 @@
 			</div>
 		</div>
 	</div>
-	<ResearchReleasesSection showResearchLink />
 	<HomeFriendsStrip />
+	<ResearchReleasesSection showResearchLink />
 </div>
 
 <style>
