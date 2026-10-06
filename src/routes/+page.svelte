@@ -3,7 +3,7 @@
 	import { asciiArt } from '$lib/ascii-art';
 	import PageSubnav from '$lib/PageSubnav.svelte';
 	import HomeFriendsStrip from '$lib/HomeFriendsStrip.svelte';
-	import HomeResearchSection from '$lib/HomeResearchSection.svelte';
+	import ResearchReleasesSection from '$lib/ResearchReleasesSection.svelte';
 
 	let rotateX = $state(0);
 	let rotateY = $state(0);
@@ -72,8 +72,8 @@
 			</div>
 		</div>
 	</div>
+	<ResearchReleasesSection showResearchLink />
 	<HomeFriendsStrip />
-	<HomeResearchSection />
 </div>
 
 <style>

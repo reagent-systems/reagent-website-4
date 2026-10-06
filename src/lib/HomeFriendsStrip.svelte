@@ -72,12 +72,11 @@
 	.friends-strip {
 		--friends-veil: var(--page-background);
 
-		position: sticky;
-		top: 0;
-		z-index: 8;
+		position: relative;
+		z-index: 2;
 		width: 100%;
-		margin-top: -2.5rem;
-		padding: 3rem 0 3.25rem;
+		margin-top: clamp(4rem, 12vw, 8rem);
+		padding: 3rem 0 clamp(4rem, 10vw, 6rem);
 		border: none;
 		background: color-mix(in srgb, var(--friends-veil) 58%, transparent);
 		backdrop-filter: blur(18px) saturate(1.08);
@@ -198,8 +197,8 @@
 
 	@media (max-width: 768px) {
 		.friends-strip {
-			margin-top: -1.5rem;
-			padding: 2.25rem 0 2.5rem;
+			margin-top: 1.5rem;
+			padding: 2.25rem 0 clamp(3rem, 12vw, 4.5rem);
 		}
 
 		.friends-heading {

@@ -2,6 +2,8 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { asciiArt } from '$lib/ascii-art-2';
 	import PageSubnav from '$lib/PageSubnav.svelte';
+	import ResearchReleasesSection from '$lib/ResearchReleasesSection.svelte';
+	import { tokenizeNums } from '$lib/research-text';
 
 	type DiagramKind = 'trilayer' | 'agent-loop' | 'call-stack' | 'train-flow';
 	type PerfKind = 'mix-strip' | 'dual-source' | 'runtime-split' | 'bench-delta';
@@ -41,15 +43,6 @@
 		};
 	}
 
-	interface ReleaseRow {
-		name: string;
-		type: string;
-		details: string;
-		date: string;
-		size: string;
-		url: string;
-	}
-
 	function langMix(bytes: Record<string, number>): MixSlice[] {
 		const total = Object.values(bytes).reduce((a, b) => a + b, 0);
 		const tones = [0.92, 0.72, 0.55, 0.4, 0.28, 0.18];
@@ -60,27 +53,6 @@
 				tone: tones[i] ?? 0.15
 			}))
 			.sort((a, b) => b.value - a.value);
-	}
-
-	type TextPart = { kind: 'text' | 'num'; value: string };
-
-	/** Split prose so numbers and % (and close suffixes) use the mono face. */
-	function tokenizeNums(text: string): TextPart[] {
-		const parts: TextPart[] = [];
-		const re = /(\+?\d+(?:[.,]\d+)?(?:%|pp|[BbKk]|gb|mb)?)/g;
-		let last = 0;
-		let match: RegExpExecArray | null;
-		while ((match = re.exec(text)) !== null) {
-			if (match.index > last) {
-				parts.push({ kind: 'text', value: text.slice(last, match.index) });
-			}
-			parts.push({ kind: 'num', value: match[0] });
-			last = match.index + match[0].length;
-		}
-		if (last < text.length) {
-			parts.push({ kind: 'text', value: text.slice(last) });
-		}
-		return parts.length ? parts : [{ kind: 'text', value: text }];
 	}
 
 	const architectures: ResearchItem[] = [
@@ -204,104 +176,6 @@
 			}
 		}
 	];
-
-	/** Curated research releases, table shaped like nousresearch.com/releases */
-	const releases: ReleaseRow[] = [
-		{
-			name: 'phone-agent',
-			type: 'agent',
-			details: 'typescript agent stack for phone-centric workflows with docker-friendly deploy paths.',
-			date: '04/03/26',
-			size: '',
-			url: 'https://github.com/reagent-systems/phone-agent'
-		},
-		{
-			name: 'dandelion',
-			type: 'research',
-			details: 'cuda / python / common lisp workshop for neuro-symbolic prototypes.',
-			date: '04/02/26',
-			size: '',
-			url: 'https://github.com/reagent-systems/dandelion'
-		},
-		{
-			name: 'bently coder 7b',
-			type: 'model',
-			details: 'qlora coding model on qwen2.5-coder-7b-instruct; bigcodebench hard 92%, humaneval 86%.',
-			date: '03/01/26',
-			size: '7B',
-			url: 'https://huggingface.co/Bentlybro/bently-coder-7b'
-		},
-		{
-			name: 'simple-agent-protocol',
-			type: 'framework',
-			details: 'websocket hub coordinating simple-agent-websocket instances and task delegation.',
-			date: '05/31/25',
-			size: '',
-			url: 'https://github.com/reagent-systems/Simple-Agent-Protocol'
-		},
-		{
-			name: 'simple-agent-websocket',
-			type: 'framework',
-			details: 'thin websocket wrapper around simple-agent-core for real-time web sessions.',
-			date: '05/28/25',
-			size: '',
-			url: 'https://github.com/reagent-systems/Simple-Agent-Websocket'
-		},
-		{
-			name: 'simple-agent-tools',
-			type: 'tools',
-			details: 'remote command catalog loaded on demand by simple-agent-core.',
-			date: '05/23/25',
-			size: '',
-			url: 'https://github.com/reagent-systems/Simple-Agent-Tools'
-		},
-		{
-			name: 'simple-agent-core',
-			type: 'framework',
-			details: 'minimalist python agent loop with dynamic tools, loop detection, and sandboxing.',
-			date: '04/16/25',
-			size: '',
-			url: 'https://github.com/reagent-systems/Simple-Agent-Core'
-		},
-		{
-			name: 'dither',
-			type: 'tool',
-			details: 'desktop dither dock: floyd-steinberg, ordered, atkinson, and shape dithering.',
-			date: '07/08/25',
-			size: '',
-			url: 'https://github.com/reagent-systems/dither'
-		},
-		{
-			name: 'orc',
-			type: 'agent',
-			details: 'autonomous multi-agent system on google adk with shared-workspace coordination.',
-			date: '06/28/25',
-			size: '',
-			url: 'https://github.com/reagent-systems/orc'
-		},
-		{
-			name: 'tetra',
-			type: 'agent',
-			details: 'android automation agent using screen analysis and accessibility actions.',
-			date: '06/23/25',
-			size: '',
-			url: 'https://github.com/reagent-systems/tetra'
-		},
-		{
-			name: 'spark',
-			type: 'model',
-			details: 'on-device android llm chat companion with optional local api server.',
-			date: '06/24/25',
-			size: '',
-			url: 'https://github.com/reagent-systems/Spark'
-		}
-	].sort((a, b) => {
-		const parse = (d: string) => {
-			const [mm, dd, yy] = d.split('/').map(Number);
-			return new Date(2000 + yy, mm - 1, dd).getTime();
-		};
-		return parse(b.date) - parse(a.date);
-	});
 
 	let mounted = $state(false);
 	let selectedId = $state(architectures[0].id);
@@ -685,41 +559,7 @@
 			{/key}
 		</section>
 
-		<section class="research-releases" aria-labelledby="releases-title">
-			<h2 id="releases-title" class="research-releases-title">releases</h2>
-			<div class="releases-scroll">
-				<table class="releases-table">
-					<thead>
-						<tr>
-							<th scope="col" class="col-idx"></th>
-							<th scope="col">project name</th>
-							<th scope="col">type</th>
-							<th scope="col">details</th>
-							<th scope="col">release date</th>
-							<th scope="col">size</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each releases as row, i}
-							<tr>
-								<td class="col-idx"><span class="research-num">{i}</span></td>
-								<td class="col-name">
-									<a href={row.url} target="_blank" rel="noopener noreferrer"
-										>{@render numText(row.name)}</a
-									>
-								</td>
-								<td class="col-type">{row.type}</td>
-								<td class="col-details">{@render numText(row.details)}</td>
-								<td class="col-date"><span class="research-num">{row.date}</span></td>
-								<td class="col-size"
-									>{#if row.size}<span class="research-num">{row.size}</span>{/if}</td
-								>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			</div>
-		</section>
+		<ResearchReleasesSection showTopRule />
 
 		<PageSubnav />
 	</div>
@@ -1226,116 +1066,6 @@
 		font-size: 0.8rem;
 		color: #888;
 		text-transform: lowercase;
-	}
-
-	/* Releases table */
-	.research-releases {
-		border-top: 1px solid #e8e8e8;
-		padding-top: clamp(2rem, 4vw, 3rem);
-		margin-bottom: clamp(2.5rem, 5vw, 4rem);
-		width: 100%;
-	}
-
-	.research-releases-title {
-		font-size: clamp(1.5rem, 3vw, 2.1rem);
-		font-weight: 100;
-		color: #1a1a1a;
-		text-transform: lowercase;
-		margin: 0 0 1.5rem 0;
-		font-family: var(--main-font);
-		letter-spacing: -0.01em;
-	}
-
-	.releases-scroll {
-		width: 100%;
-		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
-	}
-
-	.releases-table {
-		width: 100%;
-		border-collapse: collapse;
-		min-width: 720px;
-		font-family: var(--main-font);
-	}
-
-	.releases-table th {
-		text-align: left;
-		font-weight: 300;
-		font-size: 0.8rem;
-		color: #888;
-		text-transform: lowercase;
-		letter-spacing: 0.04em;
-		padding: 0.65rem 0.75rem 0.85rem 0;
-		border-bottom: 1px solid #e8e8e8;
-		white-space: nowrap;
-	}
-
-	.releases-table td {
-		padding: 1rem 0.75rem 1rem 0;
-		border-bottom: 1px solid #f0f0f0;
-		vertical-align: top;
-		font-weight: 300;
-		font-size: clamp(0.95rem, 1.4vw, 1.05rem);
-		color: #6b6b6b;
-	}
-
-	.releases-table tr:hover td {
-		background: rgba(255, 255, 255, 0.55);
-	}
-
-	.col-idx {
-		width: 2.5rem;
-		color: #b0b0b0 !important;
-		font-family: var(--ascii-font);
-		font-size: 0.85rem !important;
-	}
-
-	.col-name {
-		min-width: 10rem;
-	}
-
-	.col-name a {
-		color: #1a1a1a;
-		text-decoration: none;
-		text-transform: lowercase;
-		transition: color 0.3s ease;
-	}
-
-	.col-name a:hover {
-		color: #6b6b6b;
-	}
-
-	.col-type {
-		text-transform: uppercase;
-		font-family: var(--ascii-font);
-		font-weight: 100;
-		font-size: 0.75rem !important;
-		letter-spacing: 0.06em;
-		color: #888 !important;
-		white-space: nowrap;
-		width: 6.5rem;
-	}
-
-	.col-details {
-		max-width: 28rem;
-		line-height: 1.45;
-	}
-
-	.col-date {
-		font-family: var(--ascii-font);
-		font-size: 0.85rem !important;
-		white-space: nowrap;
-		width: 5.5rem;
-		color: #888 !important;
-	}
-
-	.col-size {
-		font-family: var(--ascii-font);
-		font-size: 0.85rem !important;
-		white-space: nowrap;
-		width: 3.5rem;
-		color: #888 !important;
 	}
 
 	@keyframes research-detail-in {
