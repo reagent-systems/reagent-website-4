@@ -11,7 +11,7 @@
 			class="home-community-social"
 			aria-label="x"
 		>
-			<img src="/social-icons/x_logo.svg" alt="" width="48" height="48" />
+			<img src="/social-icons/x_logo.svg" alt="" width="96" height="96" />
 		</a>
 		<a
 			href="https://discord.reagent-systems.com/"
@@ -20,7 +20,7 @@
 			class="home-community-social"
 			aria-label="discord"
 		>
-			<img src="/social-icons/Discord-Symbol-White.svg" alt="" width="48" height="48" />
+			<img src="/social-icons/Discord-Symbol-White.svg" alt="" width="96" height="96" />
 		</a>
 	</div>
 </section>
@@ -75,33 +75,29 @@
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: center;
-		gap: clamp(1.25rem, 3vw, 2rem);
+		gap: clamp(2rem, 5vw, 3.5rem);
 	}
 
 	.home-community-social {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: clamp(5.5rem, 14vw, 7.5rem);
-		height: clamp(5.5rem, 14vw, 7.5rem);
-		border-radius: 50%;
-		background-color: #6b6b6b;
 		text-decoration: none;
 		transition:
-			background-color 0.25s ease,
+			opacity 0.25s ease,
 			transform 0.25s ease;
 	}
 
 	.home-community-social img {
-		width: clamp(2.25rem, 6vw, 3rem);
-		height: clamp(2.25rem, 6vw, 3rem);
+		width: clamp(4.25rem, 14vw, 6.75rem);
+		height: clamp(4.25rem, 14vw, 6.75rem);
 		object-fit: contain;
-		filter: brightness(0) invert(1);
+		filter: brightness(0);
 	}
 
 	.home-community-social:hover,
 	.home-community-social:focus-visible {
-		background-color: #1a1a1a;
-		transform: scale(1.06);
+		opacity: 0.65;
+		transform: scale(1.04);
 	}
 </style>
