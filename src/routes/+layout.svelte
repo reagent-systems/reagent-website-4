@@ -9,7 +9,6 @@
 
 	let { children } = $props();
 	const currentYear = new Date().getFullYear();
-	const showFooter = $derived($page.url.pathname !== '/');
 	let transitioning = $state(false);
 
 	onNavigate(() => {

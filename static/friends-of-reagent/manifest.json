@@ -1,0 +1,10 @@
+{
+	"description": "Logo assets for the home page friends of reagent carousel.",
+	"slots": [
+		{ "id": "nvidia", "file": "nvidia.svg" },
+		{ "id": "florida-poly", "file": "florida-poly.png" },
+		{ "id": "fca", "file": "fca.webp" },
+		{ "id": "github", "file": "github.png" },
+		{ "id": "nsf", "file": "nsf.svg" }
+	]
+}

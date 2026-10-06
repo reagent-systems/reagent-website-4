@@ -2,6 +2,11 @@
 	import { onMount } from 'svelte';
 	import { asciiArt } from '$lib/ascii-art';
 	import PageSubnav from '$lib/PageSubnav.svelte';
+	import HomeFriendsStrip from '$lib/HomeFriendsStrip.svelte';
+	import ResearchReleasesSection from '$lib/ResearchReleasesSection.svelte';
+	import HomeProjectsSection from '$lib/HomeProjectsSection.svelte';
+	import HomeCommunitySection from '$lib/HomeCommunitySection.svelte';
+	import HomeMissionSection from '$lib/HomeMissionSection.svelte';
 
 	let rotateX = $state(0);
 	let rotateY = $state(0);
@@ -51,21 +56,54 @@
 	});
 </script>
 
-<div class="container" class:mounted>
-	<div class="graphic-container">
-		<pre 
-			class="ascii-art" 
-			style="transform: perspective(1000px) rotateX({rotateX}deg) rotateY({rotateY}deg) scale({scale});"
-		>{asciiArt}</pre>
-	</div>
-	<div class="content-container">
-		<div class="title-container">
-			<h1 class="main-title">the</h1>
-			<h1 class="main-title">idea</h1>
-			<h1 class="main-title">factory</h1>
+<div class="home-page">
+	<div class="container home-hero" class:mounted>
+		<div class="graphic-container">
+			<pre
+				class="ascii-art"
+				style="transform: perspective(1000px) rotateX({rotateX}deg) rotateY({rotateY}deg) scale({scale});"
+			>{asciiArt}</pre>
 		</div>
-		<div class="home-subnav-wrapper">
-			<PageSubnav />
+		<div class="content-container">
+			<div class="title-container">
+				<h1 class="main-title">the</h1>
+				<h1 class="main-title">idea</h1>
+				<h1 class="main-title">factory</h1>
+			</div>
+			<div class="home-subnav-wrapper">
+				<PageSubnav />
+			</div>
 		</div>
 	</div>
+	<HomeFriendsStrip />
+	<ResearchReleasesSection linkTitleToResearch />
+	<HomeProjectsSection />
+	<HomeCommunitySection />
+	<HomeMissionSection />
 </div>
+
+<style>
+	.home-page {
+		width: 100%;
+		min-height: 100vh;
+		background-color: var(--page-background);
+		overflow-x: visible;
+	}
+
+	/* Let the ASCII 3D transform breathe; default .container clips overflow. */
+	.home-page :global(.home-hero.container) {
+		min-height: 100vh;
+		height: auto;
+		overflow: visible;
+		padding-bottom: clamp(2rem, 5vh, 4rem);
+	}
+
+	.home-page :global(.home-hero .graphic-container) {
+		overflow: visible;
+	}
+
+	.home-page :global(.home-hero .ascii-art) {
+		contain: layout style;
+		transform-origin: center center;
+	}
+</style>
