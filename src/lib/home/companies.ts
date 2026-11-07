@@ -1,3 +1,6 @@
+import { capitalArt } from './capital-art';
+import { defenseArt } from './defense-art';
+import { logisticsArt } from './logistics-art';
 import { matterArt } from './matter-art';
 
 export interface Company {
@@ -32,6 +35,7 @@ export const COMPANIES: Company[] = [
 		line: 'technology that protects.',
 		email: 'defense@reagent-systems.com',
 		logo: '/company-logos/defense.svg',
+		art: defenseArt,
 		slogan: ['for', 'new', 'swords']
 	},
 	{
@@ -41,6 +45,7 @@ export const COMPANIES: Company[] = [
 		line: 'moving what we make.',
 		email: 'logistics@reagent-systems.com',
 		logo: '/company-logos/logistics.svg',
+		art: logisticsArt,
 		slogan: ['easy', 'supply', 'chains']
 	},
 	{
@@ -50,6 +55,7 @@ export const COMPANIES: Company[] = [
 		line: 'funding the earliest stage.',
 		email: 'capital@reagent-systems.com',
 		logo: '/company-logos/capital.svg',
+		art: capitalArt,
 		slogan: ['funds', 'for', 'excellence']
 	},
 	{
