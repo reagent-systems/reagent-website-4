@@ -159,7 +159,6 @@
 	onMount(() => {
 		if (!svgEl || !panelEl) return;
 		const svg = svgEl;
-		const panel = panelEl;
 		const ns = 'http://www.w3.org/2000/svg';
 
 		type Faces = { g: SVGGElement; top: SVGPolygonElement; px: SVGPolygonElement; py: SVGPolygonElement };
@@ -187,14 +186,14 @@
 		let ph = 0;
 
 		function resize() {
-			const r = panel.getBoundingClientRect();
+			const r = svg.getBoundingClientRect();
 			pw = r.width;
 			ph = r.height;
 			svg.setAttribute('viewBox', `0 0 ${pw} ${ph}`);
 		}
 		resize();
 		const ro = new ResizeObserver(resize);
-		ro.observe(panel);
+		ro.observe(svg);
 
 		const smooth = (t: number) => t * t * (3 - 2 * t);
 
@@ -311,12 +310,25 @@
 
 	/* Phones: a solid lower half; text scrolls in the top half and passes behind it. */
 	@media (max-width: 768px) {
+		/* Sized to the tallest the screen gets, so nothing shows beneath the
+		   panel when the browser bar slides away. */
+		.stage {
+			height: 100lvh;
+			margin-bottom: -100lvh;
+		}
+
 		.panel {
-			top: auto;
+			top: 50vh;
+			top: 50svh;
 			bottom: 0;
 			width: 100%;
-			height: 50%;
+			height: auto;
 			background: var(--page-background);
+		}
+
+		.iso {
+			height: 50vh;
+			height: 50svh;
 		}
 
 		.panel::before {

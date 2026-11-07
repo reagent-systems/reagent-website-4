@@ -4,24 +4,23 @@
 
 	type Statement = { title?: string; body: string; link?: { href: string; label: string } };
 
-	// Founder's wording, trimmed only. Mission first, then how, then why.
+	// Founder's own phrasing, made slightly more formal. Mission first, then how, then why.
 	const statements: Statement[] = [
 		{
 			title: 'build what builders need.',
-			body: "we founded a network out of necessity. there are unknown unknowns in any entrepreneurial career, but that shouldn't stop you from achieving success. so we gathered the resources, the knowledge, and the capital in one place to help any early stage founder succeed. we've been helped where you are now, and helping founders is our favorite spot to be."
+			body: "we founded a network out of necessity. there are unknown unknowns in any entrepreneurial career. but that shouldn't stop you from achieving success. so we gathered the resources, the knowledge, and the capital in one place to help any early stage founder succeed. we've been helped where you are now, and helping founders is our favorite place to be."
 		},
 		{
-			body: "first, we get the founder on a call. we want to hear what they're working on and what blockers they have. through a questionnaire, we estimate the true technology readiness level or manufacturing readiness level of the company. in doing so, we identify the constraints they're facing or will face, and work in a partnership capacity towards solutions. from there, we build companies up to a stage almost assuredly ready for a capital raise, and connect them to our investor network."
+			body: 'first, we talk with the founder. we want to hear what project they are working on and what blockers they have. through a questionnaire, we estimate the true technology readiness level or manufacturing readiness level of that company. in doing so, we identify the constraints they will be facing or are currently facing, and work in a partnership capacity towards solutions to these constraints. from there, we build up companies to a stage almost assuredly ready to reach a capital raise, and we connect them to our investor network.'
 		},
 		{
-			body: "for the work we do beyond introductions, whether engineering, management, marketing, development, or administrative, terms are worked out as to our consultancy. if we're doing the work, we get paid for it. we don't take any capital, any equity, or any profit share, and we choose not to take a percentage of any introduction, because to us it stifles the forward progress of a company."
+			body: 'where we have to do the work to get a company to that stage, outside of any introductions where others are doing the work, terms are worked out as to our consultancy. we don\'t take any capital, we don\'t take any equity, and we don\'t take any profit share. beyond the engineering, management, marketing, development, or administrative roles we fill, we take nothing. if there is work that we are doing, we get paid for it. but we choose not to take a percentage of any introduction, because to us it stifles the forward progress of a company.'
 		},
 		{
-			body: "we do this because we've been where they are now. we know what it's like to tunnel vision and not realize the mistakes we may be making. getting to a point where the market agrees with you is a trial for anyone, and the most invaluable thing is a network of founders that reach out and assist. we want to see people succeed.",
-			link: { href: '/community', label: 'meet the community' }
+			body: "why do we do this? because we've been where they are now. we know what it's like to tunnel vision and not realize the mistakes we may be making. we know that while it is a trial for us and anyone else to get to a point where the market agrees with them, the most invaluable thing is having a network of founders that reach out and assist. we want to see people succeed."
 		},
 		{
-			body: "we want to see our defense industrial base and supply chain secured for decades to come. we want to be the modern equivalent of bell labs, and pay people to pursue their dreams and innovations. if the only thing stopping anybody from the next breakthrough is a lack of our assistance, then by all means, we are going to assist. we pay it forward."
+			body: 'we want to see our defense industrial base and its supply chain secured for decades to come. we want to be the modern equivalent of bell labs. we want to see innovation, and to pay people to pursue their dreams and their innovations. if the only thing stopping anybody from achieving the next breakthrough, the next innovation, the next frontier, is a lack of our assistance, then by all means, we are going to assist. we pay it forward.'
 		}
 	];
 
@@ -691,6 +690,12 @@
 			min-height: 75vh;
 			min-height: 75svh;
 			padding: 0 1.5rem;
+		}
+		.quote blockquote {
+			max-width: none;
+		}
+		.quote p {
+			font-size: 1.45rem;
 		}
 	}
 </style>

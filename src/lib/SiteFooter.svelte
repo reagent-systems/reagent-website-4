@@ -1,6 +1,6 @@
 <script lang="ts">
-	// Keep multi-word names on one line; break only between places.
-	const list = (items: string[]) => items.map((n) => n.replace(/ /g, '\u00a0')).join('  ·  ');
+	// Keep multi-word names on one line, and keep each dot with the name before it.
+	const list = (items: string[]) => items.map((n) => n.replace(/ /g, '\u00a0')).join('\u00a0·  ');
 
 	import { COMPANIES } from '$lib/home/companies';
 
