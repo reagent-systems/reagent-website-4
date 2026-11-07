@@ -91,7 +91,7 @@
 	const examine: Scene = {
 		boxes: scatter.boxes,
 		float: scatter.float,
-		lens: { R: 1.3, z: 4.1, cx: -0.6, cy: -0.6, roam: 1.5 }
+		lens: { R: 1.3, z: 2.3, cx: -0.6, cy: -0.6, roam: 1.5 }
 	};
 
 
@@ -805,54 +805,71 @@
 		}
 
 		// A magnifying glass: a round rim with glass in it, and a handle.
+		// How far the glass turns from lying flat toward facing the screen (0 to 1).
+		const LENS_TILT = 0.55;
+
 		function drawLens(R: number, at: { x: number; y: number; z: number }, t: number) {
 			const N = 64;
 			const rim = 0.16;
-			const ring = (r: number, z: number) =>
-				Array.from({ length: N }, (_, i) => {
-					const a = (i / N) * Math.PI * 2;
-					return P(at.x + Math.cos(a) * r, at.y + Math.sin(a) * r, z);
-				});
+			// The ring's plane: its normal leans from straight up toward the viewer.
+			const norm = (v: number[]) => {
+				const l = Math.hypot(v[0], v[1], v[2]);
+				return v.map((c) => c / l);
+			};
+			const view = norm([1, 1, 1]);
+			const n = norm([0, 0, 1].map((c, i) => c * (1 - LENS_TILT) + view[i] * LENS_TILT));
+			// First axis: +x flattened onto the plane, so the handle still points right.
+			const dx = 1 - n[0] * n[0];
+			const A = norm([dx, -n[0] * n[1], -n[0] * n[2]]);
+			const B = [n[1] * A[2] - n[2] * A[1], n[2] * A[0] - n[0] * A[2], n[0] * A[1] - n[1] * A[0]];
+			const pt = (a: number, r: number, off: number) =>
+				P(
+					at.x + (Math.cos(a) * A[0] + Math.sin(a) * B[0]) * r + n[0] * off,
+					at.y + (Math.cos(a) * A[1] + Math.sin(a) * B[1]) * r + n[1] * off,
+					at.z + (Math.cos(a) * A[2] + Math.sin(a) * B[2]) * r + n[2] * off
+				);
+			const ring = (r: number, off: number) =>
+				Array.from({ length: N }, (_, i) => pt((i / N) * Math.PI * 2, r, off));
 
 			// Outer side of the rim, where it faces the viewer.
 			for (let i = 0; i < N; i++) {
 				const a0 = (i / N) * Math.PI * 2;
 				const a1 = ((i + 1) / N) * Math.PI * 2;
 				const am = (a0 + a1) / 2;
-				if (Math.cos(am) + Math.sin(am) <= 0) continue;
+				const facing =
+					(Math.cos(am) * A[0] + Math.sin(am) * B[0]) +
+					(Math.cos(am) * A[1] + Math.sin(am) * B[1]) +
+					(Math.cos(am) * A[2] + Math.sin(am) * B[2]);
+				if (facing <= 0) continue;
 				const v = Math.round(52 + 30 * Math.max(0, Math.cos(am)));
 				const col = `rgb(${v},${v},${v})`;
-				shape(
-					closed([
-						P(at.x + Math.cos(a0) * R, at.y + Math.sin(a0) * R, at.z),
-						P(at.x + Math.cos(a1) * R, at.y + Math.sin(a1) * R, at.z),
-						P(at.x + Math.cos(a1) * R, at.y + Math.sin(a1) * R, at.z + rim),
-						P(at.x + Math.cos(a0) * R, at.y + Math.sin(a0) * R, at.z + rim)
-					]),
-					{ fill: col, stroke: col, strokeWidth: 0.5 }
-				);
+				shape(closed([pt(a0, R, 0), pt(a1, R, 0), pt(a1, R, rim), pt(a0, R, rim)]), {
+					fill: col,
+					stroke: col,
+					strokeWidth: 0.5
+				});
 			}
 
 			// The glass, with a slow glint crossing it.
-			shape(closed(ring(R - 0.12, at.z + rim * 0.5)), { fill: 'url(#lens-glass)' });
+			shape(closed(ring(R - 0.12, rim * 0.5)), { fill: 'url(#lens-glass)' });
 			const g = (t * 0.35) % 1;
 			const ga = Math.PI * (0.9 + g * 0.8);
-			const glint = Array.from({ length: 10 }, (_, i) => {
-				const a = ga + (i / 9) * 0.7;
-				return P(at.x + Math.cos(a) * (R - 0.32), at.y + Math.sin(a) * (R - 0.32), at.z + rim * 0.5);
-			});
+			const glint = Array.from({ length: 10 }, (_, i) => pt(ga + (i / 9) * 0.7, R - 0.32, rim * 0.5));
 			shape(open(glint), { stroke: '#ffffff', strokeOpacity: 0.9, strokeWidth: 2 });
 
 			// Top of the rim.
-			shape(`${closed(ring(R, at.z + rim))} ${closed(ring(R - 0.12, at.z + rim))}`, {
+			shape(`${closed(ring(R, rim))} ${closed(ring(R - 0.12, rim))}`, {
 				fill: '#3a3a3a',
 				stroke: '#1a1a1a',
 				evenodd: true
 			});
 
-			// Handle, reaching toward the viewer.
+			// Handle, reaching out from the rim's right edge.
+			const hx = at.x + A[0] * R;
+			const hy = at.y + A[1] * R;
+			const hz = at.z + A[2] * R;
 			drawBox(
-				{ x: at.x + R - 0.05, y: at.y - 0.13, z: at.z - 0.05, w: 1.7, d: 0.26, h: 0.24, win: 0, tone: 0.85, round: 0 },
+				{ x: hx - 0.05, y: hy - 0.13, z: hz - 0.05, w: 1.7, d: 0.26, h: 0.24, win: 0, tone: 0.85, round: 0 },
 				0.85,
 				-1,
 				t
