@@ -38,6 +38,8 @@
 		portal?: { zc: number; R: number; ring: number; depth: number };
 		/** Set for the examination scene: a magnifying glass hovering over it. */
 		lens?: { R: number; z: number; cx: number; cy: number; roam: number };
+		/** Set for the vault scene: a round dial on the front of the given box. */
+		dial?: { box: number };
 	};
 
 	const K = 24;
@@ -80,65 +82,59 @@
 		float: 0.05
 	};
 
-	// First, we talk with the founder and examine the company: a magnifying glass
-	// hovering over a small company, moving slowly across it.
+	// First, we talk with the founder and examine the company: the stack from the
+	// opening pulls apart into an exploded view, and a magnifying glass looks it over.
 	const examine: Scene = {
 		boxes: pad(
-			[
-				[-3.2, -2.6, 0, 6.2, 5, 0.12],
-				[-2.5, -1.9, 0.12, 2.3, 1.9, 1.6, 1],
-				[0.2, -2.1, 0.12, 1, 1, 2.7, 1],
-				[0.4, 0.4, 0.12, 1.4, 1.4, 1.1, 0, 0, 1],
-				[-2.2, 0.6, 0.12, 1, 0.9, 0.7],
-				[-0.9, 0.9, 0.12, 0.7, 0.7, 0.45, 0, 0.85],
-				[1.9, -0.9, 0.12, 0.6, 0.6, 0.6, 0, 0, 1]
-			],
-			[0, 0, 0.5]
+			Array.from({ length: 16 }, (_, i) => {
+				const layer = Math.floor(i / 4);
+				const k = i % 4;
+				return cube(-1.5 + (k % 2) * 2, -1.5 + Math.floor(k / 2) * 2, layer * 1.4, 1, 0, i === 13 ? 0.85 : 0);
+			})
 		),
-		// Room above the company for the glass.
-		bounds: [[-2.4, -2.4, 0, 4.6, 4.2, 4.6]],
-		lens: { R: 1.15, z: 3.7, cx: -0.4, cy: -0.5, roam: 1.15 }
+		bounds: [[-2, -2, 0, 4, 4, 7.1]],
+		lens: { R: 1.3, z: 6.1, cx: -0.4, cy: -0.4, roam: 0.9 }
 	};
 
-
-	// From there, the raise: a bank, with stacks of coins out front and one more
-	// coin landing on the pile.
-	const coin = (x: number, y: number, z: number, tone = 0.15): Tuple => [x, y, z, 0.85, 0.85, 0.13, 0, tone, 1];
-	const bank: Scene = {
+	// From there, the raise: a vault with its dial turning, gold bars beside it,
+	// and coins stacking up out front.
+	const coin = (x: number, y: number, z: number, tone = 0.15): Tuple => [x, y, z, 0.8, 0.8, 0.13, 0, tone, 1];
+	const bar = (x: number, y: number, z: number): Tuple => [x, y, z, 1.05, 0.5, 0.3, 0, 0.3];
+	const vault: Scene = {
 		boxes: pad(
 			[
-				[-2.7, -2.3, 0, 5.4, 4.2, 0.2],
-				[-2.4, -2.0, 0.2, 4.8, 3.6, 0.2],
-				[-2.0, -1.7, 0.4, 4.0, 1.6, 2.1],
-				[-1.95, 0.45, 0.4, 0.52, 0.52, 2.1, 0, 0, 1],
-				[-0.9, 0.45, 0.4, 0.52, 0.52, 2.1, 0, 0, 1],
-				[0.15, 0.45, 0.4, 0.52, 0.52, 2.1, 0, 0, 1],
-				[1.2, 0.45, 0.4, 0.52, 0.52, 2.1, 0, 0, 1],
-				[-2.3, -1.9, 2.5, 4.6, 3.1, 0.32, 0, 0.85],
-				[-1.9, -1.6, 2.82, 3.8, 2.5, 0.24],
-				[-1.2, -1.15, 3.06, 2.4, 1.6, 0.2],
-				coin(2.9, 0.4, 0),
-				coin(2.9, 0.4, 0.13, 0.85),
-				coin(2.9, 0.4, 0.26),
-				coin(2.9, 0.4, 0.39, 0.85),
-				coin(2.9, 0.4, 0.52),
-				coin(3.15, 1.6, 0, 0.85),
-				coin(3.15, 1.6, 0.13),
-				coin(3.15, 1.6, 0.26, 0.85),
-				coin(1.95, 2.35, 0),
-				coin(1.95, 2.35, 0.13, 0.85)
+				[-3.1, -2.7, 0, 6.4, 5.3, 0.12],
+				[-2.5, -2.1, 0.12, 2.6, 2.3, 2.8, 0, 0.85],
+				bar(0.75, -1.5, 0.12),
+				bar(0.75, -0.9, 0.12),
+				bar(0.75, -0.3, 0.12),
+				bar(0.75, -1.2, 0.42),
+				bar(0.75, -0.6, 0.42),
+				bar(0.75, -0.9, 0.72),
+				coin(-1.6, 1.0, 0.12),
+				coin(-1.6, 1.0, 0.25, 0.85),
+				coin(-1.6, 1.0, 0.38),
+				coin(-1.6, 1.0, 0.51, 0.85),
+				coin(-0.5, 1.5, 0.12, 0.85),
+				coin(-0.5, 1.5, 0.25),
+				coin(-0.5, 1.5, 0.38, 0.85),
+				coin(0.8, 1.1, 0.12),
+				coin(0.8, 1.1, 0.25, 0.85)
 			],
 			[0, 0, 1]
 		),
+		dial: { box: 1 },
 		actors: (t) => {
-			// A coin drops onto the front stack, then the cycle repeats.
+			// A coin drops onto the shortest stack, then the cycle repeats.
 			const f = (t * 0.55) % 1;
 			const fall = Math.min(1, f / 0.55);
-			const z = 0.39 + 1.5 * (1 - fall * fall);
+			const z = 0.38 + 1.4 * (1 - fall * fall);
 			const s = f > 0.85 ? 1 - (f - 0.85) / 0.15 : 1;
-			return [[3.15 + (0.85 - 0.85 * s) / 2, 1.6 + (0.85 - 0.85 * s) / 2, z, 0.85 * s, 0.85 * s, 0.13, 0, 0.15, 1]];
+			const off = (0.8 - 0.8 * s) / 2;
+			return [[0.8 + off, 1.1 + off, z, 0.8 * s, 0.8 * s, 0.13, 0, 0.15, 1]];
 		}
 	};
+
 
 	// Why: steps, and a small block climbing them, one after another.
 	const stepTop = (i: number) => 0.55 * (i + 1);
@@ -219,7 +215,7 @@
 				scatter,
 				gathered, // mission
 				examine, // first, we talk with the founder
-				bank, // from there, the raise
+				vault, // from there, the raise
 				steps, // why: founders helping founders
 				campus // decades ahead
 			];
@@ -642,6 +638,42 @@
 			}
 		}
 
+		// The vault door: a seam inset on the front face, and a dial whose spokes turn.
+		function drawDial(b: Box, t: number) {
+			if (b.h < 0.5) return;
+			const yF = b.y + b.d + 0.001;
+			const inset = 0.22;
+			shape(
+				closed([
+					P(b.x + inset, yF, b.z + inset),
+					P(b.x + b.w - inset, yF, b.z + inset),
+					P(b.x + b.w - inset, yF, b.z + b.h - inset - 0.07),
+					P(b.x + inset, yF, b.z + b.h - inset - 0.07)
+				]),
+				{ stroke: '#8a8a8a', strokeWidth: 0.9 }
+			);
+			const cx = b.x + b.w * 0.5;
+			const cz = b.z + b.h * 0.5;
+			const N = 40;
+			const circle = (r: number) =>
+				Array.from({ length: N }, (_, i) => {
+					const a = (i / N) * Math.PI * 2;
+					return P(cx + Math.cos(a) * r, yF, cz + Math.sin(a) * r);
+				});
+			shape(`${closed(circle(0.7))} ${closed(circle(0.55))}`, { fill: '#d6d6d6', stroke: '#1a1a1a', evenodd: true });
+			shape(closed(circle(0.55)), { fill: '#2a2a2a' });
+			// Three spokes, turning slowly.
+			const turn = t * 0.5;
+			for (let k = 0; k < 3; k++) {
+				const a = turn + (k * Math.PI * 2) / 3;
+				shape(open([P(cx, yF, cz), P(cx + Math.cos(a) * 0.48, yF, cz + Math.sin(a) * 0.48)]), {
+					stroke: '#d6d6d6',
+					strokeWidth: 2.2
+				});
+			}
+			shape(closed(circle(0.12)), { fill: '#d6d6d6', stroke: '#1a1a1a' });
+		}
+
 		// A magnifying glass: a round rim with glass in it, and a handle.
 		function drawLens(R: number, at: { x: number; y: number; z: number }, t: number) {
 			const N = 64;
@@ -806,6 +838,7 @@
 
 			if (scene.portal) drawPortal(scene.portal, t);
 			if (scene.lens && lensAt) drawLens(scene.lens.R, lensAt, t);
+			if (scene.dial) drawDial(cur[scene.dial.box], t);
 
 			for (let i = used; i < pool.length; i++) pool[i].style.display = 'none';
 
