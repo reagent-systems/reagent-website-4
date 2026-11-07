@@ -45,7 +45,7 @@ export const COMPANIES: Company[] = [
 		line: 'funding the earliest stage.',
 		email: 'capital@reagent-systems.com',
 		logo: '/company-logos/capital.svg',
-		slogan: ['money', 'is', 'power']
+		slogan: ['funds', 'for', 'excellence']
 	},
 	{
 		slug: 'research',
