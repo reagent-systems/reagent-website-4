@@ -1,22 +1,3 @@
-// Placeholder articles until the blog is live.
-export const ARTICLES = [
-	{
-		title: 'why we build in the open',
-		excerpt: 'every release is a foundation someone else can stand on.',
-		href: '/blog'
-	},
-	{
-		title: 'unknown unknowns',
-		excerpt: 'what founders run into that nobody warned them about.',
-		href: '/blog'
-	},
-	{
-		title: 'from idea to company',
-		excerpt: 'the first months decide most of what follows.',
-		href: '/blog'
-	}
-];
-
 export interface ReleaseRow {
 	name: string;
 	type: string;

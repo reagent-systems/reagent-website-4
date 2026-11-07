@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { ARTICLES } from '$lib/home/content';
+	import { ARTICLES, articleDate } from '$lib/articles';
 </script>
 
 <svelte:head>
 	<title>news - reagent systems</title>
-	<meta name="description" content="news from reagent systems and its companies." />
+	<meta name="description" content="notes from reagent systems on building companies: readiness, data rooms, hardware, plain language and government work." />
 	<link rel="canonical" href="https://reagent-systems.com/blog" />
 </svelte:head>
 
@@ -14,8 +14,11 @@
 	<ul class="articles">
 		{#each ARTICLES as article}
 			<li>
-				<h2 class="sub">{article.title}</h2>
-				<p class="body">{article.excerpt}</p>
+				<a href="/blog/{article.slug}">
+					<span class="date">{articleDate(article.date)}</span>
+					<h2 class="sub">{article.title}</h2>
+					<p class="body">{article.excerpt}</p>
+				</a>
 			</li>
 		{/each}
 	</ul>
@@ -52,11 +55,30 @@
 		gap: var(--space-l);
 	}
 
+	.articles a {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.articles a:hover .sub {
+		color: #6b6b6b;
+	}
+
+	.date {
+		font-size: var(--text-small);
+		letter-spacing: 0.04em;
+		color: #9a9a9a;
+	}
+
 	.sub {
 		font-family: var(--main-font);
 		font-weight: 300;
 		font-size: var(--text-sub);
-		margin: 0 0 var(--space-xs);
+		margin: 0;
+		transition: color 0.25s ease;
 	}
 
 	.body {

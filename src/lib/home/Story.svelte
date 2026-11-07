@@ -3,7 +3,8 @@
 	import { animate, inView, stagger } from 'motion';
 	import IsoField from './IsoField.svelte';
 	import type { SparkSummary } from './spark';
-	import { ARTICLES, RELEASES } from './content';
+	import { RELEASES } from './content';
+	import { ARTICLES } from '$lib/articles';
 
 	type Statement = { title?: string; body: string };
 
@@ -211,7 +212,7 @@
 		<h2 class="title">news</h2>
 		<div class="cards" use:reveal>
 			{#each ARTICLES.slice(0, 2) as article}
-				<a class="card text" href={article.href}>
+				<a class="card text" href="/blog/{article.slug}">
 					<span class="card-title">{article.title}</span>
 					<span class="card-line">{article.excerpt}</span>
 				</a>

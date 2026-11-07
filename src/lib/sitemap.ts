@@ -2,6 +2,7 @@
 import { AREAS, REGIONS, displayName } from '$lib/areas';
 import { SERVICES } from '$lib/site-links';
 import { COMPANIES } from '$lib/home/companies';
+import { ARTICLES } from '$lib/articles';
 
 export const SITE = 'https://reagent-systems.com';
 
@@ -36,6 +37,10 @@ export const SITEMAP: SitemapGroup[] = [
 		]
 	},
 	{
+		title: 'news',
+		links: ARTICLES.map((a) => ({ href: `/blog/${a.slug}`, label: a.title }))
+	},
+	{
 		title: 'companies',
 		links: COMPANIES.map((c) => ({ href: `/${c.slug}`, label: c.fullName }))
 	},
@@ -61,6 +66,7 @@ export const SITEMAP_PATHS: string[] = [
 	'/services',
 	'/research',
 	'/blog',
+	...ARTICLES.map((a) => `/blog/${a.slug}`),
 	...COMPANIES.map((c) => `/${c.slug}`),
 	'/projects',
 	'/portal',
