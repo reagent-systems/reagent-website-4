@@ -35,7 +35,8 @@
 		actors?: (t: number) => Tuple[];
 		/** Extra extent for framing, for things drawn outside the boxes. */
 		bounds?: Tuple[];
-		/** Holds back the scene's moving pieces until its buildings have risen. */
+		/** City only: new buildings rise from the ground where they stand, and moving
+		 *  pieces wait until they have risen. */
 		grow?: boolean;
 		/** Set for the portal scene: draws the ring and its surface. */
 		portal?: { zc: number; R: number; ring: number; depth: number };
@@ -183,18 +184,13 @@
 
 
 
-	// Portal: a standing ring on a dark plinth. Through it, a live view of where it leads.
+	// Portal: a ring standing on the ground. Through it, a live view of where it leads.
 	const SPARK = 'https://spark.reagent-systems.com';
-	const PORTAL = { zc: 2.65, R: 2, ring: 0.36, depth: 0.42 };
+	const PORTAL = { zc: 2.75, R: 2.65, ring: 0.42, depth: 0.5 };
 	const gate: Scene = {
-		boxes: pad(
-			[
-				[-2.7, -1.15, 0, 5.4, 2.3, 0.55, 0, 0.85]
-			],
-			[0, 0, 0.3]
-		),
+		boxes: pad([], [0, 0, 0]),
 		// The extra height above the ring leaves room for the status tag.
-		bounds: [[-PORTAL.R, -0.3, 0, PORTAL.R * 2, 0.6, PORTAL.zc + PORTAL.R + 1.9]],
+		bounds: [[-PORTAL.R, -0.3, 0, PORTAL.R * 2, 0.6, PORTAL.zc + PORTAL.R + 1.2]],
 		portal: PORTAL,
 		overlays: [
 			{
@@ -203,10 +199,10 @@
 				href: SPARK,
 				live: SPARK,
 				poster: '/portal/spark-preview.jpg'
-			},
-			{ kind: 'gate', box: 0, href: SPARK }
+			}
 		]
 	};
+
 
 	// Inline mode starts with the portal folded flat, then builds it.
 	const folded: Scene = {
@@ -362,17 +358,14 @@
 			const shown = (b: Box) => b.w > 0.02 && b.d > 0.02 && b.h > 0.02;
 			controls = target.map((b, n) => {
 				const c = cur[n];
-				let goal: Box = { ...b };
+				const goal: Box = { ...b };
 				let delay = Math.min(0.5, b.z * 0.06 + n * 0.012);
-				if (!shown(c) && shown(b)) {
-					// A new block: start flat on the ground under where it will stand, and
-					// rise in a wave from the middle outward.
+				if (scenes[index].grow && !shown(c) && shown(b)) {
+					// The city's extra buildings (the ones not made from the steps): each
+					// starts flat on the ground where it will stand, and they rise in a
+					// wave from the middle outward.
 					Object.assign(c, { ...b, z: 0, h: 0 });
 					delay = 0.15 + Math.hypot(b.x + b.w / 2, b.y + b.d / 2) * 0.09;
-				} else if (shown(c) && !shown(b)) {
-					// No longer needed: sink into the ground where it stands.
-					goal = { ...c, z: 0, h: 0 };
-					delay = 0;
 				}
 				return animate(c, goal, {
 					type: 'spring',
@@ -382,7 +375,7 @@
 					delay: reduceMotion ? 0 : delay
 				});
 			});
-			const ring = scenes[index].portal && scenes[index].boxes.some((b) => b.h > 0) ? 1 : 0;
+			const ring = scenes[index] === gate ? 1 : 0;
 			controls.push(
 				animate(grow, { k: ring }, { type: 'spring', stiffness: 90, damping: 15, delay: reduceMotion ? 0 : 0.3 })
 			);
@@ -549,11 +542,11 @@
 		function drawPortal(pd: { zc: number; R: number; ring: number; depth: number }, t: number) {
 			const k = grow.k;
 			if (k < 0.02) return;
-			// Rises out of the plinth as it grows.
+			// Grows up from the ground.
 			const R = pd.R * k;
 			const ring = pd.ring * k;
 			const depth = pd.depth;
-			const zc = 0.55 + (pd.zc - 0.55) * k;
+			const zc = pd.zc * k;
 			const Ri = R - ring;
 			const yf = depth / 2;
 			const yb = -depth / 2;
@@ -879,11 +872,11 @@
 			// Frame the scene: fill most of the panel, but keep small scenes modest.
 			const fr = frames[active];
 			// Inline scenes have the panel to themselves, so they can fill more of it.
-			const cap = Math.min(pw, ph) / (untrack(() => inline) ? 4.5 : 8);
+			const cap = Math.min(pw, ph) / (untrack(() => inline) ? 3 : 8);
 			// On phones the band starts under the status bar, so its scene sits a little
 			// low in the band rather than dead centre.
 			const lowered = !untrack(() => inline) && pw < 769 && window.innerWidth <= 768;
-			const fitH = lowered ? 0.72 : 0.8;
+			const fitH = lowered ? 0.72 : untrack(() => inline) ? 0.9 : 0.8;
 			const targetU = Math.min((pw * 0.9) / Math.max(fr.w, 1), (ph * fitH) / Math.max(fr.h, 1), cap);
 			const ease = view.u === 0 ? 1 : 0.07;
 			view.u += (targetU - view.u) * ease;
@@ -1083,7 +1076,7 @@
 	/* Inline: sits in the page like an image. */
 	.stage.inline {
 		position: relative;
-		height: clamp(300px, 50vh, 540px);
+		height: clamp(340px, 62vh, 640px);
 		margin: 0;
 		z-index: auto;
 	}
