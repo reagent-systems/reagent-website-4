@@ -3,7 +3,7 @@
 import data from './data.json';
 
 type Point = { date: string; value: number };
-type Yearly = { year: string; value: number };
+type Yearly = { year: string; value: number; source?: 'imf' };
 
 export type StateArea = {
 	kind: 'state';
@@ -76,7 +76,20 @@ export const stateSources = (code: string) => [
 	{ label: 'manufacturing employees, U.S. Bureau of Labor Statistics', url: `https://fred.stlouisfed.org/series/${code}MFG` }
 ];
 
-export const countrySources = (code: string) => [
+export const countrySources = (area: CountryArea) => {
+	const code = area.code;
+	if (area.gdp?.source === 'imf') {
+		const iso3 = { TW: 'TWN' }[code] ?? code;
+		return [
+			{ label: 'GDP (current US$), IMF World Economic Outlook', url: `https://www.imf.org/external/datamapper/NGDPD@WEO/${iso3}` },
+			{ label: 'real GDP growth, IMF World Economic Outlook', url: `https://www.imf.org/external/datamapper/NGDP_RPCH@WEO/${iso3}` },
+			{ label: 'population, IMF World Economic Outlook', url: `https://www.imf.org/external/datamapper/LP@WEO/${iso3}` }
+		];
+	}
+	return worldBankSources(code);
+};
+
+const worldBankSources = (code: string) => [
 	{ label: 'GDP (current US$), World Bank', url: `https://data.worldbank.org/indicator/NY.GDP.MKTP.CD?locations=${code}` },
 	{ label: 'GDP growth, World Bank', url: `https://data.worldbank.org/indicator/NY.GDP.MKTP.KD.ZG?locations=${code}` },
 	{ label: 'population, World Bank', url: `https://data.worldbank.org/indicator/SP.POP.TOTL?locations=${code}` },

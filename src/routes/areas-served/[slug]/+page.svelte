@@ -102,7 +102,7 @@
 	const months = $derived(area.kind === 'state' && area.business ? area.business.monthly.slice(-24) : []);
 	const peak = $derived(Math.max(1, ...months.map((m) => m.value)));
 
-	const sources = $derived(area.kind === 'state' ? stateSources(area.code) : countrySources(area.code));
+	const sources = $derived(area.kind === 'state' ? stateSources(area.code) : countrySources(area));
 	const title = $derived(`founders in ${name} - reagent systems`);
 	const description = $derived(
 		`reagent systems works with founders in ${name}: readiness assessment, partnership, and preparation for a capital raise, with no equity taken.${facts[0] ? ` ${facts[0].label}: ${facts[0].value}.` : ''}`

@@ -8,6 +8,8 @@ const fs = require('fs');
 const path = require('path');
 
 const OUT = path.join(__dirname, '..', 'src', 'lib', 'areas', 'data.json');
+// Identify the script honestly to the data sources.
+const UA = 'reagent-systems-area-data/1.0 (+https://reagent-systems.com)';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const STATES = [
@@ -138,6 +140,32 @@ async function worldBank(indicator, codes) {
 	return {};
 }
 
+// The World Bank doesn't list some places (Taiwan among them). The IMF's
+// World Economic Outlook does, so it fills in GDP, growth and population.
+// Its series run into projections, so only years before this one are used.
+const IMF = { gdp: ['NGDPD', 1e9], growth: ['NGDP_RPCH', 1], population: ['LP', 1e6] };
+const ISO3 = { TW: 'TWN' };
+
+async function imf(code) {
+	const iso3 = ISO3[code];
+	if (!iso3) return {};
+	const thisYear = new Date().getFullYear();
+	const out = {};
+	for (const [key, [indicator, scale]] of Object.entries(IMF)) {
+		const res = await fetch(`https://www.imf.org/external/datamapper/api/v1/${indicator}/${iso3}`, {
+			headers: { 'user-agent': UA }
+		});
+		if (!res.ok) continue;
+		const json = await res.json();
+		const series = json.values?.[indicator]?.[iso3] ?? {};
+		const years = Object.keys(series).filter((y) => Number(y) < thisYear && series[y] != null).sort();
+		const y = years.at(-1);
+		if (y) out[key] = { year: y, value: series[y] * scale, source: 'imf' };
+		await sleep(1000);
+	}
+	return out;
+}
+
 async function countries() {
 	const codes = COUNTRIES.map(([c]) => c);
 	const data = {};
@@ -146,23 +174,30 @@ async function countries() {
 		data[key] = await worldBank(indicator, codes);
 		await sleep(1000);
 	}
-	return COUNTRIES.map(([code, name, region]) => ({
-		kind: 'country',
-		code,
-		name,
-		region,
-		gdp: data.gdp[code] ?? null,
-		growth: data.growth[code] ?? null,
-		population: data.population[code] ?? null,
-		newBusinesses: data.newBusinesses[code] ?? null,
-		patents: data.patents[code] ?? null,
-		research: data.research[code] ?? null
-	}));
+	const out = [];
+	for (const [code, name, region] of COUNTRIES) {
+		const fallback = data.gdp[code] ? {} : await imf(code);
+		out.push({
+			kind: 'country',
+			code,
+			name,
+			region,
+			gdp: data.gdp[code] ?? fallback.gdp ?? null,
+			growth: data.growth[code] ?? fallback.growth ?? null,
+			population: data.population[code] ?? fallback.population ?? null,
+			newBusinesses: data.newBusinesses[code] ?? null,
+			patents: data.patents[code] ?? null,
+			research: data.research[code] ?? null
+		});
+	}
+	return out;
 }
 
 (async () => {
+	// `--countries` refreshes only the countries and keeps the saved states.
+	const onlyCountries = process.argv.includes('--countries');
 	const c = await countries();
-	const s = await states();
+	const s = onlyCountries ? JSON.parse(fs.readFileSync(OUT, 'utf8')).states : await states();
 	fs.mkdirSync(path.dirname(OUT), { recursive: true });
 	fs.writeFileSync(OUT, JSON.stringify({ fetched: new Date().toISOString().slice(0, 10), states: s, countries: c }, null, '\t') + '\n');
 	console.log('wrote', OUT);
