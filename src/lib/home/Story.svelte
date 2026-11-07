@@ -88,7 +88,7 @@
 	<section class="resource portal" bind:this={portal}>
 		<h2 class="resource-title">portal</h2>
 		<p class="portal-line">ask the factory anything.</p>
-		<a class="quiet-link" href="/portal">enter the portal</a>
+		<a class="quiet-link" href="https://spark.reagent-systems.com">enter the portal</a>
 	</section>
 
 	<section class="join" bind:this={join} id="join">

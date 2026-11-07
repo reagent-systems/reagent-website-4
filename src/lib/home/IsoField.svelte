@@ -27,7 +27,7 @@
 		| { kind: 'image'; box: number; src: string; label: string; href: string }
 		| { kind: 'cover'; box: number; title: string; href: string }
 		| { kind: 'gate'; box: number; href: string }
-		| { kind: 'portal'; box: number; href: string }
+		| { kind: 'portal'; box: number; href: string; live: string; poster: string }
 		| { kind: 'company'; box: number; slug: string; name: string };
 
 	type Scene = {
@@ -184,7 +184,8 @@
 		overlays: ARTICLES.map((a, i) => ({ kind: 'cover' as const, box: i, title: a.title, href: a.href }))
 	};
 
-	// Portal: a standing ring on a dark plinth, its surface turning slowly inward.
+	// Portal: a standing ring on a dark plinth. Through it, a live view of where it leads.
+	const SPARK = 'https://spark.reagent-systems.com';
 	const PORTAL = { zc: 2.65, R: 2, ring: 0.36, depth: 0.42 };
 	const gate: Scene = {
 		boxes: pad(
@@ -196,8 +197,14 @@
 		bounds: [[-PORTAL.R, -0.3, 0, PORTAL.R * 2, 0.6, PORTAL.zc + PORTAL.R]],
 		portal: PORTAL,
 		overlays: [
-			{ kind: 'portal', box: 0, href: '/portal' },
-			{ kind: 'gate', box: 0, href: '/portal' }
+			{
+				kind: 'portal',
+				box: 0,
+				href: SPARK,
+				live: SPARK,
+				poster: '/portal/spark-preview.jpg'
+			},
+			{ kind: 'gate', box: 0, href: SPARK }
 		]
 	};
 
@@ -504,7 +511,6 @@
 		}
 
 		// The portal: a round ring standing upright, its surface drawing light inward.
-		let portalBox = { x: 0, y: 0, w: 0, h: 0 };
 		function drawPortal(pd: { zc: number; R: number; ring: number; depth: number }, t: number) {
 			const { zc, R, ring, depth } = pd;
 			const Ri = R - ring;
@@ -581,14 +587,6 @@
 
 			// Front face of the ring.
 			shape(`${disc(R, yf)} ${disc(Ri, yf)}`, { fill: '#fdfdfd', stroke: '#1a1a1a', evenodd: true });
-
-			// Where people can click: the whole ring.
-			const [lx] = pt(-R, yf, zc);
-			const [rx] = pt(R, yf, zc);
-			const [, ty] = pt(0, yf, zc + R);
-			const [, by] = pt(0, yf, zc - R);
-			const pad = R * u * 0.15;
-			portalBox = { x: Math.min(lx, rx), y: ty - pad, w: Math.abs(rx - lx), h: by - ty + pad * 2 };
 		}
 
 		function tick(now: number) {
@@ -667,12 +665,18 @@
 			// Pin the clickable layer onto the block faces (40px per grid unit).
 			const px = u / 40;
 			overlays.forEach((o, i) => {
-				if (o.kind === 'portal') {
+				if (o.kind === 'portal' && scene.portal) {
+					// The view sits in the ring's opening, on the ring's own plane.
 					const el = overlayTop[i];
 					if (el) {
-						el.style.width = `${portalBox.w}px`;
-						el.style.height = `${portalBox.h}px`;
-						el.style.transform = `translate(${portalBox.x}px, ${portalBox.y}px)`;
+						const { zc, R, ring, depth } = scene.portal;
+						const Ri = R - ring;
+						const [ex, ey] = pt(-Ri, depth / 2, zc + Ri);
+						const size = Ri * 2 * 40;
+						el.style.width = `${size}px`;
+						el.style.height = `${size}px`;
+						el.style.transform = `matrix(${C * px},${S * px},0,${px},${ex},${ey})`;
+						el.style.setProperty('--view-scale', String(size / 1200));
 					}
 					return;
 				}
@@ -744,7 +748,11 @@
 						onmouseleave={() => (hovered = -1)}>enter</a
 					>
 				{:else if o.kind === 'portal'}
-					<a class="face portal-hit" href={o.href} bind:this={overlayTop[i]} aria-label="enter the portal"></a>
+					<a class="face portal-view" href={o.href} bind:this={overlayTop[i]} aria-label="enter the portal to spark">
+						<img class="portal-poster" src={o.poster} alt="" />
+						<iframe class="portal-live" src={o.live} title="spark preview" tabindex="-1" aria-hidden="true" loading="lazy"></iframe>
+						<span class="portal-rim" aria-hidden="true"></span>
+					</a>
 				{:else if o.kind === 'company'}
 					<button
 						type="button"
@@ -878,9 +886,50 @@
 		text-decoration: none;
 	}
 
-	.portal-hit {
+	/* What lies on the other side: the live page, seen through the ring. */
+	.portal-view {
 		display: block;
 		border-radius: 50%;
+		overflow: hidden;
+		background: #0d1117;
+		isolation: isolate;
+	}
+
+	.portal-poster,
+	.portal-live {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 1200px;
+		height: 1200px;
+		border: 0;
+		transform-origin: 0 0;
+		transform: scale(var(--view-scale, 0.1));
+		pointer-events: none;
+	}
+
+	/* The edge of the opening glows in the brand colours and slowly turns. */
+	.portal-rim {
+		position: absolute;
+		inset: 0;
+		border-radius: 50%;
+		background:
+			radial-gradient(circle, transparent 52%, rgba(45, 74, 138, 0.35) 72%, rgba(128, 0, 32, 0.75) 100%),
+			conic-gradient(from 0deg, rgba(250, 250, 250, 0.18), transparent 25%, rgba(250, 250, 250, 0.12) 50%, transparent 75%, rgba(250, 250, 250, 0.18));
+		animation: portal-turn 9s linear infinite;
+		pointer-events: none;
+	}
+
+	@keyframes portal-turn {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.portal-rim {
+			animation: none;
+		}
 	}
 
 	.company {
