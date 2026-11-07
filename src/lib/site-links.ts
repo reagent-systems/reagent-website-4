@@ -13,7 +13,7 @@ export const SERVICES: Service[] = [
 	{
 		id: 'founder-partnership',
 		name: 'founder partnership',
-		text: 'first, we talk with the founder. from there, we work in a partnership capacity towards solutions.'
+		text: 'we work in a partnership capacity towards solutions.'
 	},
 	{
 		id: 'raise-preparation',

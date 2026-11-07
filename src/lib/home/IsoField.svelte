@@ -217,8 +217,8 @@
 		: [
 				scatter,
 				gathered, // mission
-				examine, // first, we talk with the founder
-				bank, // from there, the raise
+				examine, // we estimate readiness
+				bank, // the raise
 				steps, // why: founders helping founders
 				campus // decades ahead
 			];

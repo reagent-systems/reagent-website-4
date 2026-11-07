@@ -14,13 +14,13 @@
 			body: "we founded a network out of necessity. there are unknown unknowns in any entrepreneurial career, but that shouldn't stop you from achieving success. so we gathered the resources, the knowledge, and the capital in one place."
 		},
 		{
-			body: 'first, we talk with the founder. we estimate the true technology or manufacturing readiness of the company, identify its constraints, and work in a partnership capacity towards solutions.'
+			body: 'we estimate the true technology or manufacturing readiness of the company, identify its constraints, and work in a partnership capacity towards solutions.'
 		},
 		{
-			body: 'from there, we build up companies to a stage ready to reach a capital raise. we take no equity and no percentage of any introduction, because to us it stifles the forward progress of a company.'
+			body: 'we build up companies to a stage ready to reach a capital raise. we take no equity and no percentage of any introduction, because to us it stifles the forward progress of a company.'
 		},
 		{
-			body: "why do we do this? because we've been where they are now. the most invaluable thing is a network of founders that reach out and assist."
+			body: "why do we do this? we've been where you are now. the most invaluable thing is a network of founders that reach out and assist."
 		},
 		{
 			body: 'if the only thing stopping anybody from the next breakthrough is a lack of our assistance, then by all means, we are going to assist.'
