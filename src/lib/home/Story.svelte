@@ -37,48 +37,6 @@
 		)
 	);
 
-	const researchItems = [
-		{
-			name: 'dandelion',
-			line: 'neuro-symbolic prototypes built close to the hardware.',
-			image: '/research-images/dandelion.png'
-		},
-		{
-			name: 'simple-agent-core',
-			line: 'a minimal agent framework with tools that load on demand.',
-			image: '/research-images/simple-agent-core.png'
-		},
-		{
-			name: 'phone-agent',
-			line: 'an agent stack for work that starts with a phone call.',
-			image: '/research-images/phone-agent.png'
-		},
-		{
-			name: 'bently coder 7b',
-			line: 'an open coding model tuned on real repositories.',
-			image: '/research-images/bently-coder-7b.png'
-		}
-	];
-
-	// Placeholder articles until the blog is live.
-	const articles = [
-		{
-			title: 'why we build in the open',
-			excerpt: 'open work compounds. every release is a foundation someone else can stand on.',
-			href: '/blog'
-		},
-		{
-			title: 'small models, real work',
-			excerpt: 'what a seven billion parameter model can do when it is trained on the right things.',
-			href: '/blog'
-		},
-		{
-			title: 'from idea to company',
-			excerpt: 'the first months decide most of what follows. a note on getting them right.',
-			href: '/blog'
-		}
-	];
-
 	let newsletterEmail = $state('');
 	let newsletterSent = $state(false);
 
@@ -87,6 +45,7 @@
 	let contactEmail = $state('');
 	let contactMessage = $state('');
 	let contactSent = $state(false);
+	const pickedName = $derived(COMPANIES.find((c) => c.slug === contactCompany)?.name ?? '');
 
 	function submitNewsletter(e: SubmitEvent) {
 		e.preventDefault();
@@ -100,7 +59,7 @@
 </script>
 
 <div class="story">
-	<IsoField {anchors} />
+	<IsoField {anchors} picked={contactCompany} onpick={(slug) => (contactCompany = slug)} />
 
 	{#each statements as statement, i}
 		<section class="statement" bind:this={statementEls[i]}>
@@ -118,34 +77,11 @@
 
 	<section class="resource" bind:this={research}>
 		<h2 class="resource-title">research</h2>
-		<ul class="card-row four">
-			{#each researchItems as item}
-				<li>
-					<a class="card" href="/research">
-						<div class="card-image square">
-							<img src={item.image} alt="" loading="lazy" />
-						</div>
-						<span class="card-name">{item.name}</span>
-						<span class="card-line">{item.line}</span>
-					</a>
-				</li>
-			{/each}
-		</ul>
 		<a class="quiet-link" href="/research">all research</a>
 	</section>
 
 	<section class="resource" bind:this={writing}>
 		<h2 class="resource-title">writing</h2>
-		<ul class="articles">
-			{#each articles as article}
-				<li>
-					<a class="article" href={article.href}>
-						<span class="article-title">{article.title}</span>
-						<span class="article-excerpt">{article.excerpt}</span>
-					</a>
-				</li>
-			{/each}
-		</ul>
 		<a class="quiet-link" href="/blog">all writing</a>
 	</section>
 
@@ -180,23 +116,10 @@
 			</form>
 
 			<form class="join-block" onsubmit={submitContact}>
-				<h3>talk to a company</h3>
+				<h3>talk to reagent {pickedName}</h3>
 				{#if contactSent}
 					<p class="sent">thank you. we will be in touch.</p>
 				{:else}
-					<div class="choices" role="radiogroup" aria-label="company">
-						{#each COMPANIES as company}
-							<label class="choice" class:active={contactCompany === company.slug}>
-								<input
-									type="radio"
-									name="company"
-									value={company.slug}
-									bind:group={contactCompany}
-								/>
-								{company.name}
-							</label>
-						{/each}
-					</div>
 					<label class="visually-hidden" for="contact-name">name</label>
 					<input id="contact-name" required placeholder="name" autocomplete="name" bind:value={contactName} />
 					<label class="visually-hidden" for="contact-email">email</label>
@@ -273,11 +196,8 @@
 	}
 
 	/* All body copy is fully justified, with the last line centred. */
-	p,
-	.card-line,
-	.article-excerpt {
+	p {
 		text-align: justify;
-		/* The last line sits centred under the block. */
 		text-align-last: center;
 		hyphens: auto;
 		-webkit-hyphens: auto;
@@ -295,7 +215,12 @@
 
 	/* Research, writing, portal */
 	.resource {
-		padding: 22vh 8vw;
+		min-height: 100vh;
+		min-height: 100svh;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		padding: 0 8vw;
 	}
 
 	.resource-title {
@@ -308,97 +233,19 @@
 		margin-bottom: 4.5rem;
 	}
 
-	.card-row {
-		list-style: none;
-		display: grid;
-		gap: 3rem 2.5rem;
-	}
 
-	.card-row.four {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
 
-	.card {
-		display: flex;
-		flex-direction: column;
-		text-decoration: none;
-		color: inherit;
-	}
 
-	.card-image {
-		border-radius: 20px;
-		overflow: hidden;
-		background: #ececec;
-		margin-bottom: 1.5rem;
-	}
 
-	.card-image.square {
-		aspect-ratio: 1;
-	}
 
-	.card-image img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		display: block;
-		transition: opacity 0.4s ease;
-	}
 
-	.card:hover .card-image img {
-		opacity: 0.88;
-	}
 
-	.card-name {
-		font-family: var(--main-font);
-		font-weight: 300;
-		font-size: 1.6rem;
-		color: #1a1a1a;
-		margin-bottom: 0.5rem;
-	}
 
-	.card-line {
-		font-family: 'Raleway Variable', var(--main-font);
-		font-weight: 300;
-		font-size: 1.05rem;
-		line-height: 1.6;
-		color: #6b6b6b;
-	}
 
-	.articles {
-		list-style: none;
-		display: flex;
-		flex-direction: column;
-		gap: 3.5rem;
-		max-width: 52rem;
-	}
 
-	.article {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		text-decoration: none;
-	}
 
-	.article-title {
-		font-family: var(--main-font);
-		font-weight: 200;
-		font-size: clamp(1.8rem, 2.8vw, 2.6rem);
-		line-height: 1.15;
-		color: #1a1a1a;
-		transition: color 0.3s ease;
-	}
 
-	.article:hover .article-title {
-		color: #6b6b6b;
-	}
 
-	.article-excerpt {
-		font-family: 'Raleway Variable', var(--main-font);
-		font-weight: 300;
-		font-size: 1.1rem;
-		line-height: 1.7;
-		color: #6b6b6b;
-	}
 
 	.quiet-link {
 		display: inline-block;
@@ -432,6 +279,8 @@
 	}
 
 	.portal-line {
+		text-align: left;
+		text-align-last: left;
 		font-family: var(--main-font);
 		font-weight: 200;
 		font-size: clamp(1.8rem, 2.8vw, 2.6rem);
@@ -485,6 +334,8 @@
 	}
 
 	.join-block > p {
+		text-align: left;
+		text-align-last: left;
 		font-family: 'Raleway Variable', var(--main-font);
 		font-weight: 300;
 		font-size: 1.1rem;
@@ -556,44 +407,10 @@
 		margin-top: 0.5rem;
 	}
 
-	.choices {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.6rem;
-		margin-bottom: 0.75rem;
-	}
 
-	.choice {
-		font-family: 'Raleway Variable', var(--main-font);
-		font-weight: 300;
-		font-size: 1.05rem;
-		color: #6b6b6b;
-		background: #efefef;
-		border-radius: 999px;
-		padding: 0.55rem 1.1rem;
-		cursor: pointer;
-		transition:
-			background 0.3s ease,
-			color 0.3s ease;
-	}
 
-	.choice input {
-		position: absolute;
-		opacity: 0;
-		width: 1px;
-		height: 1px;
-		pointer-events: none;
-	}
 
-	.choice.active {
-		background: #1a1a1a;
-		color: #fafafa;
-	}
 
-	.choice:has(input:focus-visible) {
-		outline: 2px solid #1a1a1a;
-		outline-offset: 2px;
-	}
 
 	/* Quote */
 	.quote {
@@ -633,12 +450,6 @@
 		white-space: nowrap;
 	}
 
-	@media (max-width: 1024px) {
-		.card-row.four {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-	}
-
 	@media (max-width: 768px) {
 		/* Phones: text scrolls in the top half; the blocks hold the bottom half. */
 		.story {
@@ -663,7 +474,11 @@
 		.statement .quiet-link {
 			margin-top: 1.5rem;
 		}
-		.resource,
+		.resource {
+			min-height: 75vh;
+			min-height: 75svh;
+			padding: 0 1.5rem;
+		}
 		.join {
 			padding: 12vh 1.5rem;
 		}
@@ -673,15 +488,6 @@
 		}
 		.resource-title {
 			margin-bottom: 2.5rem;
-		}
-		.card-row.four {
-			gap: 2.5rem 1.25rem;
-		}
-		.card-name {
-			font-size: 1.3rem;
-		}
-		.card-line {
-			font-size: 0.98rem;
 		}
 		.inline-field {
 			flex-direction: column;

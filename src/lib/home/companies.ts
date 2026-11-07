@@ -36,7 +36,7 @@ export const COMPANIES: Company[] = [
 		line: 'moving what we make.',
 		email: 'logistics@reagent-systems.com',
 		logo: '/company-logos/logistics.svg',
-		slogan: ['supply', 'chains', 'simplified']
+		slogan: ['easy', 'supply', 'chains']
 	},
 	{
 		slug: 'capital',
