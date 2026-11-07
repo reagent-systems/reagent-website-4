@@ -118,13 +118,9 @@
 	}
 
 	@media (max-width: 768px) {
-		/* Same placement as the original home nav on phones. */
+		/* Phones keep the hero to the art and the title; the footer lists the companies. */
 		.company-nav {
-			grid-template-columns: 1fr;
-			gap: 1.25rem;
-			max-width: none;
-			align-self: flex-start;
-			margin-left: -12rem;
+			display: none;
 		}
 	}
 </style>

@@ -19,6 +19,7 @@
 		x: number; // centre as a fraction of viewport width (desktop)
 		size: number; // size as a fraction of min(vw, vh)
 		alpha: number;
+		my?: number; // vertical centre on phones, as a fraction of viewport height
 	};
 
 	// Seeded random so every visit draws the same shapes.
@@ -130,20 +131,66 @@
 		});
 	}
 
+	// Two people, and the line between them.
+	function conversation(): Pt[] {
+		const pts: Pt[] = [];
+		const bridge = 22;
+		const each = Math.floor((N - bridge) / 2);
+		const golden = Math.PI * (3 - Math.sqrt(5));
+		for (const cx of [-0.48, 0.48]) {
+			for (let k = 0; k < each; k++) {
+				const r = Math.sqrt((k + 0.5) / each) * 0.3;
+				const a = k * golden;
+				pts.push([cx + Math.cos(a) * r, Math.sin(a) * r]);
+			}
+		}
+		for (let k = 0; pts.length < N; k++) {
+			const t = k / (bridge - 1);
+			pts.push([-0.18 + t * 0.36, 0]);
+		}
+		return pts;
+	}
+
+	// A frame going up, floor by floor.
+	function lattice(): Pt[] {
+		const pts: Pt[] = [];
+		const colsN = 10;
+		const rowsN = Math.ceil(N / colsN);
+		for (let r = 0; r < rowsN; r++) {
+			for (let c = 0; c < colsN && pts.length < N; c++) {
+				pts.push([-0.6 + (c / (colsN - 1)) * 1.2, 0.8 - (r / (rowsN - 1)) * 1.6]);
+			}
+		}
+		return pts;
+	}
+
+	// An open circle with a way in.
+	function openRing(): Pt[] {
+		const gap = 0.5;
+		return Array.from({ length: N }, (_, i) => {
+			const a = gap / 2 + (i / (N - 1)) * (Math.PI * 2 - gap) - Math.PI / 2;
+			return [Math.cos(a) * 0.8, Math.sin(a) * 0.8];
+		});
+	}
+
 	function point(): Pt[] {
 		return Array.from({ length: N }, () => [0, 0]);
 	}
 
+	// One stage before the story, then one per section in order.
 	const stages: Stage[] = [
 		{ pts: scatter(), link: 0.0, dot: 1.6, x: 0.7, size: 0.95, alpha: 0.7 },
-		{ pts: disk(), link: 0.075, dot: 1.8, x: 0.7, size: 0.75, alpha: 1 },
-		{ pts: network(), link: 0.2, dot: 2, x: 0.7, size: 0.8, alpha: 1 },
-		{ pts: hub(), link: 0.11, dot: 2.2, x: 0.7, size: 0.8, alpha: 1 },
-		{ pts: molecule(), link: 0.14, dot: 1.8, x: 0.5, size: 1.25, alpha: 0.16 },
-		{ pts: textLines(), link: 0.08, dot: 1.6, x: 0.5, size: 1.2, alpha: 0.16 },
-		{ pts: spiral(), link: 0.07, dot: 1.8, x: 0.72, size: 0.9, alpha: 0.55 },
-		{ pts: ring(), link: 0.06, dot: 1.6, x: 0.5, size: 1.1, alpha: 0.2 },
-		{ pts: point(), link: 0, dot: 5, x: 0.5, size: 0.4, alpha: 1 }
+		{ pts: disk(), link: 0.075, dot: 1.8, x: 0.7, size: 0.75, alpha: 1, my: 0.26 }, // build what builders need
+		{ pts: conversation(), link: 0.075, dot: 1.8, x: 0.7, size: 0.85, alpha: 1, my: 0.26 }, // a conversation
+		{ pts: lattice(), link: 0.17, dot: 1.8, x: 0.7, size: 0.7, alpha: 1, my: 0.26 }, // build alongside
+		{ pts: ring(), link: 0.06, dot: 1.8, x: 0.7, size: 0.75, alpha: 1, my: 0.26 }, // no equity, no cut
+		{ pts: network(), link: 0.2, dot: 2, x: 0.7, size: 0.8, alpha: 1, my: 0.26 }, // pay it forward
+		{ pts: hub(), link: 0.11, dot: 2.2, x: 0.7, size: 0.8, alpha: 1, my: 0.26 }, // a modern bell labs
+		{ pts: molecule(), link: 0.14, dot: 1.8, x: 0.5, size: 1.25, alpha: 0.16 }, // research
+		{ pts: textLines(), link: 0.08, dot: 1.6, x: 0.5, size: 1.2, alpha: 0.16 }, // writing
+		{ pts: spiral(), link: 0.07, dot: 1.8, x: 0.72, size: 0.9, alpha: 0.55, my: 0.26 }, // portal
+		{ pts: openRing(), link: 0.06, dot: 1.6, x: 0.5, size: 1.1, alpha: 0.2 }, // join
+		{ pts: point(), link: 0, dot: 5, x: 0.5, size: 0.4, alpha: 1 } // quote
 	];
 
 	let svgEl: SVGSVGElement | undefined = $state();
@@ -177,7 +224,7 @@
 		let vw = window.innerWidth;
 		let vh = window.innerHeight;
 		const cur: Pt[] = stages[0].pts.map((p) => [p[0], p[1]]);
-		let curView = { x: stages[0].x, size: stages[0].size, alpha: 0, dot: stages[0].dot, link: 0 };
+		let curView = { x: stages[0].x, y: 0.5, size: stages[0].size, alpha: 0, dot: stages[0].dot, link: 0 };
 		let frame = 0;
 
 		function resize() {
@@ -220,15 +267,21 @@
 			const lerp = (p: number, q: number) => p + (q - p) * t;
 
 			const k = 0.09;
+			// On phones the bold shapes sit above the text instead of behind it,
+			// and the faint background shapes fade further back.
+			const baseAlpha = lerp(a.alpha, b.alpha);
+			const strong = Math.min(1, Math.max(0, (baseAlpha - 0.2) / 0.5));
 			const target = {
 				x: mobile ? 0.5 : lerp(a.x, b.x),
-				size: lerp(a.size, b.size),
-				alpha: lerp(a.alpha, b.alpha) * fade * (mobile && lerp(a.alpha, b.alpha) > 0.5 ? 0.22 : 1),
+				y: mobile ? lerp(a.my ?? 0.5, b.my ?? 0.5) : 0.5,
+				size: lerp(a.size, b.size) * (mobile ? 0.85 : 1),
+				alpha: baseAlpha * fade * (mobile ? 0.4 + strong * 0.6 : 1),
 				dot: lerp(a.dot, b.dot),
 				link: lerp(a.link, b.link)
 			};
 			curView = {
 				x: curView.x + (target.x - curView.x) * k,
+				y: curView.y + (target.y - curView.y) * k,
 				size: curView.size + (target.size - curView.size) * k,
 				alpha: curView.alpha + (target.alpha - curView.alpha) * k,
 				dot: curView.dot + (target.dot - curView.dot) * k,
@@ -246,7 +299,7 @@
 
 			const s = (Math.min(vw, vh) * curView.size) / 2;
 			const cx = vw * curView.x;
-			const cy = vh / 2;
+			const cy = vh * curView.y;
 			svg.style.opacity = String(curView.alpha);
 
 			for (let n = 0; n < N; n++) {

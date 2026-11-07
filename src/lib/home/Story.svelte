@@ -2,9 +2,38 @@
 	import MorphField from './MorphField.svelte';
 	import { COMPANIES } from './companies';
 
-	let mission: HTMLElement | undefined = $state();
-	let why: HTMLElement | undefined = $state();
-	let how: HTMLElement | undefined = $state();
+	type Statement = { title: string; body: string; link?: { href: string; label: string } };
+
+	// Mission, then how we work, then why.
+	const statements: Statement[] = [
+		{
+			title: 'build what builders need.',
+			body: 'reagent systems was founded out of necessity. every founder meets problems no one warned them about, and none of them should decide whether a company survives. so we brought the knowledge, the resources, and the capital into one place, for any early-stage founder who needs them. we have been where you are. helping founders is our favorite place to be.'
+		},
+		{
+			title: 'it starts with a conversation.',
+			body: 'we sit down with every founder to hear what they are building and what is in the way. then we measure where the company truly stands, its technology and manufacturing readiness, so the constraints ahead are clear before they arrive.'
+		},
+		{
+			title: 'then we build alongside you.',
+			body: 'we work as partners against those constraints until the company is ready to raise. when it is, we bring it to our investor network.'
+		},
+		{
+			title: 'no equity. no cut.',
+			body: 'when we do the work, in engineering, management, marketing, development, or administration, we are paid for that work. we take no equity, no profit share, and no percentage of any introduction. a cut of the raise slows a company down. we would rather see it move.'
+		},
+		{
+			title: 'we pay it forward.',
+			body: 'we have been where every founder is: heads down, too close to see the mistakes. what carried us was other founders who reached out and helped. now we do the same.',
+			link: { href: '/community', label: 'meet the community' }
+		},
+		{
+			title: 'a modern bell labs.',
+			body: 'we want a defense industrial base and a supply chain secured for decades to come. we want to pay people to chase the breakthroughs they believe in. if the only thing standing between someone and the next frontier is our help, we will help.'
+		}
+	];
+
+	let statementEls: HTMLElement[] = $state([]);
 	let research: HTMLElement | undefined = $state();
 	let writing: HTMLElement | undefined = $state();
 	let portal: HTMLElement | undefined = $state();
@@ -12,7 +41,7 @@
 	let quote: HTMLElement | undefined = $state();
 
 	const anchors = $derived(
-		[mission, why, how, research, writing, portal, join, quote].filter(
+		[...statementEls, research, writing, portal, join, quote].filter(
 			(el): el is HTMLElement => !!el
 		)
 	);
@@ -82,36 +111,17 @@
 <div class="story">
 	<MorphField {anchors} />
 
-	<section class="statement" bind:this={mission}>
-		<div class="statement-copy">
-			<h2>we turn ideas into companies.</h2>
-			<p>
-				reagent systems is six companies working as one. research, matter, logistics, defense,
-				capital, and creative, each built to carry an early idea further than it could go alone.
-			</p>
-		</div>
-	</section>
-
-	<section class="statement" bind:this={why}>
-		<div class="statement-copy">
-			<h2>because the best ideas start fragile.</h2>
-			<p>
-				most never meet the people, tools, or capital they need. we believe the internet should
-				stay open, intelligence should be shared, and the right ideas should not have to wait.
-			</p>
-		</div>
-	</section>
-
-	<section class="statement" bind:this={how}>
-		<div class="statement-copy">
-			<h2>six companies, one direction.</h2>
-			<p>
-				research finds it. matter builds it. logistics moves it. defense protects it. capital
-				funds it. creative brings the people who carry it forward.
-			</p>
-			<a class="quiet-link" href="/community">meet the community</a>
-		</div>
-	</section>
+	{#each statements as statement, i}
+		<section class="statement" bind:this={statementEls[i]}>
+			<div class="statement-copy">
+				<h2>{statement.title}</h2>
+				<p>{statement.body}</p>
+				{#if statement.link}
+					<a class="quiet-link" href={statement.link.href}>{statement.link.label}</a>
+				{/if}
+			</div>
+		</section>
+	{/each}
 
 	<section class="resource" bind:this={research}>
 		<h2 class="resource-title">research</h2>
@@ -646,8 +656,19 @@
 	}
 
 	@media (max-width: 768px) {
+		/* The drawing sits in the top half on phones; text takes the lower half. */
 		.statement {
-			padding: 0 1.5rem;
+			padding: 46vh 1.5rem 8vh;
+			padding: 46svh 1.5rem 8svh;
+			align-items: flex-start;
+		}
+		.statement h2 {
+			margin-bottom: 1.25rem;
+		}
+		.resource.portal {
+			justify-content: flex-start;
+			padding-top: 50vh;
+			padding-top: 50svh;
 		}
 		.resource,
 		.join {
