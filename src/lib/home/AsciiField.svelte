@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	let { art, target = null }: { art: string; target?: string | null } = $props();
+	// `target` is a logo image to dither, or `{ art }`: text art shown as-is, full size.
+	let { art, target = null }: { art: string; target?: string | { art: string } | null } = $props();
 
 	const RAMP = [' ', '.', ':', '-', '=', '+'];
 	const DISSOLVE_MS = 700;
@@ -131,11 +132,32 @@
 		dissolving = true;
 	}
 
+	// Text art at its own size, centred in the grid.
+	function artGrid(text: string): string[] {
+		const lines = text.split('\n').map((l) => Array.from(l));
+		const w = Math.max(...lines.map((l) => l.length));
+		const grid = new Array(rows * cols).fill(' ');
+		const offR = Math.floor((rows - lines.length) / 2);
+		const offC = Math.floor((cols - w) / 2);
+		lines.forEach((line, r) =>
+			line.forEach((ch, c) => {
+				const gr = offR + r;
+				const gc = offC + c;
+				if (gr >= 0 && gr < rows && gc >= 0 && gc < cols) grid[gr * cols + gc] = ch;
+			})
+		);
+		return grid;
+	}
+
 	$effect(() => {
 		const src = target;
 		const id = ++requestId;
 		if (!src) {
 			startDissolve(base);
+			return;
+		}
+		if (typeof src === 'object') {
+			startDissolve(artGrid(src.art));
 			return;
 		}
 		logoGrid(src)

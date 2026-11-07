@@ -1,3 +1,5 @@
+import { matterArt } from './matter-art';
+
 export interface Company {
 	slug: string;
 	name: string;
@@ -7,6 +9,8 @@ export interface Company {
 	logo: string;
 	/** Three lines shown in the hero while this company is up. */
 	slogan: [string, string, string];
+	/** Text art for the hero, used as-is instead of dithering `logo`. */
+	art?: string;
 }
 
 // Logos in /static/company-logos are placeholders until the final marks arrive.
@@ -18,6 +22,7 @@ export const COMPANIES: Company[] = [
 		line: 'materials and physical products.',
 		email: 'matter@reagent-systems.com',
 		logo: '/company-logos/matter.svg',
+		art: matterArt,
 		slogan: ['u.s.', 'made', 'materials']
 	},
 	{

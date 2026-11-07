@@ -326,6 +326,7 @@
 		let frame = 0;
 		let settleTimer: ReturnType<typeof setTimeout> | undefined;
 		let arrivedAt = 0;
+		let lastScene = 0;
 
 		function resize() {
 			const r = svg.getBoundingClientRect();
@@ -355,12 +356,16 @@
 			settled = false;
 			clearTimeout(settleTimer);
 			const target = scenes[index].boxes;
+			const from = lastScene;
+			lastScene = index;
 			const shown = (b: Box) => b.w > 0.02 && b.d > 0.02 && b.h > 0.02;
 			controls = target.map((b, n) => {
 				const c = cur[n];
 				const goal: Box = { ...b };
 				let delay = Math.min(0.5, b.z * 0.06 + n * 0.012);
-				if (scenes[index].grow && !shown(c) && shown(b)) {
+				// "Extra" means absent from the previous scene's layout, even if a block is
+				// still shrinking away on screen from a fast scroll.
+				if (scenes[index].grow && !shown(scenes[from].boxes[n]) && shown(b)) {
 					// The city's extra buildings (the ones not made from the steps): each
 					// starts flat on the ground where it will stand, and they rise in a
 					// wave from the middle outward.

@@ -23,7 +23,9 @@
 		(hoverSlug && COMPANIES.find((c) => c.slug === hoverSlug)) || order[cycleIndex]
 	);
 	// Creative's mark is the original dithered art.
-	const activeLogo = $derived(current.slug === 'creative' ? null : current.logo);
+	const activeLogo = $derived(
+		current.slug === 'creative' ? null : current.art ? { art: current.art } : current.logo
+	);
 
 	function show(slug: string) {
 		hoverSlug = slug;
