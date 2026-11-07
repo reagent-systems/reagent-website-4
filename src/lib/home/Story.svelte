@@ -175,7 +175,7 @@
 	</section>
 
 	<section class="link-section">
-		<h2 class="title">writing</h2>
+		<h2 class="title">news</h2>
 		<div class="cards" use:reveal>
 			{#each ARTICLES.slice(0, 2) as article}
 				<a class="card text" href={article.href}>
@@ -184,7 +184,7 @@
 				</a>
 			{/each}
 		</div>
-		<a class="quiet-link" href="/blog">all writing</a>
+		<a class="quiet-link" href="/blog">all news</a>
 	</section>
 
 	<section class="link-section">
@@ -370,7 +370,7 @@
 		text-align: center;
 	}
 
-	/* Research, writing, portal, join, quote: one layout. Title, then the visual
+	/* Research, news, portal, join, quote: one layout. Title, then the visual
 	   below it, then the link. */
 	.link-section {
 		display: flex;
