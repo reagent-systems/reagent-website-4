@@ -65,6 +65,35 @@ html {
 	--ascii-font: 'IBM Plex Mono', monospace;
 	/* Warm off-white canvas (home / portal behind ASCII); matches footer-adjacent tones */
 	--page-background: #fafafa;
+
+	/* One type scale for the whole site. */
+	--text-title: clamp(2.5rem, 4.4vw, 4.5rem);
+	--text-sub: clamp(1.5rem, 2vw, 2rem);
+	--text-quote: clamp(1.5rem, 2.2vw, 2.35rem);
+	--text-body: clamp(1rem, 1.1vw, 1.15rem);
+	--text-small: 1rem;
+}
+
+@media (max-width: 768px) {
+	:root {
+		--text-title: 2.3rem;
+		--text-sub: 1.45rem;
+		--text-quote: 1.4rem;
+		--text-body: 1rem;
+		--text-small: 0.95rem;
+	}
+}
+
+/* Words never split across lines. */
+p,
+h1,
+h2,
+h3,
+blockquote {
+	hyphens: manual;
+	-webkit-hyphens: manual;
+	overflow-wrap: normal;
+	word-break: normal;
 }
 
 html {

@@ -188,7 +188,7 @@
 	.statement h2 {
 		font-family: var(--main-font);
 		font-weight: 100;
-		font-size: clamp(2.75rem, 5.2vw, 5.25rem);
+		font-size: var(--text-title);
 		line-height: 1.02;
 		letter-spacing: -0.02em;
 		color: #1a1a1a;
@@ -199,14 +199,12 @@
 	p {
 		text-align: justify;
 		text-align-last: center;
-		hyphens: auto;
-		-webkit-hyphens: auto;
 	}
 
 	.statement p {
 		font-family: 'Raleway Variable', var(--main-font);
 		font-weight: 300;
-		font-size: clamp(1.1rem, 1.35vw, 1.35rem);
+		font-size: var(--text-body);
 		line-height: 1.7;
 		color: #5f5f5f;
 		max-width: 30rem;
@@ -226,7 +224,7 @@
 	.resource-title {
 		font-family: var(--main-font);
 		font-weight: 100;
-		font-size: clamp(3rem, 6vw, 6rem);
+		font-size: var(--text-title);
 		letter-spacing: -0.02em;
 		line-height: 1;
 		color: #1a1a1a;
@@ -252,7 +250,7 @@
 		margin-top: 4rem;
 		font-family: 'Raleway Variable', var(--main-font);
 		font-weight: 300;
-		font-size: 1.15rem;
+		font-size: var(--text-small);
 		letter-spacing: 0.05em;
 		color: #6b6b6b;
 		text-decoration: none;
@@ -283,7 +281,7 @@
 		text-align-last: left;
 		font-family: var(--main-font);
 		font-weight: 200;
-		font-size: clamp(1.8rem, 2.8vw, 2.6rem);
+		font-size: var(--text-sub);
 		line-height: 1.15;
 		color: #1a1a1a;
 	}
@@ -328,7 +326,7 @@
 	.join-block h3 {
 		font-family: var(--main-font);
 		font-weight: 200;
-		font-size: 2.2rem;
+		font-size: var(--text-sub);
 		color: #1a1a1a;
 		margin-bottom: 0.25rem;
 	}
@@ -338,7 +336,7 @@
 		text-align-last: left;
 		font-family: 'Raleway Variable', var(--main-font);
 		font-weight: 300;
-		font-size: 1.1rem;
+		font-size: var(--text-body);
 		line-height: 1.7;
 		color: #6b6b6b;
 		margin-bottom: 1rem;
@@ -362,7 +360,7 @@
 		width: 100%;
 		font-family: 'Raleway Variable', var(--main-font);
 		font-weight: 300;
-		font-size: 1.1rem;
+		font-size: var(--text-body);
 		color: #1a1a1a;
 		background: #efefef;
 		border: none;
@@ -386,7 +384,7 @@
 	button {
 		font-family: 'Raleway Variable', var(--main-font);
 		font-weight: 300;
-		font-size: 1.1rem;
+		font-size: var(--text-body);
 		letter-spacing: 0.05em;
 		color: #fafafa;
 		background: #1a1a1a;
@@ -434,7 +432,7 @@
 	.quote p {
 		font-family: var(--main-font);
 		font-weight: 100;
-		font-size: clamp(1.75rem, 2.45vw, 2.75rem);
+		font-size: var(--text-quote);
 		line-height: 1.15;
 		letter-spacing: -0.01em;
 		color: #1a1a1a;
@@ -464,12 +462,7 @@
 			padding: 0 1.5rem;
 		}
 		.statement h2 {
-			font-size: 2.4rem;
 			margin-bottom: 1.1rem;
-		}
-		.statement p {
-			font-size: 1.02rem;
-			line-height: 1.65;
 		}
 		.statement .quiet-link {
 			margin-top: 1.5rem;
@@ -499,9 +492,6 @@
 		}
 		.quote blockquote {
 			max-width: none;
-		}
-		.quote p {
-			font-size: 1.45rem;
 		}
 	}
 </style>

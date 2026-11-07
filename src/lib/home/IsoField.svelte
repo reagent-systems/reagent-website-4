@@ -27,6 +27,7 @@
 		| { kind: 'image'; box: number; src: string; label: string; href: string }
 		| { kind: 'cover'; box: number; title: string; href: string }
 		| { kind: 'gate'; box: number; href: string }
+		| { kind: 'portal'; box: number; href: string }
 		| { kind: 'company'; box: number; slug: string; name: string };
 
 	type Scene = {
@@ -34,6 +35,10 @@
 		float?: number;
 		overlays?: Overlay[];
 		actors?: (t: number) => Tuple[];
+		/** Extra extent for framing, for things drawn outside the boxes. */
+		bounds?: Tuple[];
+		/** Set for the portal scene: draws the ring and its surface. */
+		portal?: { zc: number; R: number; ring: number; depth: number };
 	};
 
 	const K = 24;
@@ -179,24 +184,21 @@
 		overlays: ARTICLES.map((a, i) => ({ kind: 'cover' as const, box: i, title: a.title, href: a.href }))
 	};
 
-	// Portal: a gate, with light passing through.
+	// Portal: a standing ring on a dark plinth, its surface turning slowly inward.
+	const PORTAL = { zc: 2.65, R: 2, ring: 0.36, depth: 0.42 };
 	const gate: Scene = {
 		boxes: pad(
 			[
-				[-3, -2.4, 0, 6, 4.8, 0.15],
-				[-2, -0.45, 0.15, 0.9, 0.9, 4],
-				[1.1, -0.45, 0.15, 0.9, 0.9, 4],
-				[-2.2, -0.55, 4.15, 4.4, 1.1, 0.75, 0, 0.85]
+				[-2.7, -1.15, 0, 5.4, 2.3, 0.55, 0, 0.85]
 			],
-			[0, 0, 2]
+			[0, 0, 0.3]
 		),
-		overlays: [{ kind: 'gate', box: 3, href: '/portal' }],
-		actors: (t) =>
-			Array.from({ length: 4 }, (_, k) => {
-				const f = (t * 0.35 + k / 4) % 1;
-				const s = 0.26 * Math.sin(f * Math.PI);
-				return cube(-0.5 + (k % 2) * 0.5, -2.2 + f * 4.2, 0.3 + (k % 3) * 0.9 + f * 0.4, s, 0, k % 2 ? 0.85 : 0);
-			})
+		bounds: [[-PORTAL.R, -0.3, 0, PORTAL.R * 2, 0.6, PORTAL.zc + PORTAL.R]],
+		portal: PORTAL,
+		overlays: [
+			{ kind: 'portal', box: 0, href: '/portal' },
+			{ kind: 'gate', box: 0, href: '/portal' }
+		]
 	};
 
 	// Join: the six companies, each one a building to pick. Two rows, the taller
@@ -264,32 +266,55 @@
 		const C = Math.cos(Math.PI / 6);
 		const S = 0.5;
 
-		// A reusable pool of polygons, written in paint order each frame.
-		const pool: SVGPolygonElement[] = [];
+		// The portal's glow, in the brand's two colours.
+		svg.innerHTML = `<defs>
+			<radialGradient id="portal-glow" cx="50%" cy="50%" r="55%">
+				<stop offset="0%" stop-color="#fafafa" stop-opacity="1"/>
+				<stop offset="35%" stop-color="#9aa9cf" stop-opacity="0.9"/>
+				<stop offset="75%" stop-color="#2d4a8a" stop-opacity="0.95"/>
+				<stop offset="100%" stop-color="#800020" stop-opacity="1"/>
+			</radialGradient>
+		</defs>`;
+
+		// A reusable pool of paths, written in paint order each frame.
+		const pool: SVGPathElement[] = [];
 		let used = 0;
-		function poly(points: string, fill: string, opacity = 1, stroke = true) {
+		type Style = {
+			fill?: string;
+			fillOpacity?: number;
+			stroke?: string;
+			strokeOpacity?: number;
+			strokeWidth?: number;
+			evenodd?: boolean;
+		};
+		function shape(d: string, st: Style) {
 			let p = pool[used];
 			if (!p) {
-				p = document.createElementNS(ns, 'polygon');
+				p = document.createElementNS(ns, 'path');
 				p.setAttribute('stroke-linejoin', 'round');
-				p.setAttribute('stroke-width', '0.85');
+				p.setAttribute('stroke-linecap', 'round');
 				svg.append(p);
 				pool.push(p);
 			}
 			used++;
-			p.setAttribute('points', points);
-			p.setAttribute('fill', fill);
-			p.setAttribute('fill-opacity', opacity.toFixed(3));
-			p.setAttribute('stroke', stroke ? '#1a1a1a' : 'none');
+			p.setAttribute('d', d);
+			p.setAttribute('fill', st.fill ?? 'none');
+			p.setAttribute('fill-opacity', (st.fillOpacity ?? 1).toFixed(3));
+			p.setAttribute('fill-rule', st.evenodd ? 'evenodd' : 'nonzero');
+			p.setAttribute('stroke', st.stroke ?? 'none');
+			p.setAttribute('stroke-opacity', (st.strokeOpacity ?? 1).toFixed(3));
+			p.setAttribute('stroke-width', (st.strokeWidth ?? 0.85).toFixed(2));
 			p.style.display = '';
 		}
+		const closed = (pts: string[]) => `M${pts.join('L')}Z`;
+		const open = (pts: string[]) => `M${pts.join('L')}`;
 
 		const cur: Box[] = scenes[0].boxes.map((b) => ({ ...b }));
 
 		// Each scene's extent in projected grid units, so it can be framed to fill the panel.
 		const frames = scenes.map((sc) => {
 			let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
-			for (const b of sc.boxes) {
+			for (const b of [...sc.boxes, ...(sc.bounds ?? []).map(toBox)]) {
 				if (b.w < 0.02 || b.d < 0.02 || b.h < 0.02) continue;
 				for (const [x, y] of [[b.x, b.y], [b.x + b.w, b.y], [b.x, b.y + b.d], [b.x + b.w, b.y + b.d]])
 					for (const z of [b.z, b.z + b.h]) {
@@ -354,6 +379,218 @@
 			return `rgb(${v},${v},${v})`;
 		};
 
+		// Projection state for the current frame.
+		let u = 1;
+		let ox = 0;
+		let oy = 0;
+		const pt = (x: number, y: number, z: number): [number, number] => [
+			ox + (x - y) * C * u,
+			oy + (x + y) * S * u - z * u
+		];
+		const P = (x: number, y: number, z: number) => {
+			const [a, b] = pt(x, y, z);
+			return `${a.toFixed(1)},${b.toFixed(1)}`;
+		};
+
+		// Plan outline of a box with rounded corners, inset by `k`.
+		function outline(x: number, y: number, w: number, d: number, r: number, k: number): [number, number][] {
+			const out: [number, number][] = [];
+			const rr = Math.max(0.001, r - k);
+			const corners: [number, number, number][] = [
+				[x + w - r, y + r, -Math.PI / 2],
+				[x + w - r, y + d - r, 0],
+				[x + r, y + d - r, Math.PI / 2],
+				[x + r, y + r, Math.PI]
+			];
+			for (const [cx, cy, a0] of corners)
+				for (let s2 = 0; s2 <= 4; s2++) {
+					const a = a0 + (s2 / 4) * (Math.PI / 2);
+					out.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]);
+				}
+			return out;
+		}
+
+		// A block with rounded vertical edges and a chamfered top.
+		function drawBox(b: Box, tone: number, n: number, t: number) {
+			const { x, y, z, w, d, h } = b;
+			const r = Math.min(0.2, w * 0.22, d * 0.22);
+			const c = Math.min(0.07, h * 0.3, r * 0.6);
+			const top = z + h;
+			const side = top - c;
+			const ring = outline(x, y, w, d, r, 0);
+			const cx = x + w / 2;
+			const cy = y + d / 2;
+			const lightX = 232 + (40 - 232) * tone;
+			const lightY = 211 + (30 - 211) * tone;
+
+			// Sides: one strip per edge segment that faces the viewer, shaded by its direction.
+			let iMin = 0;
+			let iMax = 0;
+			for (let i = 0; i < ring.length; i++) {
+				const a = ring[i];
+				if (a[0] - a[1] < ring[iMin][0] - ring[iMin][1]) iMin = i;
+				if (a[0] - a[1] > ring[iMax][0] - ring[iMax][1]) iMax = i;
+				const bb = ring[(i + 1) % ring.length];
+				let nx = bb[1] - a[1];
+				let ny = -(bb[0] - a[0]);
+				const mx = (a[0] + bb[0]) / 2 - cx;
+				const my = (a[1] + bb[1]) / 2 - cy;
+				if (nx * mx + ny * my < 0) {
+					nx = -nx;
+					ny = -ny;
+				}
+				if (nx + ny <= 0) continue;
+				const px2 = Math.max(0, nx);
+				const py2 = Math.max(0, ny);
+				const f = px2 / (px2 + py2 || 1);
+				const v = Math.round(lightY + (lightX - lightY) * f);
+				const col = `rgb(${v},${v},${v})`;
+				shape(closed([P(a[0], a[1], z), P(bb[0], bb[1], z), P(bb[0], bb[1], side), P(a[0], a[1], side)]), {
+					fill: col,
+					stroke: col,
+					strokeWidth: 0.6
+				});
+			}
+
+			// Outline: the bottom curve across the front, and the two outer edges.
+			const walk = (from: number, to: number) => {
+				const pts: string[] = [];
+				let sum = 0;
+				for (let i = from; ; i = (i + 1) % ring.length) {
+					pts.push(P(ring[i][0], ring[i][1], z));
+					sum += ring[i][0] + ring[i][1];
+					if (i === to) break;
+				}
+				return { pts, mean: sum / pts.length };
+			};
+			const one = walk(iMin, iMax);
+			const two = walk(iMax, iMin);
+			shape(open((one.mean >= two.mean ? one : two).pts), { stroke: '#1a1a1a' });
+			shape(open([P(ring[iMin][0], ring[iMin][1], z), P(ring[iMin][0], ring[iMin][1], side)]), { stroke: '#1a1a1a' });
+			shape(open([P(ring[iMax][0], ring[iMax][1], z), P(ring[iMax][0], ring[iMax][1], side)]), { stroke: '#1a1a1a' });
+
+			// Chamfer band, then the top face.
+			const bandV = Math.round(244 + (48 - 244) * tone);
+			shape(closed(ring.map(([a, bb]) => P(a, bb, side))), { fill: `rgb(${bandV},${bandV},${bandV})`, stroke: '#1a1a1a' });
+			const topV = Math.round(253 + (58 - 253) * tone);
+			shape(closed(outline(x, y, w, d, r, c).map(([a, bb]) => P(a, bb, top))), {
+				fill: `rgb(${topV},${topV},${topV})`,
+				stroke: '#1a1a1a',
+				strokeOpacity: 0.3,
+				strokeWidth: 0.6
+			});
+
+			// Windows on the flat stretches of the two front faces, a few of them lit.
+			if (b.win > 0.05 && h > 0.9) {
+				const lit = (k: number) => Math.sin(t * 0.7 + k * 12.9898) > 0.55;
+				let k = n * 97;
+				for (let zz = z + 0.35; zz + 0.3 < side - 0.12; zz += 0.5) {
+					for (let yy = y + r + 0.06; yy + 0.2 < y + d - r - 0.04; yy += 0.4) {
+						const on = lit(k++);
+						shape(closed([P(x + w, yy, zz), P(x + w, yy + 0.2, zz), P(x + w, yy + 0.2, zz + 0.28), P(x + w, yy, zz + 0.28)]), {
+							fill: on ? '#fafafa' : '#1a1a1a',
+							fillOpacity: b.win * (on ? 1 : 0.45)
+						});
+					}
+					for (let xx = x + r + 0.06; xx + 0.2 < x + w - r - 0.04; xx += 0.4) {
+						const on = lit(k++);
+						shape(closed([P(xx, y + d, zz), P(xx + 0.2, y + d, zz), P(xx + 0.2, y + d, zz + 0.28), P(xx, y + d, zz + 0.28)]), {
+							fill: on ? '#fafafa' : '#1a1a1a',
+							fillOpacity: b.win * (on ? 1 : 0.5)
+						});
+					}
+				}
+			}
+		}
+
+		// The portal: a round ring standing upright, its surface drawing light inward.
+		let portalBox = { x: 0, y: 0, w: 0, h: 0 };
+		function drawPortal(pd: { zc: number; R: number; ring: number; depth: number }, t: number) {
+			const { zc, R, ring, depth } = pd;
+			const Ri = R - ring;
+			const yf = depth / 2;
+			const yb = -depth / 2;
+			const N = 72;
+			const circ = (r: number, yy: number) =>
+				Array.from({ length: N }, (_, i) => {
+					const a = (i / N) * Math.PI * 2;
+					return P(Math.cos(a) * r, yy, zc + Math.sin(a) * r);
+				});
+			const disc = (r: number, yy: number) => closed(circ(r, yy));
+
+			// The surface sits at the back of the ring.
+			shape(disc(Ri, yb), { fill: 'url(#portal-glow)' });
+
+			// Rings drifting toward the centre.
+			for (let j = 0; j < 4; j++) {
+				const f = 1 - ((t * 0.22 + j / 4) % 1);
+				shape(disc(Ri * f * 0.96, yb), { stroke: '#fafafa', strokeOpacity: 0.55 * f, strokeWidth: 0.8 });
+			}
+
+			// Light spiralling inward along three arms.
+			let dots = '';
+			const dotR = Math.max(0.6, u * 0.025);
+			for (let k = 0; k < 66; k++) {
+				const arm = k % 3;
+				const s2 = (k / 66 + t * 0.12) % 1;
+				const r = Ri * (1 - s2) * 0.92;
+				const a = arm * ((Math.PI * 2) / 3) + s2 * 5.5 + t * 0.6;
+				const [qx, qy] = pt(Math.cos(a) * r, yb, zc + Math.sin(a) * r);
+				const rr = dotR * (0.6 + (1 - s2));
+				dots += `M${(qx - rr).toFixed(1)},${qy.toFixed(1)}a${rr.toFixed(2)},${rr.toFixed(2)} 0 1,0 ${(rr * 2).toFixed(2)},0a${rr.toFixed(2)},${rr.toFixed(2)} 0 1,0 ${(-rr * 2).toFixed(2)},0`;
+			}
+			shape(dots, { fill: '#fafafa', fillOpacity: 0.85 });
+
+			// Inside of the ring, where it faces the viewer.
+			for (let i = 0; i < N; i++) {
+				const a0 = (i / N) * Math.PI * 2;
+				const a1 = ((i + 1) / N) * Math.PI * 2;
+				const am = (a0 + a1) / 2;
+				if (-(Math.cos(am) + Math.sin(am)) <= 0) continue;
+				const v = Math.round(214 + 26 * Math.max(0, -Math.sin(am)));
+				const col = `rgb(${v},${v},${v})`;
+				shape(
+					closed([
+						P(Math.cos(a0) * Ri, yb, zc + Math.sin(a0) * Ri),
+						P(Math.cos(a1) * Ri, yb, zc + Math.sin(a1) * Ri),
+						P(Math.cos(a1) * Ri, yf, zc + Math.sin(a1) * Ri),
+						P(Math.cos(a0) * Ri, yf, zc + Math.sin(a0) * Ri)
+					]),
+					{ fill: col, stroke: col, strokeWidth: 0.5 }
+				);
+			}
+
+			// Outside of the ring, where it faces the viewer.
+			for (let i = 0; i < N; i++) {
+				const a0 = (i / N) * Math.PI * 2;
+				const a1 = ((i + 1) / N) * Math.PI * 2;
+				const am = (a0 + a1) / 2;
+				if (Math.cos(am) + Math.sin(am) <= 0) continue;
+				const v = Math.round(210 + 36 * Math.max(0, Math.sin(am)));
+				const col = `rgb(${v},${v},${v})`;
+				shape(
+					closed([
+						P(Math.cos(a0) * R, yb, zc + Math.sin(a0) * R),
+						P(Math.cos(a1) * R, yb, zc + Math.sin(a1) * R),
+						P(Math.cos(a1) * R, yf, zc + Math.sin(a1) * R),
+						P(Math.cos(a0) * R, yf, zc + Math.sin(a0) * R)
+					]),
+					{ fill: col, stroke: col, strokeWidth: 0.5 }
+				);
+			}
+
+			// Front face of the ring.
+			shape(`${disc(R, yf)} ${disc(Ri, yf)}`, { fill: '#fdfdfd', stroke: '#1a1a1a', evenodd: true });
+
+			// Where people can click: the whole ring.
+			const [lx] = pt(-R, yf, zc);
+			const [rx] = pt(R, yf, zc);
+			const [, ty] = pt(0, yf, zc + R);
+			const [, by] = pt(0, yf, zc - R);
+			const pad = R * u * 0.15;
+			portalBox = { x: Math.min(lx, rx), y: ty - pad, w: Math.abs(rx - lx), h: by - ty + pad * 2 };
+		}
+
 		function tick(now: number) {
 			const idx = sectionIndex();
 			if (idx !== active) {
@@ -376,17 +613,9 @@
 			view.u += (targetU - view.u) * ease;
 			view.cx += (fr.cx - view.cx) * ease;
 			view.cy += (fr.cy - view.cy) * ease;
-			const u = view.u;
-			const ox = pw / 2 - view.cx * u;
-			const oy = ph / 2 - view.cy * u;
-			const pt = (x: number, y: number, z: number): [number, number] => [
-				ox + (x - y) * C * u,
-				oy + (x + y) * S * u - z * u
-			];
-			const P = (x: number, y: number, z: number) => {
-				const [a, b] = pt(x, y, z);
-				return `${a.toFixed(1)},${b.toFixed(1)}`;
-			};
+			u = view.u;
+			ox = pw / 2 - view.cx * u;
+			oy = ph / 2 - view.cy * u;
 
 			// Hover raises a block a little.
 			for (let n = 0; n < K; n++) lift[n] += ((hovered === n ? 0.35 : 0) - lift[n]) * 0.15;
@@ -408,62 +637,45 @@
 				if (b.z > 0.5) continue;
 				const s = Math.min(1.6, b.h * 0.45);
 				const g = b.z + 0.001;
-				poly(
-					[
+				shape(
+					closed([
 						P(b.x + b.w, b.y, g),
 						P(b.x + b.w + s, b.y + s * 0.15, g),
 						P(b.x + b.w + s, b.y + b.d + s * 0.15, g),
 						P(b.x + b.w, b.y + b.d, g)
-					].join(' '),
-					'#1a1a1a',
-					0.06,
-					false
+					]),
+					{ fill: '#1a1a1a', fillOpacity: 0.06 }
 				);
 			}
 
-			const depth = (b: Box) => b.x + b.w / 2 + b.y + b.d / 2 + b.z;
+			// Ground slabs always go down first; everything else back to front.
+			const depth = (b: Box) =>
+				b.z < 0.05 && b.h < 0.2 ? -1e6 : b.x + b.w / 2 + b.y + b.d / 2 + b.z;
 			all.sort((p, q) => depth(p.b) - depth(q.b));
 
 			const isJoin = scene === join;
 			for (const { b, n } of all) {
-				const { x, y, z, w, d, h } = b;
 				const pickedHere = isJoin && n > 0 && COMPANIES[n - 1]?.slug === picked;
 				const tt = Math.min(1, b.tone + (pickedHere ? 0.85 : 0));
-				poly([P(x, y, z + h), P(x + w, y, z + h), P(x + w, y + d, z + h), P(x, y + d, z + h)].join(' '), shade(253, 58, tt));
-				poly([P(x + w, y, z), P(x + w, y + d, z), P(x + w, y + d, z + h), P(x + w, y, z + h)].join(' '), shade(232, 40, tt));
-				poly([P(x, y + d, z), P(x + w, y + d, z), P(x + w, y + d, z + h), P(x, y + d, z + h)].join(' '), shade(211, 30, tt));
-
-				// Windows, a few of them lit and changing slowly.
-				if (b.win > 0.05 && h > 0.9) {
-					const lit = (k: number) => Math.sin(t * 0.7 + k * 12.9898) > 0.55;
-					let k = n * 97;
-					for (let zz = z + 0.35; zz + 0.3 < z + h - 0.15; zz += 0.5) {
-						for (let yy = y + 0.18; yy + 0.2 < y + d - 0.08; yy += 0.4) {
-							const on = lit(k++);
-							poly(
-								[P(x + w, yy, zz), P(x + w, yy + 0.2, zz), P(x + w, yy + 0.2, zz + 0.28), P(x + w, yy, zz + 0.28)].join(' '),
-								on ? '#fafafa' : '#1a1a1a',
-								b.win * (on ? 1 : 0.45),
-								false
-							);
-						}
-						for (let xx = x + 0.18; xx + 0.2 < x + w - 0.08; xx += 0.4) {
-							const on = lit(k++);
-							poly(
-								[P(xx, y + d, zz), P(xx + 0.2, y + d, zz), P(xx + 0.2, y + d, zz + 0.28), P(xx, y + d, zz + 0.28)].join(' '),
-								on ? '#fafafa' : '#1a1a1a',
-								b.win * (on ? 1 : 0.5),
-								false
-							);
-						}
-					}
-				}
+				drawBox(b, tt, n, t);
 			}
+
+			if (scene.portal) drawPortal(scene.portal, t);
+
 			for (let i = used; i < pool.length; i++) pool[i].style.display = 'none';
 
 			// Pin the clickable layer onto the block faces (40px per grid unit).
 			const px = u / 40;
 			overlays.forEach((o, i) => {
+				if (o.kind === 'portal') {
+					const el = overlayTop[i];
+					if (el) {
+						el.style.width = `${portalBox.w}px`;
+						el.style.height = `${portalBox.h}px`;
+						el.style.transform = `translate(${portalBox.x}px, ${portalBox.y}px)`;
+					}
+					return;
+				}
 				const b = drawn[o.box];
 				if (!b) return;
 				const top = overlayTop[i];
@@ -531,6 +743,8 @@
 						onmouseenter={() => (hovered = o.box)}
 						onmouseleave={() => (hovered = -1)}>enter</a
 					>
+				{:else if o.kind === 'portal'}
+					<a class="face portal-hit" href={o.href} bind:this={overlayTop[i]} aria-label="enter the portal"></a>
 				{:else if o.kind === 'company'}
 					<button
 						type="button"
@@ -662,6 +876,11 @@
 		letter-spacing: 0.35em;
 		color: #fafafa;
 		text-decoration: none;
+	}
+
+	.portal-hit {
+		display: block;
+		border-radius: 50%;
 	}
 
 	.company {
