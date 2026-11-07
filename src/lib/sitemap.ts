@@ -1,6 +1,7 @@
 // Every page on the site, for the sitemap page and sitemap.xml.
 import { AREAS, REGIONS, displayName } from '$lib/areas';
 import { SERVICES } from '$lib/site-links';
+import { COMPANIES } from '$lib/home/companies';
 
 export const SITE = 'https://reagent-systems.com';
 
@@ -28,10 +29,15 @@ export const SITEMAP: SitemapGroup[] = [
 		title: 'resources',
 		links: [
 			{ href: '/research', label: 'research' },
+			{ href: '/blog', label: 'news' },
 			{ href: '/projects', label: 'projects' },
 			{ href: '/portal', label: 'portal' },
 			{ href: '/metrics', label: 'metrics' }
 		]
+	},
+	{
+		title: 'companies',
+		links: COMPANIES.map((c) => ({ href: `/${c.slug}`, label: c.fullName }))
 	},
 	{
 		title: 'legal',
@@ -54,6 +60,8 @@ export const SITEMAP_PATHS: string[] = [
 	'/community',
 	'/services',
 	'/research',
+	'/blog',
+	...COMPANIES.map((c) => `/${c.slug}`),
 	'/projects',
 	'/portal',
 	'/metrics',
