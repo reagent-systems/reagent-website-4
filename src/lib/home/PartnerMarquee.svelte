@@ -1,20 +1,19 @@
 <script lang="ts">
-	// Placeholder entries until partner logos arrive. Swap `logo` in for each.
-	const partners: { name: string; logo?: string }[] = Array.from({ length: 8 }, () => ({
-		name: 'partner'
-	}));
-	const loop = [...partners, ...partners];
+	const partners: { name: string; logo: string }[] = [
+		{ name: 'Linux Foundation', logo: '/partner-logos/linux-foundation.svg' },
+		{ name: 'NVIDIA', logo: '/partner-logos/nvidia.svg' },
+		{ name: 'Open Secure AI Alliance', logo: '/partner-logos/open-secure-ai-alliance.svg' }
+	];
+	// Repeated so the strip is always wider than the screen, then doubled for a seamless loop.
+	const set = [...partners, ...partners, ...partners];
+	const loop = [...set, ...set];
 </script>
 
 <section class="marquee" aria-label="partners">
 	<div class="marquee-track">
 		{#each loop as partner, i}
 			<div class="marquee-item" aria-hidden={i >= partners.length}>
-				{#if partner.logo}
-					<img src={partner.logo} alt={partner.name} />
-				{:else}
-					<span>{partner.name}</span>
-				{/if}
+				<img src={partner.logo} alt={partner.name} />
 			</div>
 		{/each}
 	</div>
@@ -45,20 +44,13 @@
 		justify-content: center;
 	}
 
-	.marquee-item span {
-		font-family: var(--main-font);
-		font-weight: 300;
-		font-size: 1.6rem;
-		letter-spacing: 0.04em;
-		color: #b5b5b5;
-		text-transform: lowercase;
-	}
 
 	.marquee-item img {
-		max-height: 2.5rem;
-		max-width: 10rem;
-		filter: grayscale(1);
-		opacity: 0.55;
+		height: 2.4rem;
+		width: auto;
+		max-width: 11rem;
+		filter: grayscale(1) contrast(1.1);
+		opacity: 0.5;
 	}
 
 	@keyframes drift {
@@ -82,9 +74,6 @@
 		}
 		.marquee-item {
 			width: 11rem;
-		}
-		.marquee-item span {
-			font-size: 1.25rem;
 		}
 	}
 </style>

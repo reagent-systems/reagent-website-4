@@ -449,9 +449,10 @@
 	}
 
 	@media (max-width: 768px) {
-		/* Phones: text scrolls in the top half; the blocks hold the bottom half. */
+		/* Phones: the blocks hold the top third; text scrolls below it. */
 		.story {
-			padding-bottom: 50svh;
+			padding-top: 34svh;
+			padding-bottom: 8svh;
 		}
 		section {
 			padding-right: 1.5rem !important;

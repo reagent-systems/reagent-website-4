@@ -373,7 +373,8 @@
 		function sectionIndex(): number {
 			const vh = window.innerHeight;
 			const mobile = window.innerWidth <= 768;
-			const line = vh * (mobile ? 0.25 : 0.5);
+			// The reading line: the middle of the screen, or of the space below the panel on phones.
+			const line = vh * (mobile ? 0.64 : 0.5);
 			let idx = 0;
 			anchors.forEach((el, i) => {
 				if (el.getBoundingClientRect().top <= line) idx = i + 1;
@@ -958,37 +959,26 @@
 		outline-offset: 1px;
 	}
 
-	/* Phones: a solid lower half, sized to the tallest the screen gets so
-	   nothing shows beneath it when the browser bar slides away. */
+	/* Phones: a solid band across the top third, right under the partner strip.
+	   The text scrolls in the space below and slides up behind it. */
 	@media (max-width: 768px) {
-		.stage {
-			height: 100lvh;
-			margin-bottom: -100lvh;
-		}
-
 		.panel {
-			top: 50vh;
-			top: 50svh;
-			bottom: 0;
+			top: 0;
+			bottom: auto;
 			width: 100%;
-			height: auto;
+			height: 34vh;
+			height: 34svh;
 			background: var(--page-background);
 		}
 
-		.panel::before {
+		.panel::after {
 			content: '';
 			position: absolute;
 			left: 0;
 			right: 0;
-			bottom: 100%;
+			top: 100%;
 			height: 2.5rem;
-			background: linear-gradient(to bottom, transparent, var(--page-background));
-		}
-
-		.iso,
-		.layer {
-			height: 50vh;
-			height: 50svh;
+			background: linear-gradient(to top, transparent, var(--page-background));
 		}
 	}
 </style>
