@@ -1,34 +1,34 @@
 // Links shared by the footer and the sitemap page.
 import { COMPANIES } from '$lib/home/companies';
 
-// Each service is described in our own words, from founder calls.
+// Each service, as described on the services page.
 export type Service = { id: string; name: string; text: string; link?: { href: string; label: string } };
 
 export const SERVICES: Service[] = [
 	{
 		id: 'readiness-assessment',
 		name: 'readiness assessment',
-		text: "we ask the questions that show how defensible you are, and from that we gauge your technology readiness level and your manufacturing readiness level."
+		text: "we start with a structured set of questions about your product and market, and use the answers to place you on the technology and manufacturing readiness scales."
 	},
 	{
 		id: 'founder-partnership',
 		name: 'founder partnership',
-		text: "we take founders from very early stage to a technology readiness level of five and a manufacturing readiness level of six: compliance in check, paperwork in check, a business model that scales, and operators in wherever they're needed."
+		text: "we work alongside you to reach technology readiness level five and manufacturing readiness level six, sorting out compliance, paperwork, a business model that can scale, and the operators you need."
 	},
 	{
 		id: 'raise-preparation',
 		name: 'raise preparation',
-		text: "investors expect confident decisions backed by numbers and research. that means a pitch deck, a cap table, a data room, a website, branding, and your own research documents, ready before the introduction."
+		text: "investors look for decisions backed by research and numbers. we help you put together the pitch deck, cap table, data room, website and branding before any introduction."
 	},
 	{
 		id: 'founder-network',
 		name: 'founder network',
-		text: "introductions to founders who are ahead of you, and to the engineers and manufacturers who have built it before."
+		text: "introductions to founders a few steps ahead of you, and to engineers and manufacturers who have solved similar problems."
 	},
 	{
 		id: 'spark-inference',
 		name: 'spark inference',
-		text: "we opened our DGX Spark for free compute and free inference for people doing ML work.",
+		text: "free compute and inference on our DGX Spark for anyone doing machine learning work.",
 		link: { href: 'https://spark.reagent-systems.com', label: 'enter the portal' }
 	}
 ];

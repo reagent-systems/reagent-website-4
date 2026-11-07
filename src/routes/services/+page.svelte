@@ -15,7 +15,7 @@
 	<header>
 		<h1 class="title">services</h1>
 		<p class="lede">
-			we get founders from very early stage to a middle stage, ready for a pre-seed investment.
+			we help founders go from an early idea to a company ready for its first raise.
 		</p>
 	</header>
 

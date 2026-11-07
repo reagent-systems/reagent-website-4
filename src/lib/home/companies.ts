@@ -15,7 +15,7 @@ export interface Company {
 	slogan: [string, string, string];
 	/** Text art for the hero, used as-is instead of dithering `logo`. */
 	art?: string;
-	/** What the company does, in our own words (from founder calls). */
+	/** What the company does, for its page. */
 	about?: string[];
 }
 
@@ -31,7 +31,7 @@ export const COMPANIES: Company[] = [
 		art: matterArt,
 		slogan: ['u.s.', 'made', 'materials'],
 		about: [
-			"matter is the long road. we want to get into production ourselves, starting with plastics."
+			"reagent matter is working toward production of its own, beginning with plastics, so the materials founders depend on can be made in the united states."
 		],
 	},
 	{
@@ -44,9 +44,9 @@ export const COMPANIES: Company[] = [
 		art: defenseArt,
 		slogan: ['for', 'new', 'swords'],
 		about: [
-			"a strategic partnership network of people who want to make change in the defense industry, and bring together a supply chain for new technology.",
-			"if you're at a zero, we want to get you to a five. we take care of the compliance roadblocks ourselves, because that's just paperwork, and paperwork is easy.",
-			"SAM.gov registration, a CAGE code, SBIR and STTR applications, and introductions to manufacturers who have built this before."
+			"reagent defense connects founders, engineers and manufacturers who want to change how defense technology gets built, and links them into one supply chain.",
+			"we take early projects from an idea to a working prototype, and handle the compliance work that usually slows founders down.",
+			"that includes SAM.gov registration, a CAGE code, SBIR and STTR applications, and introductions to manufacturers with relevant experience."
 		],
 	},
 	{
@@ -59,8 +59,8 @@ export const COMPANIES: Company[] = [
 		art: logisticsArt,
 		slogan: ['easy', 'supply', 'chains'],
 		about: [
-			"we want to get the cost of prototyping hardware to zero, by pre-selling it as much as possible.",
-			"that takes accurate, instant quotes, and a platform that connects the manufacturing supply chain. one button, so hardware is essentially free to prototype and make for everybody with an idea."
+			"reagent logistics is working to bring the cost of a hardware prototype close to zero by pre-selling it before it is built.",
+			"that depends on accurate, instant manufacturing quotes and a platform that connects founders to the supply chain, so anyone with an idea can get it made."
 		],
 	},
 	{
@@ -73,9 +73,9 @@ export const COMPANIES: Company[] = [
 		art: capitalArt,
 		slogan: ['funds', 'for', 'excellence'],
 		about: [
-			"capital is the one tied to the fundraising.",
-			"we know a network of investors who invest in ideas that are high in the sky, but really good. we make the introduction; we don't take part in the negotiation.",
-			"before that, you'll need a pitch deck, a cap table, a website, and a data room: here's the product, here's the moat, here's the stage on the roadmap, and how defensible it is."
+			"reagent capital handles the fundraising side of reagent.",
+			"it connects founders with investors who back ambitious ideas, then steps aside; the terms stay between the founder and the investor.",
+			"before an introduction, founders get ready with a pitch deck, a cap table, a website, and a data room that sets out the product, what makes it defensible, and where it sits on the roadmap."
 		],
 	},
 	{
@@ -88,8 +88,8 @@ export const COMPANIES: Company[] = [
 		art: researchArt,
 		slogan: ['the', 'new', 'frontier'],
 		about: [
-			"we're a research company. we offer free compute and free inference to people doing ML work, and we fund the data.",
-			"let me give you that data set, those users, those testers, the things you would have spent the money on. let me just get you them directly."
+			"reagent research runs open science on shared compute, with free training time and inference for people doing machine learning work.",
+			"it also funds and curates datasets, so builders get the data, users and testers they would otherwise have to pay for."
 		],
 	},
 	{
@@ -101,8 +101,8 @@ export const COMPANIES: Company[] = [
 		logo: '/company-logos/creative.svg',
 		slogan: ['the', 'idea', 'factory'],
 		about: [
-			"i built reagent as a builder platform, modeled on an indie studio: software developers, hardware developers, and people from all walks of life.",
-			"creative is that community. it lives on discord, where it's easy to get everybody working together, show off projects and come up with ideas. we give developers free inference, compute and models."
+			"reagent began as a studio for builders, and reagent creative is where that community lives: software developers, hardware developers, and people from every background.",
+			"members meet on discord to share projects, test each other's work and trade ideas, with free inference, compute and models to build with."
 		],
 	}
 ];
