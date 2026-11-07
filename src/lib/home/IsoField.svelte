@@ -162,7 +162,7 @@
 			[0, 0, 0.3]
 		),
 		// The extra height above the ring leaves room for the status tag.
-		bounds: [[-PORTAL.R, -0.3, 0, PORTAL.R * 2, 0.6, PORTAL.zc + PORTAL.R + 1.3]],
+		bounds: [[-PORTAL.R, -0.3, 0, PORTAL.R * 2, 0.6, PORTAL.zc + PORTAL.R + 1.9]],
 		portal: PORTAL,
 		overlays: [
 			{
@@ -564,6 +564,24 @@
 				const th = tagEl.offsetHeight;
 				const rise = Math.max(th / 2 + 12, u * 0.55);
 				const run = Math.max(22, u * 0.7);
+				const dot = 2.2;
+				if (window.innerWidth <= 768) {
+					// Phones: the tag sits centred above the ring, and the leader runs
+					// straight up from the top of the ring to the middle of the tag.
+					const gap = Math.max(36, u * 1.1);
+					const tx = Math.max(8, Math.min(pw - tw - 8, ax - tw / 2));
+					const ty = Math.max(4, ay - gap - th);
+					shape(`M${ax.toFixed(1)},${ay.toFixed(1)}L${ax.toFixed(1)},${(ty + th).toFixed(1)}`, {
+						stroke: '#1a1a1a',
+						strokeWidth: 0.8
+					});
+					shape(
+						`M${(ax - dot).toFixed(1)},${ay.toFixed(1)}a${dot},${dot} 0 1,0 ${dot * 2},0a${dot},${dot} 0 1,0 ${-dot * 2},0`,
+						{ fill: '#1a1a1a' }
+					);
+					tagEl.style.transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px)`;
+					return;
+				}
 				// Go toward whichever side has more room, and keep the tag inside the panel.
 				const dir = ax > pw / 2 ? -1 : 1;
 				const ex = ax + dir * rise;
@@ -576,7 +594,6 @@
 					? `M${ax.toFixed(1)},${ay.toFixed(1)}L${ax.toFixed(1)},${(ey + th / 2 + 4).toFixed(1)}`
 					: `M${ax.toFixed(1)},${ay.toFixed(1)}L${ex.toFixed(1)},${ey.toFixed(1)}L${(ex < tx ? tx - 6 : tx + tw + 6).toFixed(1)},${ey.toFixed(1)}`;
 				shape(lead, { stroke: '#1a1a1a', strokeWidth: 0.8 });
-				const dot = 2.2;
 				shape(
 					`M${(ax - dot).toFixed(1)},${ay.toFixed(1)}a${dot},${dot} 0 1,0 ${dot * 2},0a${dot},${dot} 0 1,0 ${-dot * 2},0`,
 					{ fill: '#1a1a1a' }
