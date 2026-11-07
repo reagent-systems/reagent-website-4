@@ -616,14 +616,18 @@
 			const fr = frames[active];
 			// Inline scenes have the panel to themselves, so they can fill more of it.
 			const cap = Math.min(pw, ph) / (untrack(() => inline) ? 4.5 : 8);
-			const targetU = Math.min((pw * 0.9) / Math.max(fr.w, 1), (ph * 0.8) / Math.max(fr.h, 1), cap);
+			// On phones the band starts under the status bar, so its scene sits a little
+			// low in the band rather than dead centre.
+			const lowered = !untrack(() => inline) && pw < 769 && window.innerWidth <= 768;
+			const fitH = lowered ? 0.72 : 0.8;
+			const targetU = Math.min((pw * 0.9) / Math.max(fr.w, 1), (ph * fitH) / Math.max(fr.h, 1), cap);
 			const ease = view.u === 0 ? 1 : 0.07;
 			view.u += (targetU - view.u) * ease;
 			view.cx += (fr.cx - view.cx) * ease;
 			view.cy += (fr.cy - view.cy) * ease;
 			u = view.u;
 			ox = pw / 2 - view.cx * u;
-			oy = ph / 2 - view.cy * u;
+			oy = ph * (lowered ? 0.58 : 0.5) - view.cy * u;
 
 			// Hover raises a block a little.
 			for (let n = 0; n < K; n++) lift[n] += ((hovered === n ? 0.35 : 0) - lift[n]) * 0.15;

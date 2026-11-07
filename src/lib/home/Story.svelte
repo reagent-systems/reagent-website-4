@@ -23,7 +23,7 @@
 			body: "why do we do this? because we've been where they are now. the most invaluable thing is a network of founders that reach out and assist."
 		},
 		{
-			body: 'we want to be the modern equivalent of bell labs. if the only thing stopping anybody from the next breakthrough is a lack of our assistance, then by all means, we are going to assist.'
+			body: 'if the only thing stopping anybody from the next breakthrough is a lack of our assistance, then by all means, we are going to assist.'
 		}
 	];
 

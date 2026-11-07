@@ -98,6 +98,7 @@ html {
 		--space-xl: 3.5rem;
 		--gutter: 1.5rem;
 		--space-section: 10svh;
+		--panel-h: 40svh;
 	}
 
 	/* Each story section settles with its text clear of the scene band. Snapping is
