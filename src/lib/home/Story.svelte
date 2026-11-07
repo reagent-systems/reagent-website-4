@@ -3,7 +3,7 @@
 	import { animate, inView, stagger } from 'motion';
 	import IsoField from './IsoField.svelte';
 	import type { SparkSummary } from './spark';
-	import { ARTICLES, RESEARCH_ITEMS } from './content';
+	import { ARTICLES, RELEASES } from './content';
 
 	type Statement = { title?: string; body: string };
 
@@ -26,6 +26,10 @@
 			body: 'if the only thing stopping anybody from the next breakthrough is a lack of our assistance, then by all means, we are going to assist.'
 		}
 	];
+
+	// Hyphenated words stay on one line ("phone-centric", never "phone-" / "centric").
+	const pieces = (text: string) =>
+		text.split(/(\s+)/).map((w) => ({ w, keep: /\S-\S/.test(w) }));
 
 	let statementEls: HTMLElement[] = $state([]);
 	const anchors = $derived(statementEls.filter((el): el is HTMLElement => !!el));
@@ -123,6 +127,8 @@
 	}
 </script>
 
+{#snippet whole(text: string)}{#each pieces(text) as p}{#if p.keep}<span class="nowrap">{p.w}</span>{:else}{p.w}{/if}{/each}{/snippet}
+
 <div class="story">
 	<!-- Mission, how and why: the blocks follow along, then scroll away with this part. -->
 	<div class="intro">
@@ -142,15 +148,29 @@
 
 	<section class="link-section">
 		<h2 class="title">research</h2>
-		<div class="cards" use:reveal>
-			{#each RESEARCH_ITEMS.slice(0, 2) as item}
-				<a class="card" href="/research">
-					<div class="card-image"><img src={item.image} alt="" loading="lazy" /></div>
-					<span class="card-title">{item.name}</span>
-					<span class="card-line">{item.line}</span>
-				</a>
-			{/each}
-		</div>
+		<table class="releases">
+			<thead>
+				<tr>
+					<th scope="col">project</th>
+					<th scope="col" class="col-type">type</th>
+					<th scope="col" class="col-details">details</th>
+					<th scope="col" class="col-date">released</th>
+				</tr>
+			</thead>
+			<tbody use:reveal>
+				{#each RELEASES.slice(0, 4) as row}
+					<tr>
+						<td class="col-name">
+							<a href={row.url} target="_blank" rel="noopener noreferrer">{row.name}</a>
+							<span class="col-details-inline">{@render whole(row.details)}</span>
+						</td>
+						<td class="col-type">{row.type}</td>
+						<td class="col-details">{@render whole(row.details)}</td>
+						<td class="col-date">{row.date}</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
 		<a class="quiet-link" href="/research">all research</a>
 	</section>
 
@@ -170,8 +190,9 @@
 	<section class="link-section">
 		<h2 class="title">portal</h2>
 		<p class="body">
-			a shared nvidia dgx spark, open to the community. it serves open models through an
-			openai-compatible api.
+			{@render whole(
+				'a shared nvidia dgx spark, open to the community. it serves open models through an openai-compatible api.'
+			)}
 		</p>
 		<div class="visual">
 			<IsoField inline {portalTag} />
@@ -372,6 +393,70 @@
 		max-width: 56rem;
 	}
 
+	/* Research: the newest releases, as in the table on the research page. */
+	.releases {
+		width: 100%;
+		max-width: 56rem;
+		border-collapse: collapse;
+		font-family: 'Raleway Variable', var(--main-font);
+		font-weight: 300;
+	}
+
+	.releases th {
+		text-align: left;
+		font-weight: 300;
+		font-size: var(--text-small);
+		letter-spacing: 0.04em;
+		color: #9a9a9a;
+		padding: 0 var(--space-s) var(--space-s) 0;
+	}
+
+	.releases td {
+		vertical-align: top;
+		padding: var(--space-s) var(--space-s) var(--space-s) 0;
+		font-size: var(--text-small);
+		line-height: 1.5;
+		color: #6b6b6b;
+	}
+
+	.releases tbody tr {
+		transition: background 0.3s ease;
+	}
+
+	.releases tbody tr:hover {
+		background: rgba(255, 255, 255, 0.7);
+	}
+
+	.col-name a {
+		font-size: var(--text-body);
+		color: #1a1a1a;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.col-name a:hover {
+		color: #6b6b6b;
+	}
+
+	.col-date {
+		font-family: var(--ascii-font);
+		white-space: nowrap;
+		text-align: right;
+	}
+
+	th.col-date {
+		font-family: 'Raleway Variable', var(--main-font);
+		text-align: right;
+	}
+
+	.nowrap {
+		white-space: nowrap;
+	}
+
+	.col-details-inline {
+		display: none;
+	}
+
 	.card {
 		display: flex;
 		flex-direction: column;
@@ -380,25 +465,8 @@
 		color: inherit;
 	}
 
-	.card-image {
-		aspect-ratio: 1;
-		border-radius: 20px;
-		overflow: hidden;
-		background: #ececec;
-		margin-bottom: var(--space-xs);
-	}
 
-	.card-image img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		display: block;
-		transition: transform 0.6s ease;
-	}
 
-	.card:hover .card-image img {
-		transform: scale(1.03);
-	}
 
 	/* Articles: face-on, the title and a line of the piece. */
 	.card.text {
@@ -560,6 +628,18 @@
 
 		.cards {
 			gap: var(--space-s);
+		}
+
+		/* Phones: name with its details beneath, and the date; type and the
+		   separate details column drop away. */
+		.releases .col-type,
+		.releases .col-details {
+			display: none;
+		}
+
+		.col-details-inline {
+			display: block;
+			margin-top: var(--space-xs);
 		}
 
 		.card.text {
