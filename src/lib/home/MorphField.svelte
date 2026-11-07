@@ -114,45 +114,13 @@
 		return pts;
 	}
 
-	function roundedRect(cx: number, cy: number, w: number, h: number, r: number, n: number): Pt[] {
-		const straightW = w - 2 * r;
-		const straightH = h - 2 * r;
-		const arc = (Math.PI / 2) * r;
-		const per = 2 * straightW + 2 * straightH + 4 * arc;
-		const pts: Pt[] = [];
-		for (let i = 0; i < n; i++) {
-			let d = (i / n) * per;
-			const segs: [number, (t: number) => Pt][] = [
-				[straightW, (t) => [cx - w / 2 + r + t, cy - h / 2]],
-				[arc, (t) => corner(cx + w / 2 - r, cy - h / 2 + r, -Math.PI / 2 + t / r)],
-				[straightH, (t) => [cx + w / 2, cy - h / 2 + r + t]],
-				[arc, (t) => corner(cx + w / 2 - r, cy + h / 2 - r, t / r)],
-				[straightW, (t) => [cx + w / 2 - r - t, cy + h / 2]],
-				[arc, (t) => corner(cx - w / 2 + r, cy + h / 2 - r, Math.PI / 2 + t / r)],
-				[straightH, (t) => [cx - w / 2, cy + h / 2 - r - t]],
-				[arc, (t) => corner(cx - w / 2 + r, cy - h / 2 + r, Math.PI + t / r)]
-			];
-			for (const [len, f] of segs) {
-				if (d <= len) {
-					pts.push(f(d));
-					break;
-				}
-				d -= len;
-			}
-		}
-		return pts;
-		function corner(x: number, y: number, a: number): Pt {
-			return [x + Math.cos(a) * r, y + Math.sin(a) * r];
-		}
-	}
-
-	function cards(): Pt[] {
-		const n = Math.floor(N / 3);
-		return [
-			...roundedRect(-0.62, 0.05, 0.5, 0.62, 0.08, n),
-			...roundedRect(0, -0.05, 0.5, 0.62, 0.08, n),
-			...roundedRect(0.62, 0.05, 0.5, 0.62, 0.08, N - 2 * n)
-		];
+	function spiral(): Pt[] {
+		return Array.from({ length: N }, (_, i) => {
+			const t = i / (N - 1);
+			const a = t * Math.PI * 7;
+			const r = 0.06 + t * 0.82;
+			return [Math.cos(a) * r, Math.sin(a) * r];
+		});
 	}
 
 	function ring(): Pt[] {
@@ -173,7 +141,7 @@
 		{ pts: hub(), link: 0.11, dot: 2.2, x: 0.7, size: 0.8, alpha: 1 },
 		{ pts: molecule(), link: 0.14, dot: 1.8, x: 0.5, size: 1.25, alpha: 0.16 },
 		{ pts: textLines(), link: 0.08, dot: 1.6, x: 0.5, size: 1.2, alpha: 0.16 },
-		{ pts: cards(), link: 0.08, dot: 1.6, x: 0.5, size: 1.3, alpha: 0.16 },
+		{ pts: spiral(), link: 0.07, dot: 1.8, x: 0.72, size: 0.9, alpha: 0.55 },
 		{ pts: ring(), link: 0.06, dot: 1.6, x: 0.5, size: 1.1, alpha: 0.2 },
 		{ pts: point(), link: 0, dot: 5, x: 0.5, size: 0.4, alpha: 1 }
 	];

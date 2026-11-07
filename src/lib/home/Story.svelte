@@ -7,12 +7,12 @@
 	let how: HTMLElement | undefined = $state();
 	let research: HTMLElement | undefined = $state();
 	let writing: HTMLElement | undefined = $state();
-	let projects: HTMLElement | undefined = $state();
+	let portal: HTMLElement | undefined = $state();
 	let join: HTMLElement | undefined = $state();
 	let quote: HTMLElement | undefined = $state();
 
 	const anchors = $derived(
-		[mission, why, how, research, writing, projects, join, quote].filter(
+		[mission, why, how, research, writing, portal, join, quote].filter(
 			(el): el is HTMLElement => !!el
 		)
 	);
@@ -56,27 +56,6 @@
 			title: 'from idea to company',
 			excerpt: 'the first months decide most of what follows. a note on getting them right.',
 			href: '/blog'
-		}
-	];
-
-	const projectItems = [
-		{
-			name: 'forgecast',
-			line: 'your terminals, everywhere.',
-			image: '/project-images/forgecast.png',
-			href: 'https://forgecast.dev/'
-		},
-		{
-			name: 'brick',
-			line: 'code, share, listen.',
-			image: '/project-images/BRICK.png',
-			href: 'https://brick.reagent-systems.com/'
-		},
-		{
-			name: 'openlawn',
-			line: 'the operating system for crews in the field.',
-			image: '/project-images/openlawn.jpg',
-			href: 'https://github.com/reagent-systems/openlawn'
 		}
 	];
 
@@ -130,6 +109,7 @@
 				research finds it. matter builds it. logistics moves it. defense protects it. capital
 				funds it. creative brings the people who carry it forward.
 			</p>
+			<a class="quiet-link" href="/community">meet the community</a>
 		</div>
 	</section>
 
@@ -166,22 +146,10 @@
 		<a class="quiet-link" href="/blog">all writing</a>
 	</section>
 
-	<section class="resource" bind:this={projects}>
-		<h2 class="resource-title">projects</h2>
-		<ul class="card-row three">
-			{#each projectItems as item}
-				<li>
-					<a class="card" href={item.href} target="_blank" rel="noopener noreferrer">
-						<div class="card-image wide">
-							<img src={item.image} alt="" loading="lazy" />
-						</div>
-						<span class="card-name">{item.name}</span>
-						<span class="card-line">{item.line}</span>
-					</a>
-				</li>
-			{/each}
-		</ul>
-		<a class="quiet-link" href="/projects">all projects</a>
+	<section class="resource portal" bind:this={portal}>
+		<h2 class="resource-title">portal</h2>
+		<p class="portal-line">ask the factory anything.</p>
+		<a class="quiet-link" href="/portal">enter the portal</a>
 	</section>
 
 	<section class="join" bind:this={join} id="join">
@@ -248,6 +216,12 @@
 					<button type="submit" class="send">send</button>
 				{/if}
 			</form>
+
+			<div class="join-block careers">
+				<h3>careers</h3>
+				<p>build alongside us, in any of the six.</p>
+				<a class="quiet-link" href="/careers">open roles</a>
+			</div>
 		</div>
 	</section>
 
@@ -256,6 +230,7 @@
 			<p>the best way to predict the future is to invent it.</p>
 			<cite>alan kay</cite>
 		</blockquote>
+		<a class="quiet-link plan-link" href="/plan">read the plan</a>
 	</section>
 </div>
 
@@ -302,7 +277,7 @@
 		max-width: 30rem;
 	}
 
-	/* Research, writing, projects */
+	/* Research, writing, portal */
 	.resource {
 		padding: 22vh 8vw;
 	}
@@ -327,10 +302,6 @@
 		grid-template-columns: repeat(4, minmax(0, 1fr));
 	}
 
-	.card-row.three {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-	}
-
 	.card {
 		display: flex;
 		flex-direction: column;
@@ -347,10 +318,6 @@
 
 	.card-image.square {
 		aspect-ratio: 1;
-	}
-
-	.card-image.wide {
-		aspect-ratio: 4 / 3;
 	}
 
 	.card-image img {
@@ -433,6 +400,33 @@
 		color: #000;
 	}
 
+	.statement .quiet-link {
+		margin-top: 2.5rem;
+	}
+
+	.portal {
+		min-height: 80vh;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.portal .resource-title {
+		margin-bottom: 2rem;
+	}
+
+	.portal-line {
+		font-family: var(--main-font);
+		font-weight: 200;
+		font-size: clamp(1.8rem, 2.8vw, 2.6rem);
+		line-height: 1.15;
+		color: #1a1a1a;
+	}
+
+	.portal .quiet-link {
+		margin-top: 2.5rem;
+	}
+
 	/* Join */
 	.join {
 		padding: 22vh 8vw;
@@ -442,8 +436,23 @@
 	.join-grid {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-		gap: 6rem;
+		grid-template-areas:
+			'newsletter contact'
+			'careers contact';
+		gap: 5rem 6rem;
 		align-items: start;
+	}
+
+	.join-grid > :nth-child(1) {
+		grid-area: newsletter;
+	}
+
+	.join-grid > :nth-child(2) {
+		grid-area: contact;
+	}
+
+	.join-grid > :nth-child(3) {
+		grid-area: careers;
 	}
 
 	.join-block {
@@ -467,6 +476,10 @@
 		line-height: 1.7;
 		color: #6b6b6b;
 		margin-bottom: 1rem;
+	}
+
+	.careers .quiet-link {
+		margin-top: 0;
 	}
 
 	.join-block .sent {
@@ -578,10 +591,19 @@
 		text-align: center;
 	}
 
+	.quote {
+		flex-direction: column;
+	}
+
+	.plan-link {
+		margin-top: 3rem;
+		transform: translateY(-22vh);
+	}
+
 	.quote blockquote {
 		max-width: 52rem;
 		/* Leaves room for the single dot below the line. */
-		transform: translateY(-14vh);
+		transform: translateY(-22vh);
 	}
 
 	.quote p {
@@ -618,6 +640,7 @@
 		}
 		.join-grid {
 			grid-template-columns: 1fr;
+			grid-template-areas: 'newsletter' 'contact' 'careers';
 			gap: 5rem;
 		}
 	}
@@ -632,9 +655,6 @@
 		}
 		.resource-title {
 			margin-bottom: 3rem;
-		}
-		.card-row.three {
-			grid-template-columns: 1fr;
 		}
 		.card-row.four {
 			gap: 2.5rem 1.25rem;

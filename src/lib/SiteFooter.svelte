@@ -11,7 +11,6 @@
 			title: 'resources',
 			links: [
 				{ href: '/research', label: 'research' },
-				{ href: '/projects', label: 'projects' },
 				{ href: '/blog', label: 'writing' },
 				{ href: '/#join', label: 'newsletter' }
 			]
