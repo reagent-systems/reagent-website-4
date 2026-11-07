@@ -35,6 +35,8 @@
 		actors?: (t: number) => Tuple[];
 		/** Extra extent for framing, for things drawn outside the boxes. */
 		bounds?: Tuple[];
+		/** Buildings pop up from the ground, from the centre outward, when the scene arrives. */
+		grow?: boolean;
 		/** Set for the portal scene: draws the ring and its surface. */
 		portal?: { zc: number; R: number; ring: number; depth: number };
 		/** Set for the examination scene: a magnifying glass hovering over it. */
@@ -43,7 +45,7 @@
 		storefront?: { body: number; roof: number };
 	};
 
-	const K = 24;
+	const K = 40;
 	const toBox = ([x, y, z, w, d, h, win = 0, tone = 0, round = 0]: Tuple): Box => ({ x, y, z, w, d, h, win, tone, round });
 
 	function pad(list: Tuple[], at: [number, number, number] = [0, 0, 0]): Box[] {
@@ -131,8 +133,28 @@
 		}
 	};
 
-	// Decades ahead, a modern Bell Labs: a campus with lights on.
+	// Decades ahead: a city that keeps going. A tower and an inner ring, an outer
+	// ring of smaller buildings, and two elevated monorails with trains running.
 	const campusHeights = [1.6, 2.4, 1.2, 2, 1.4, 2.8];
+	const RAIL_Z = 2.1;
+	const RAIL = -5.1; // where the two lines run, along the back edges, behind the city
+	const outer: Tuple[] = [];
+	{
+		let k = 0;
+		for (let gx = -4.4; gx <= 3; gx += 1.45)
+			for (let gy = -4.4; gy <= 3; gy += 1.45) {
+				const d = Math.hypot(gx + 0.45, gy + 0.45);
+				// Outside the inner ring, and clear of the rail lines.
+				if (d < 3.2 || d > 5.3) continue;
+				const h = 0.6 + ((Math.sin(k * 12.9898) + 1) / 2) * 1.2;
+				outer.push([gx, gy, 0, 0.95, 0.95, h, 1]);
+				k++;
+			}
+	}
+	const pillars = (along: 'x' | 'y'): Tuple[] =>
+		[-3.6, -1.4, 0.8, 3].map((v): Tuple =>
+			along === 'x' ? [v, RAIL + 0.08, 0, 0.16, 0.16, RAIL_Z, 0, 0.6] : [RAIL + 0.08, v, 0, 0.16, 0.16, RAIL_Z, 0, 0.6]
+		);
 	const campus: Scene = {
 		boxes: pad(
 			[
@@ -141,15 +163,28 @@
 				...Array.from({ length: 6 }, (_, i): Tuple => {
 					const a = (i / 6) * Math.PI * 2;
 					return [Math.cos(a) * 2.05 - 0.55, Math.sin(a) * 2.05 - 0.55, 0, 1.1, 1.1, campusHeights[i], 1];
-				})
+				}),
+				...outer.slice(0, 16),
+				...pillars('x'),
+				...pillars('y'),
+				[RAIL, RAIL, RAIL_Z, 9, 0.32, 0.14, 0, 0.6],
+				[RAIL, RAIL, RAIL_Z, 0.32, 9, 0.14, 0, 0.6]
 			],
 			[0, 0, 0.5]
 		),
+		grow: true,
 		actors: (t) => {
 			const blink = Math.sin(t * 3) > 0.2 ? 0.22 : 0;
-			return [cube(-0.11, -0.11, 5.3, blink, 0, 1)];
+			// A train along each line, looping.
+			const run = (speed: number, phase: number) => RAIL + 0.3 + ((t * speed + phase) % 1) * 7;
+			return [
+				cube(-0.11, -0.11, 5.3, blink, 0, 1),
+				[run(0.09, 0), RAIL - 0.04, RAIL_Z + 0.14, 1.6, 0.4, 0.34, 0, 0.85],
+				[RAIL - 0.04, run(0.07, 0.5), RAIL_Z + 0.14, 0.4, 1.6, 0.34, 0, 0.2]
+			];
 		}
 	};
+
 
 	// Portal: a standing ring on a dark plinth. Through it, a live view of where it leads.
 	const SPARK = 'https://spark.reagent-systems.com';
@@ -293,6 +328,9 @@
 		let alpha = 0;
 		let frame = 0;
 		let settleTimer: ReturnType<typeof setTimeout> | undefined;
+		let arrivedAt = 0;
+		// A little overshoot as each building lands.
+		const backOut = (x: number) => 1 + 2.2 * Math.pow(x - 1, 3) + 1.2 * Math.pow(x - 1, 2);
 
 		function resize() {
 			const r = svg.getBoundingClientRect();
@@ -306,6 +344,7 @@
 
 		// Blocks spring into the next scene, lowest first, so it builds upward.
 		function goTo(index: number) {
+			arrivedAt = performance.now() / 1000;
 			controls.forEach((c) => c.stop());
 			settled = false;
 			clearTimeout(settleTimer);
@@ -769,7 +808,24 @@
 				...b,
 				z: b.z + lift[n] + Math.sin(t * 1.3 + n * 0.55) * float
 			}));
-			const actors = reduceMotion ? [] : (scene.actors?.(t) ?? []).map(toBox);
+			// Growing cities: each block rises once the wave from the centre reaches it.
+			const age = t - arrivedAt;
+			const growth = (b: Box) => {
+				if (!scene.grow || reduceMotion) return 1;
+				const d = Math.hypot(b.x + b.w / 2, b.y + b.d / 2);
+				return backOut(Math.min(1, Math.max(0, age * 1.6 - d * 0.42)));
+			};
+			if (scene.grow)
+				for (const b of drawn) {
+					const g = growth(b);
+					b.h *= g;
+					b.z *= g;
+				}
+			// Trains run once the rails are up.
+			const trains = !scene.grow || age > 3.4;
+			const actors = reduceMotion
+				? []
+				: (scene.actors?.(t) ?? []).map(toBox).filter((a, i) => trains || i === 0);
 			const all = [...drawn.map((b, n) => ({ b, n })), ...actors.map((b) => ({ b, n: -1 }))].filter(
 				({ b }) => b.w > 0.02 && b.d > 0.02 && b.h > 0.02
 			);
