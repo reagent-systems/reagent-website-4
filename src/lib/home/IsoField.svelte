@@ -36,6 +36,8 @@
 		bounds?: Tuple[];
 		/** Set for the portal scene: draws the ring and its surface. */
 		portal?: { zc: number; R: number; ring: number; depth: number };
+		/** Set for the examination scene: a magnifying glass hovering over it. */
+		lens?: { R: number; z: number; cx: number; cy: number; roam: number };
 	};
 
 	const K = 24;
@@ -78,32 +80,26 @@
 		float: 0.05
 	};
 
-	// First, we talk with the founder: two pillars and a bridge, with traffic across it.
-	const conversation: Scene = {
+	// First, we talk with the founder and examine the company: a magnifying glass
+	// hovering over a small company, moving slowly across it.
+	const examine: Scene = {
 		boxes: pad(
 			[
-				[-3.4, -2.2, 0, 6.6, 4.4, 0.12],
-				cube(-2.6, -0.5, 0.12),
-				cube(-2.6, -0.5, 1.12),
-				cube(-2.6, -0.5, 2.12),
-				cube(1.6, -0.5, 0.12),
-				cube(1.6, -0.5, 1.12),
-				cube(1.6, -0.5, 2.12, 1, 0, 0.85),
-				[-1.6, -0.5, 2.72, 1.05, 1, 0.2],
-				[-0.55, -0.5, 2.72, 1.1, 1, 0.2],
-				[0.55, -0.5, 2.72, 1.05, 1, 0.2]
+				[-3.2, -2.6, 0, 6.2, 5, 0.12],
+				[-2.5, -1.9, 0.12, 2.3, 1.9, 1.6, 1],
+				[0.2, -2.1, 0.12, 1, 1, 2.7, 1],
+				[0.4, 0.4, 0.12, 1.4, 1.4, 1.1, 0, 0, 1],
+				[-2.2, 0.6, 0.12, 1, 0.9, 0.7],
+				[-0.9, 0.9, 0.12, 0.7, 0.7, 0.45, 0, 0.85],
+				[1.9, -0.9, 0.12, 0.6, 0.6, 0.6, 0, 0, 1]
 			],
-			[-0.5, -0.5, 2.7]
+			[0, 0, 0.5]
 		),
-		actors: (t) => {
-			const f = (Math.sin(t * 1.1) + 1) / 2;
-			const g = (Math.sin(t * 1.1 + Math.PI) + 1) / 2;
-			return [
-				cube(-1.5 + f * 2.75, -0.35, 2.92, 0.3, 0, 0.85),
-				cube(-1.5 + g * 2.75, 0.05, 2.92, 0.3)
-			];
-		}
+		// Room above the company for the glass.
+		bounds: [[-2.4, -2.4, 0, 4.6, 4.2, 4.6]],
+		lens: { R: 1.15, z: 3.7, cx: -0.4, cy: -0.5, roam: 1.15 }
 	};
+
 
 	// From there, the raise: a bank, with stacks of coins out front and one more
 	// coin landing on the pile.
@@ -222,7 +218,7 @@
 		: [
 				scatter,
 				gathered, // mission
-				conversation, // first, we talk with the founder
+				examine, // first, we talk with the founder
 				bank, // from there, the raise
 				steps, // why: founders helping founders
 				campus // decades ahead
@@ -258,6 +254,11 @@
 				<stop offset="35%" stop-color="#9aa9cf" stop-opacity="0.9"/>
 				<stop offset="75%" stop-color="#2d4a8a" stop-opacity="0.95"/>
 				<stop offset="100%" stop-color="#800020" stop-opacity="1"/>
+			</radialGradient>
+			<radialGradient id="lens-glass" cx="40%" cy="35%" r="70%">
+				<stop offset="0%" stop-color="#ffffff" stop-opacity="0.75"/>
+				<stop offset="70%" stop-color="#dfe5f2" stop-opacity="0.45"/>
+				<stop offset="100%" stop-color="#2d4a8a" stop-opacity="0.35"/>
 			</radialGradient>
 		</defs>`;
 
@@ -641,6 +642,61 @@
 			}
 		}
 
+		// A magnifying glass: a round rim with glass in it, and a handle.
+		function drawLens(R: number, at: { x: number; y: number; z: number }, t: number) {
+			const N = 64;
+			const rim = 0.16;
+			const ring = (r: number, z: number) =>
+				Array.from({ length: N }, (_, i) => {
+					const a = (i / N) * Math.PI * 2;
+					return P(at.x + Math.cos(a) * r, at.y + Math.sin(a) * r, z);
+				});
+
+			// Outer side of the rim, where it faces the viewer.
+			for (let i = 0; i < N; i++) {
+				const a0 = (i / N) * Math.PI * 2;
+				const a1 = ((i + 1) / N) * Math.PI * 2;
+				const am = (a0 + a1) / 2;
+				if (Math.cos(am) + Math.sin(am) <= 0) continue;
+				const v = Math.round(52 + 30 * Math.max(0, Math.cos(am)));
+				const col = `rgb(${v},${v},${v})`;
+				shape(
+					closed([
+						P(at.x + Math.cos(a0) * R, at.y + Math.sin(a0) * R, at.z),
+						P(at.x + Math.cos(a1) * R, at.y + Math.sin(a1) * R, at.z),
+						P(at.x + Math.cos(a1) * R, at.y + Math.sin(a1) * R, at.z + rim),
+						P(at.x + Math.cos(a0) * R, at.y + Math.sin(a0) * R, at.z + rim)
+					]),
+					{ fill: col, stroke: col, strokeWidth: 0.5 }
+				);
+			}
+
+			// The glass, with a slow glint crossing it.
+			shape(closed(ring(R - 0.12, at.z + rim * 0.5)), { fill: 'url(#lens-glass)' });
+			const g = (t * 0.35) % 1;
+			const ga = Math.PI * (0.9 + g * 0.8);
+			const glint = Array.from({ length: 10 }, (_, i) => {
+				const a = ga + (i / 9) * 0.7;
+				return P(at.x + Math.cos(a) * (R - 0.32), at.y + Math.sin(a) * (R - 0.32), at.z + rim * 0.5);
+			});
+			shape(open(glint), { stroke: '#ffffff', strokeOpacity: 0.9, strokeWidth: 2 });
+
+			// Top of the rim.
+			shape(`${closed(ring(R, at.z + rim))} ${closed(ring(R - 0.12, at.z + rim))}`, {
+				fill: '#3a3a3a',
+				stroke: '#1a1a1a',
+				evenodd: true
+			});
+
+			// Handle, reaching toward the viewer.
+			drawBox(
+				{ x: at.x + R - 0.05, y: at.y - 0.13, z: at.z - 0.05, w: 1.7, d: 0.26, h: 0.24, win: 0, tone: 0.85, round: 0 },
+				0.85,
+				-1,
+				t
+			);
+		}
+
 		function tick(now: number) {
 			const idx = untrack(() => inline) ? (revealed ? 1 : 0) : sectionIndex();
 			if (idx !== active) {
@@ -706,6 +762,24 @@
 
 			used = 0;
 
+			// Where the glass is this frame.
+			const lensAt = scene.lens
+				? {
+						x: scene.lens.cx + Math.cos(t * 0.45) * scene.lens.roam,
+						y: scene.lens.cy + Math.sin(t * 0.6) * scene.lens.roam * 0.8,
+						z: scene.lens.z + Math.sin(t * 1.2) * 0.12
+					}
+				: null;
+			if (scene.lens && lensAt) {
+				// Its soft shadow on the ground.
+				const N = 36;
+				const sh = Array.from({ length: N }, (_, i) => {
+					const a = (i / N) * Math.PI * 2;
+					return P(lensAt.x + 0.5 + Math.cos(a) * scene.lens!.R, lensAt.y + 0.1 + Math.sin(a) * scene.lens!.R, 0.125);
+				});
+				shape(closed(sh), { fill: '#1a1a1a', fillOpacity: 0.05 });
+			}
+
 			// Soft shadows on the ground, cast toward the lower right.
 			for (const { b } of all) {
 				if (b.z > 0.5) continue;
@@ -731,6 +805,7 @@
 			for (const { b, n } of all) drawBox(b, Math.min(1, b.tone), n, t);
 
 			if (scene.portal) drawPortal(scene.portal, t);
+			if (scene.lens && lensAt) drawLens(scene.lens.R, lensAt, t);
 
 			for (let i = used; i < pool.length; i++) pool[i].style.display = 'none';
 
