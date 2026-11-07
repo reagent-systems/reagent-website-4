@@ -103,6 +103,7 @@
 				<DitherText text={current.fullName} />
 			</a>
 		</div>
+		<!-- Company nav, hidden for now. Uncomment to bring it back.
 		<nav class="company-nav" aria-label="companies" onpointerleave={(e) => e.pointerType === 'mouse' && clear()}>
 			{#each order as company}
 				<a
@@ -116,6 +117,7 @@
 				>
 			{/each}
 		</nav>
+		-->
 	</div>
 </div>
 
@@ -168,6 +170,7 @@
 		white-space: nowrap;
 	}
 
+	/* Company nav styles, kept for when the nav comes back.
 	.company-nav {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -211,11 +214,13 @@
 	.company-nav a.active::after {
 		width: 100%;
 	}
+	*/
 
+	/* Phones hid the nav even when it was shown on desktop.
 	@media (max-width: 768px) {
-		/* Phones keep the hero to the art and the title; the footer lists the companies. */
 		.company-nav {
 			display: none;
 		}
 	}
+	*/
 </style>
