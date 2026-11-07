@@ -15,8 +15,7 @@
 	<header>
 		<h1 class="title">services</h1>
 		<p class="lede">
-			if the only thing stopping anybody from the next breakthrough is a lack of our assistance, then by all
-			means, we are going to assist.
+			the primary barrier stopping anybody from the next breakthrough is a lack of assistance. it takes a community to raise a company. we're here to help.
 		</p>
 	</header>
 
