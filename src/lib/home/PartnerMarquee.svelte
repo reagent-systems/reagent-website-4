@@ -8,7 +8,9 @@
 		{ name: 'Open Secure AI Alliance', logo: '/partner-logos/open-secure-ai-alliance.svg' },
 		{ name: 'SAM.gov', logo: '/partner-logos/sam-gov.svg' },
 		{ name: 'Florida Polytechnic University', logo: '/partner-logos/florida-poly.png' },
-		{ name: 'First Coast Alarm', logo: '/partner-logos/first-coast-alarm.webp', round: true }
+		{ name: 'First Coast Alarm', logo: '/partner-logos/first-coast-alarm.webp', round: true },
+		{ name: 'Google Cloud for Startups', logo: '/partner-logos/google-cloud-startups.png' },
+		{ name: 'AWS Startup Programs', logo: '/partner-logos/aws-startups.png' }
 	];
 	// Repeated so the strip is always wider than the screen, then doubled for a seamless loop.
 	const set = [...partners, ...partners];
