@@ -4,6 +4,19 @@
 	import AsciiField from '$lib/home/AsciiField.svelte';
 	import { COMPANIES } from '$lib/home/companies';
 	import { SERVICES } from '$lib/site-links';
+	import { PROJECTS } from '$lib/projects';
+
+	// A project's description, cut to its opening sentence for the cards. Very
+	// short openers ("Code. Share. Listen.") keep the sentence that follows.
+	const firstSentence = (text: string) => {
+		const sentences = text.split(/(?<=[.!?])\s+/);
+		let out = '';
+		for (const sentence of sentences) {
+			out += (out ? ' ' : '') + sentence;
+			if (out.trim().length >= 40) break;
+		}
+		return out.trim();
+	};
 
 	let { data }: { data: { slug: string } } = $props();
 	const company = $derived(COMPANIES.find((c) => c.slug === data.slug)!);
@@ -66,6 +79,27 @@
 					>join the discord</a
 				>
 			</div>
+		</section>
+		<section>
+			<h2 class="sub">original projects</h2>
+			<ul class="projects">
+				{#each PROJECTS as project}
+					<li>
+						<a class="project" href={project.url} target="_blank" rel="noopener noreferrer">
+							<div class="project-media">
+								{#if project.media?.endsWith('.mp4')}
+									<video src={project.media} autoplay muted loop playsinline aria-hidden="true"></video>
+								{:else if project.media}
+									<img src={project.media} alt="" loading="lazy" />
+								{/if}
+							</div>
+							<span class="project-name">{project.name.toLowerCase()}</span>
+							<span class="project-text">{firstSentence(project.description)}</span>
+						</a>
+					</li>
+				{/each}
+			</ul>
+			<a class="quiet-link" href="/projects">all projects</a>
 		</section>
 	{/if}
 
@@ -222,6 +256,63 @@
 		font-size: var(--text-small);
 		line-height: 1.6;
 		color: #6b6b6b;
+	}
+
+	.projects {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--space-l) var(--space-m);
+		width: 100%;
+	}
+
+	.project {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.project-media {
+		aspect-ratio: 4 / 3;
+		border-radius: 1rem;
+		overflow: hidden;
+		background: #f1f1f1;
+		margin-bottom: var(--space-xs);
+	}
+
+	.project-media img,
+	.project-media video {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+		transition: transform 0.6s ease;
+	}
+
+	.project:hover .project-media img,
+	.project:hover .project-media video {
+		transform: scale(1.03);
+	}
+
+	.project-name {
+		font-size: var(--text-body);
+		color: #1a1a1a;
+	}
+
+	.project-text {
+		font-size: var(--text-small);
+		line-height: 1.6;
+		color: #6b6b6b;
+	}
+
+	@media (max-width: 768px) {
+		.projects {
+			grid-template-columns: 1fr;
+		}
 	}
 
 	.others {

@@ -1,1 +1,668 @@
-{}
+{
+	"alabama": {
+		"intro": "alabama founders build around space and defense work in huntsville, aerospace and auto manufacturing across the state, and the port of mobile on the gulf. reagent defense and reagent matter fit the hardware here, and reagent logistics fits the port.",
+		"focus": [
+			"defense",
+			"matter",
+			"logistics"
+		]
+	},
+	"alaska": {
+		"intro": "alaska founders work around oil and gas on the north slope, commercial fishing and seafood processing, and military bases, where long distances and a short road network make air and sea freight part of daily life. reagent logistics is the natural fit for moving goods here, with reagent matter for equipment that has to survive the cold.",
+		"focus": [
+			"logistics",
+			"matter"
+		]
+	},
+	"arizona": {
+		"intro": "arizona founders build around semiconductor manufacturing near phoenix, aerospace and defense work in tucson, copper mining, and solar power across the desert. reagent matter suits the chips and materials work, while reagent defense covers the aerospace side.",
+		"focus": [
+			"matter",
+			"defense"
+		]
+	},
+	"arkansas": {
+		"intro": "arkansas founders work around poultry and rice farming, timber, and the retail and trucking operations of the northwest corner, with the arkansas river carrying barge traffic through the state. reagent logistics lines up with the freight and distribution work, and reagent matter with the farm and timber products.",
+		"focus": [
+			"logistics",
+			"matter"
+		]
+	},
+	"california": {
+		"intro": "california founders build software and AI around the bay area, aerospace and space hardware in southern california, and food from the central valley, with the ports of los angeles and long beach on the coast. the deep technical work belongs with reagent research and reagent defense, and the ports with reagent logistics.",
+		"focus": [
+			"research",
+			"defense",
+			"logistics"
+		]
+	},
+	"colorado": {
+		"intro": "colorado founders build around space and defense work along the front range, federal research labs focused on energy and the atmosphere, and outdoor gear for the mountains. reagent defense fits the space work, reagent research the lab science, and reagent matter the physical products.",
+		"focus": [
+			"defense",
+			"research",
+			"matter"
+		]
+	},
+	"connecticut": {
+		"intro": "connecticut founders work around insurance and finance in hartford and along the coast, and around defense manufacturing that builds submarines, jet engines and helicopters. reagent defense fits the submarine and aerospace work, reagent matter the precision parts behind it, and reagent capital the finance side.",
+		"focus": [
+			"defense",
+			"matter",
+			"capital"
+		]
+	},
+	"delaware": {
+		"intro": "delaware founders work around chemistry and materials science, banking in wilmington, and the corporate law that leads many companies to incorporate in the state, with a port on the delaware river. reagent matter fits the chemistry and materials work, reagent capital the formation and funding side, and reagent logistics the river port.",
+		"focus": [
+			"matter",
+			"capital",
+			"logistics"
+		]
+	},
+	"florida": {
+		"intro": "florida founders build for the space coast, for simulation and training around orlando, and for medical devices, with deepwater ports on both coasts moving parts in and out. reagent defense and reagent matter fit the hardware here, and reagent logistics fits the ports.",
+		"focus": [
+			"defense",
+			"matter",
+			"logistics"
+		]
+	},
+	"georgia": {
+		"intro": "georgia founders build around the port of savannah, the freight and air cargo moving through atlanta, payments and financial technology, and farming across the south of the state. reagent logistics fits the shipping and freight work first, with reagent matter for the farm and manufactured goods.",
+		"focus": [
+			"logistics",
+			"matter"
+		]
+	},
+	"hawaii": {
+		"intro": "hawaii founders work around tourism, a large military presence in the pacific, astronomy on the mountain summits, and ocean science, on islands that depend on shipping for most goods. reagent defense and reagent research fit the military and science work, and reagent logistics fits life at the end of a long supply line.",
+		"focus": [
+			"defense",
+			"research",
+			"logistics"
+		]
+	},
+	"idaho": {
+		"intro": "idaho founders build around farming and food processing, nuclear energy research at the national lab in eastern idaho, and memory chip manufacturing around boise. reagent research suits the energy science, and reagent matter suits the chips, food and materials.",
+		"focus": [
+			"research",
+			"matter"
+		]
+	},
+	"illinois": {
+		"intro": "illinois founders work around trading and finance in chicago, the rail lines and air cargo that cross the city, national physics and energy labs, and corn and soybean farms downstate. reagent logistics and reagent capital fit the freight and markets in chicago, and reagent research the national labs.",
+		"focus": [
+			"logistics",
+			"capital",
+			"research"
+		]
+	},
+	"indiana": {
+		"intro": "indiana founders build around auto and steel manufacturing, pharmaceutical and life sciences work in indianapolis, and corn and soybean farming, in a state crossed by major interstate routes. reagent matter fits the factories and labs, and reagent logistics fits the trucking that runs through the middle of the country.",
+		"focus": [
+			"matter",
+			"logistics"
+		]
+	},
+	"iowa": {
+		"intro": "iowa founders work around corn, soybeans and livestock, ethanol and wind power, farm equipment manufacturing, and insurance in des moines. reagent matter fits the equipment and biofuel work, and reagent logistics fits getting crops and goods to market.",
+		"focus": [
+			"matter",
+			"logistics"
+		]
+	},
+	"kansas": {
+		"intro": "kansas founders build around aircraft manufacturing in wichita, wheat and cattle on the plains, and oil and gas fields, with army and air force bases across the state. reagent defense and reagent matter suit the aviation and military work, while reagent logistics suits the grain and cattle trade.",
+		"focus": [
+			"defense",
+			"matter",
+			"logistics"
+		]
+	},
+	"kentucky": {
+		"intro": "kentucky founders work around auto plants, bourbon distilling and horse farming, with air cargo flowing through louisville and army posts such as fort knox. reagent logistics fits the freight moving through louisville, reagent matter the manufacturing, and reagent defense the military work.",
+		"focus": [
+			"logistics",
+			"matter",
+			"defense"
+		]
+	},
+	"louisiana": {
+		"intro": "louisiana founders work around the ports along the lower mississippi, refining and petrochemical plants, offshore energy in the gulf, shipbuilding and seafood. reagent logistics fits the river and port traffic, and reagent matter fits the chemical and industrial work.",
+		"focus": [
+			"logistics",
+			"matter"
+		]
+	},
+	"maine": {
+		"intro": "maine founders work around fishing and lobstering, forest products, navy shipbuilding on the coast, and marine science, with tourism along the shore through the summer. reagent defense fits the shipbuilding, reagent matter the wood and sea products, and reagent research the ocean science.",
+		"focus": [
+			"defense",
+			"matter",
+			"research"
+		]
+	},
+	"maryland": {
+		"intro": "maryland founders build close to DC, around federal health research, intelligence and cyber security work, NASA space science, and biotech, with the port of baltimore on the chesapeake. the security and science work points to reagent defense and reagent research, and the port to reagent logistics.",
+		"focus": [
+			"defense",
+			"research",
+			"logistics"
+		]
+	},
+	"massachusetts": {
+		"intro": "massachusetts founders build around the research universities of boston and cambridge, biotech and life sciences labs, robotics, and defense electronics, with fishing ports on the coast. reagent research fits the lab and university work, with reagent matter and reagent defense for the hardware and robotics.",
+		"focus": [
+			"research",
+			"matter",
+			"defense"
+		]
+	},
+	"michigan": {
+		"intro": "michigan founders build around the auto industry near detroit, military vehicle engineering, manufacturing and tooling, and freight that crosses the great lakes and the border with canada. reagent matter fits the manufacturing, reagent logistics the shipping and border trade, and reagent defense the military vehicle work.",
+		"focus": [
+			"matter",
+			"logistics",
+			"defense"
+		]
+	},
+	"minnesota": {
+		"intro": "minnesota founders build around medical devices in the twin cities, food and farming across the south and west, iron mining in the north, and shipping out of duluth on lake superior. reagent matter is the fit for the devices and materials, and reagent logistics for the port and grain trade.",
+		"focus": [
+			"matter",
+			"logistics"
+		]
+	},
+	"mississippi": {
+		"intro": "mississippi founders work around navy shipbuilding on the gulf coast, rocket engine testing at a NASA site near the louisiana line, auto plants, and farming of cotton, poultry and catfish. reagent defense and reagent matter cover the ships, engines and plants, and reagent logistics covers the gulf ports.",
+		"focus": [
+			"defense",
+			"matter",
+			"logistics"
+		]
+	},
+	"missouri": {
+		"intro": "missouri founders build around military aircraft production in st louis, plant and animal science, farming, and the barge and rail freight that meets where the missouri joins the mississippi. reagent defense and reagent matter fit the aerospace work, and reagent logistics fits the rivers and rail.",
+		"focus": [
+			"defense",
+			"matter",
+			"logistics"
+		]
+	},
+	"montana": {
+		"intro": "montana founders work around cattle ranching and wheat, mining and energy, air force missile fields near great falls, and tourism tied to the national parks, across long distances between towns. reagent logistics fits the distance, reagent matter the mining and farm work, and reagent defense the military side.",
+		"focus": [
+			"logistics",
+			"matter",
+			"defense"
+		]
+	},
+	"nebraska": {
+		"intro": "nebraska founders work around corn, cattle and food processing, rail lines that cross the plains, and the insurance and finance offices around omaha. reagent matter fits the farm and food equipment, and reagent logistics fits the rail and freight corridors.",
+		"focus": [
+			"matter",
+			"logistics"
+		]
+	},
+	"nevada": {
+		"intro": "nevada founders build around mining in the high desert, military test and training ranges, tourism and hospitality in las vegas, and warehousing and distribution near reno. reagent defense suits the range work, reagent matter suits mining and materials, and reagent logistics suits the distribution corridor.",
+		"focus": [
+			"defense",
+			"matter",
+			"logistics"
+		]
+	},
+	"new-hampshire": {
+		"intro": "new hampshire founders work in precision manufacturing and defense electronics, with tourism across the white mountains and a working seacoast around portsmouth. reagent matter and reagent defense line up with the machine shops and electronics, and reagent logistics lines up with the coast.",
+		"focus": [
+			"matter",
+			"defense",
+			"logistics"
+		]
+	},
+	"new-jersey": {
+		"intro": "new jersey founders build in pharmaceuticals, chemicals and life sciences, next to major container ports on newark bay and a dense corridor of highways and rail. reagent logistics fits the port and corridor traffic, while reagent matter and reagent research fit the labs and the chemistry.",
+		"focus": [
+			"logistics",
+			"matter",
+			"research"
+		]
+	},
+	"new-mexico": {
+		"intro": "new mexico founders work near national laboratories, missile and space test ranges, and air force bases, with oil, gas and solar energy spread across open land. reagent defense and reagent research follow the labs and ranges, and reagent matter follows the energy hardware.",
+		"focus": [
+			"defense",
+			"research",
+			"matter"
+		]
+	},
+	"new-york": {
+		"intro": "new york founders build around finance, media and fashion in new york city, optics and advanced manufacturing upstate, and research universities across the state, with the harbor moving goods in and out. reagent capital and reagent creative fit the city, and reagent matter fits the upstate factories.",
+		"focus": [
+			"capital",
+			"creative",
+			"matter"
+		]
+	},
+	"north-carolina": {
+		"intro": "north carolina founders work around the research triangle's universities and life sciences labs, banking in charlotte, furniture and textile manufacturing, and large army and marine corps bases. reagent research and reagent defense fit the labs and bases, with reagent capital for founders starting out near the banks.",
+		"focus": [
+			"research",
+			"defense",
+			"capital"
+		]
+	},
+	"north-dakota": {
+		"intro": "north dakota founders build around oil fields in the west, wheat and grain farming across the plains, and unmanned aircraft work near grand forks. reagent matter suits the field equipment, reagent defense the drone work, and reagent logistics the long haul to market.",
+		"focus": [
+			"matter",
+			"defense",
+			"logistics"
+		]
+	},
+	"ohio": {
+		"intro": "ohio founders build in auto parts, steel and polymer manufacturing, with aerospace research around a NASA center in cleveland and an air force base near dayton. reagent matter covers the factory floor, reagent defense covers the aerospace work, and reagent logistics covers freight across the midwest.",
+		"focus": [
+			"matter",
+			"defense",
+			"logistics"
+		]
+	},
+	"oklahoma": {
+		"intro": "oklahoma founders work around oil and gas, aircraft maintenance and aerospace repair near tulsa and oklahoma city, and cattle and wheat on the plains. reagent matter and reagent defense match the energy and aviation hardware, and reagent logistics matches freight along the interstates.",
+		"focus": [
+			"matter",
+			"defense",
+			"logistics"
+		]
+	},
+	"oregon": {
+		"intro": "oregon founders build in semiconductors and electronics around portland, outdoor gear and apparel, and timber and wood products, with the columbia river and its ports moving goods out. reagent matter fits the chips and gear, reagent logistics fits the river ports, and reagent creative fits the design work.",
+		"focus": [
+			"matter",
+			"logistics",
+			"creative"
+		]
+	},
+	"pennsylvania": {
+		"intro": "pennsylvania founders work in robotics and advanced manufacturing around pittsburgh, pharmaceuticals and medicine around philadelphia, and natural gas in the state's shale country, with river and delaware ports moving freight. reagent matter and reagent research fit the robotics and labs, and reagent logistics fits the ports.",
+		"focus": [
+			"matter",
+			"research",
+			"logistics"
+		]
+	},
+	"rhode-island": {
+		"intro": "rhode island founders build around boatbuilding, naval undersea research near newport, and design and jewelry making in providence, with narragansett bay at the center of it. reagent defense fits the undersea work, reagent matter the boats and fabrication, and reagent creative the design community.",
+		"focus": [
+			"defense",
+			"matter",
+			"creative"
+		]
+	},
+	"south-carolina": {
+		"intro": "south carolina founders work around auto and aircraft manufacturing, the port of charleston, coastal tourism, and several military bases. reagent matter and reagent logistics fit the plants and the port, and reagent defense fits the bases.",
+		"focus": [
+			"matter",
+			"logistics",
+			"defense"
+		]
+	},
+	"south-dakota": {
+		"intro": "south dakota founders work around grain and cattle, tourism in the black hills, banking and card processing in sioux falls, and an air force base near rapid city. reagent matter fits the farm equipment, reagent capital fits the finance side, and reagent defense fits the base.",
+		"focus": [
+			"matter",
+			"capital",
+			"defense"
+		]
+	},
+	"tennessee": {
+		"intro": "tennessee founders build around music and recording in nashville, auto manufacturing, a national laboratory at oak ridge, and river, rail and air cargo through memphis. reagent logistics fits the memphis freight, reagent creative fits the music, and reagent research fits the lab.",
+		"focus": [
+			"logistics",
+			"creative",
+			"research"
+		]
+	},
+	"texas": {
+		"intro": "texas founders build around oil, gas and wind energy, NASA's human spaceflight work in houston, launch sites on the gulf coast, chips around austin, and freight through gulf ports and border crossings. reagent defense and reagent matter cover the hardware, and reagent logistics covers the ports and the border.",
+		"focus": [
+			"defense",
+			"matter",
+			"logistics"
+		]
+	},
+	"utah": {
+		"intro": "utah founders work in software around salt lake city, aerospace and defense near a large air force base in the north, copper mining, and outdoor recreation tied to the national parks. reagent defense and reagent matter fit the aerospace and mining, and reagent creative fits the outdoor and design crowd.",
+		"focus": [
+			"defense",
+			"matter",
+			"creative"
+		]
+	},
+	"vermont": {
+		"intro": "vermont founders build around dairy farming, maple and specialty foods, ski and outdoor tourism, and small manufacturers in towns and river valleys. reagent matter fits the makers and food producers, and reagent creative fits the craft and small-batch community.",
+		"focus": [
+			"matter",
+			"creative"
+		]
+	},
+	"virginia": {
+		"intro": "virginia founders work alongside defense and intelligence agencies in the north, the navy and shipbuilding around hampton roads, and NASA research and launch sites on the coast. reagent defense leads here, with reagent logistics for the ports and reagent research for the labs.",
+		"focus": [
+			"defense",
+			"logistics",
+			"research"
+		]
+	},
+	"washington": {
+		"intro": "washington founders build around aircraft manufacturing and software in the puget sound area, navy bases and shipyards, ports at seattle and tacoma, and apples and wheat in the east, with hydropower along the columbia. reagent matter and reagent defense fit the aerospace and naval work, and reagent logistics fits the pacific ports.",
+		"focus": [
+			"matter",
+			"defense",
+			"logistics"
+		]
+	},
+	"washington-dc": {
+		"intro": "washington, DC founders work close to federal agencies, policy and regulation, defense procurement, and the research groups and universities around the capital. reagent defense fits government and security work, and reagent research fits the policy and science side.",
+		"focus": [
+			"defense",
+			"research"
+		]
+	},
+	"west-virginia": {
+		"intro": "west virginia founders work around coal, natural gas and chemical plants in the river valleys, outdoor tourism in the mountains, and federal research and data facilities. reagent matter fits the energy and chemical work, and reagent research fits the science.",
+		"focus": [
+			"matter",
+			"research"
+		]
+	},
+	"wisconsin": {
+		"intro": "wisconsin founders build around dairy and food processing, paper mills, heavy machinery and engine manufacturing, and shipbuilding on the great lakes. reagent matter suits the factories and mills, reagent logistics suits the lake ports, and reagent defense suits the naval shipyards.",
+		"focus": [
+			"matter",
+			"logistics",
+			"defense"
+		]
+	},
+	"wyoming": {
+		"intro": "wyoming founders work around coal, oil, gas and wind energy, cattle ranching, tourism near yellowstone and the tetons, and missile field operations near cheyenne. reagent matter fits the energy equipment, reagent defense fits the missile work, and reagent logistics fits long-distance freight.",
+		"focus": [
+			"matter",
+			"defense",
+			"logistics"
+		]
+	},
+	"canada": {
+		"intro": "canadian founders build around mining, energy and forestry, with aerospace and AI research in the big cities and ports on both the atlantic and pacific coasts. reagent matter fits the resource and materials work here, reagent research fits the labs, and reagent logistics fits the long rail and shipping routes.",
+		"focus": [
+			"matter",
+			"research",
+			"logistics"
+		]
+	},
+	"mexico": {
+		"intro": "mexican founders work alongside automotive, aerospace and electronics manufacturing, with trucking, rail and ports on the pacific and the gulf moving finished goods north and overseas. reagent matter suits the production lines here, and reagent logistics suits the freight that moves out of them.",
+		"focus": [
+			"matter",
+			"logistics"
+		]
+	},
+	"united-kingdom": {
+		"intro": "founders in the united kingdom build near research universities, a deep finance sector in london, and established aerospace, defense and life sciences industries. reagent research and reagent capital match the labs and the money here, and reagent defense matches the aerospace and security work.",
+		"focus": [
+			"research",
+			"capital",
+			"defense"
+		]
+	},
+	"ireland": {
+		"intro": "irish founders work around software, medical devices and pharmaceutical manufacturing, with many international firms based in dublin and cork and an english-speaking route into the EU. reagent matter is a fit for the device and pharma production, and reagent capital is a fit for teams raising their first round.",
+		"focus": [
+			"matter",
+			"capital"
+		]
+	},
+	"france": {
+		"intro": "french founders build alongside aerospace, nuclear energy, rail and luxury goods, with public research institutes and engineering schools feeding new deep tech companies. reagent research fits the lab work, reagent defense fits the aerospace and security side, and reagent creative fits the design and craft traditions.",
+		"focus": [
+			"research",
+			"defense",
+			"creative"
+		]
+	},
+	"germany": {
+		"intro": "german founders work close to automotive, machinery, chemicals and industrial engineering, with a dense base of mid-sized manufacturers and applied research institutes across the country. reagent matter belongs with the factories and materials work here, and reagent logistics belongs with the rail, road and river freight that connects them.",
+		"focus": [
+			"matter",
+			"logistics"
+		]
+	},
+	"netherlands": {
+		"intro": "dutch founders build around the port of rotterdam, schiphol airport, agricultural technology and semiconductor equipment, in a compact country crossed by canals, rail and pipelines. reagent logistics is the natural fit for the shipping and distribution work, with reagent matter alongside it for hardware and food systems.",
+		"focus": [
+			"logistics",
+			"matter"
+		]
+	},
+	"belgium": {
+		"intro": "belgian founders work near the ports of antwerp and zeebrugge, a large chemicals and pharmaceutical industry, and the EU institutions in brussels. reagent logistics fits the port and distribution side, and reagent matter fits the chemistry and manufacturing around it.",
+		"focus": [
+			"logistics",
+			"matter"
+		]
+	},
+	"switzerland": {
+		"intro": "swiss founders build around precision engineering, watchmaking, pharmaceuticals, private banking and technical universities, with alpine terrain shaping how goods and people move. reagent research fits the university labs, reagent matter fits the precision manufacturing, and reagent capital fits founders raising early money.",
+		"focus": [
+			"research",
+			"matter",
+			"capital"
+		]
+	},
+	"austria": {
+		"intro": "austrian founders work around machinery, steel, automotive suppliers and hydropower, with research institutions in vienna and a central position on rail and danube routes through europe. reagent matter suits the industrial and materials work here, and reagent logistics suits the rail and river freight.",
+		"focus": [
+			"matter",
+			"logistics"
+		]
+	},
+	"spain": {
+		"intro": "spanish founders build around agriculture and food processing, automotive plants, tourism and renewable energy from sun and wind, with busy mediterranean and atlantic ports. reagent matter fits the energy and manufacturing work, reagent logistics fits the ports and food supply chains, and reagent creative fits the design and media scene.",
+		"focus": [
+			"matter",
+			"logistics",
+			"creative"
+		]
+	},
+	"portugal": {
+		"intro": "portuguese founders work around atlantic ports, renewable energy, cork, textiles and footwear, with lisbon and porto home to a steady share of software teams. reagent logistics and reagent matter fit the ports and the factories, and reagent creative fits the craft and design traditions behind them.",
+		"focus": [
+			"logistics",
+			"matter",
+			"creative"
+		]
+	},
+	"italy": {
+		"intro": "italian founders build alongside machinery, automotive, fashion, furniture and food production, much of it in family-owned manufacturing districts across the north, with mediterranean ports serving the coasts. reagent matter fits the manufacturing and materials work, and reagent creative fits the design and craft that runs through it.",
+		"focus": [
+			"matter",
+			"creative"
+		]
+	},
+	"sweden": {
+		"intro": "swedish founders work near steel, mining, forestry, automotive and telecom engineering, with public research and a long tradition of industrial companies built for export. reagent matter fits the materials and heavy industry, reagent research fits the labs, and reagent defense fits the security and aerospace work.",
+		"focus": [
+			"matter",
+			"research",
+			"defense"
+		]
+	},
+	"norway": {
+		"intro": "norwegian founders build around offshore oil and gas, hydropower, fisheries and aquaculture, and shipping along a long coast facing the north sea and the arctic. reagent logistics fits the maritime work, and reagent matter fits the energy and ocean hardware built for that coast.",
+		"focus": [
+			"logistics",
+			"matter"
+		]
+	},
+	"denmark": {
+		"intro": "danish founders work around shipping, wind energy, pharmaceuticals and food production, in a small country with design traditions and ports linking the north sea and the baltic. reagent logistics belongs with the shipping, reagent matter with the wind and food hardware, and reagent creative with the design work.",
+		"focus": [
+			"logistics",
+			"matter",
+			"creative"
+		]
+	},
+	"finland": {
+		"intro": "finnish founders build around forestry, paper, mobile networks and software, with game studios in helsinki and engineering for cold climates and icebreaking ships. reagent research fits the network and software work, reagent matter fits the forest materials and ships, and reagent creative fits the game studios.",
+		"focus": [
+			"research",
+			"matter",
+			"creative"
+		]
+	},
+	"poland": {
+		"intro": "polish founders work near manufacturing for automotive, furniture and electronics, software engineering in cities such as krakow and warsaw, and rail and road routes running across central europe. reagent matter suits the factory work, reagent logistics suits the freight routes, and reagent capital suits teams raising early money.",
+		"focus": [
+			"matter",
+			"logistics",
+			"capital"
+		]
+	},
+	"japan": {
+		"intro": "japanese founders build alongside automotive, robotics, electronics and precision materials, supported by deep supply chains of specialist manufacturers and busy ports around tokyo, osaka and nagoya. reagent matter fits the materials and hardware work, reagent research fits the robotics labs, and reagent logistics fits the ports.",
+		"focus": [
+			"matter",
+			"research",
+			"logistics"
+		]
+	},
+	"south-korea": {
+		"intro": "south korean founders work close to semiconductors, shipbuilding, automotive, batteries and consumer electronics, with dense industry around seoul and a busy port at busan. reagent matter is the fit for the hardware and battery work, reagent logistics for the shipping, and reagent creative for the games and media studios.",
+		"focus": [
+			"matter",
+			"logistics",
+			"creative"
+		]
+	},
+	"taiwan": {
+		"intro": "founders in taiwan build alongside semiconductor fabrication, electronics manufacturing and precision machinery, with science parks, deep supplier networks and ports connecting factories to customers abroad. reagent matter fits the chips and hardware work, and reagent logistics fits the shipping that moves components out.",
+		"focus": [
+			"matter",
+			"logistics"
+		]
+	},
+	"singapore": {
+		"intro": "singapore founders work around a major container port and air cargo hub, regional finance, and refining, chemicals and electronics on a small, tightly planned island. reagent logistics fits the port and air freight, reagent capital fits the finance side, and reagent matter fits the chemicals and electronics work.",
+		"focus": [
+			"logistics",
+			"capital",
+			"matter"
+		]
+	},
+	"india": {
+		"intro": "indian founders build around software and IT services, pharmaceuticals, textiles, automotive parts and agriculture, with engineering talent in cities such as bengaluru, hyderabad and pune and ports on both coasts. reagent research fits the software and engineering teams, reagent matter fits the manufacturing, and reagent logistics fits the ports.",
+		"focus": [
+			"research",
+			"matter",
+			"logistics"
+		]
+	},
+	"indonesia": {
+		"intro": "indonesian founders work around nickel and other mining, palm oil and agriculture, and the shipping that ties together a wide archipelago of islands and ports. reagent logistics fits the freight between islands, and reagent matter fits the minerals and the processing built around them.",
+		"focus": [
+			"logistics",
+			"matter"
+		]
+	},
+	"malaysia": {
+		"intro": "malaysian founders build alongside semiconductor assembly and testing, electronics manufacturing in penang, palm oil and rubber, and ports along the strait of malacca. reagent matter fits the electronics and materials work, and reagent logistics fits the shipping lanes that pass the coast.",
+		"focus": [
+			"matter",
+			"logistics"
+		]
+	},
+	"thailand": {
+		"intro": "thai founders work around automotive assembly, electronics, food processing and agriculture, with industrial estates and a deepwater port on the eastern seaboard and a large tourism trade. reagent matter suits the factories, reagent logistics suits the port and food exports, and reagent creative suits the hospitality and design work.",
+		"focus": [
+			"matter",
+			"logistics",
+			"creative"
+		]
+	},
+	"vietnam": {
+		"intro": "vietnamese founders build alongside electronics, textiles, footwear and furniture manufacturing, plus coffee, rice and seafood, with industrial zones around hanoi and ho chi minh city and a long coastline of ports. reagent matter fits the factory work, and reagent logistics fits the ports and export routes.",
+		"focus": [
+			"matter",
+			"logistics"
+		]
+	},
+	"philippines": {
+		"intro": "filipino founders work around business process outsourcing, electronics assembly and agriculture, and the inter-island shipping an archipelago depends on, with manila and cebu as the main centers. reagent logistics fits the shipping between islands, and reagent matter fits the electronics assembly lines.",
+		"focus": [
+			"logistics",
+			"matter"
+		]
+	},
+	"united-arab-emirates": {
+		"intro": "founders in the united arab emirates build around shipping and aviation, oil and gas, finance and real estate, with large ports and airports in dubai and abu dhabi and free zones for new companies. reagent logistics fits the ports and air cargo, reagent capital fits the finance side, and reagent matter fits the energy and industrial work.",
+		"focus": [
+			"logistics",
+			"capital",
+			"matter"
+		]
+	},
+	"saudi-arabia": {
+		"intro": "saudi founders work around oil, gas and petrochemicals, mining, and large construction projects, with ports on both the red sea and the gulf. reagent matter fits the petrochemical and materials work, and reagent logistics fits the ports and the long overland supply routes between them.",
+		"focus": [
+			"matter",
+			"logistics"
+		]
+	},
+	"qatar": {
+		"intro": "qatari founders work around natural gas, LNG shipping and petrochemicals, with a modern seaport and a major airport serving a small peninsula on the gulf. reagent matter fits the energy and materials work, and reagent logistics fits the port, the gas carriers and the air freight.",
+		"focus": [
+			"matter",
+			"logistics"
+		]
+	},
+	"bahrain": {
+		"intro": "bahraini founders work around banking and finance, aluminium smelting and oil refining, on a small island with a port serving the gulf and a causeway to the mainland. reagent capital fits the finance side, and reagent matter fits the aluminium and refining work.",
+		"focus": [
+			"capital",
+			"matter"
+		]
+	},
+	"kuwait": {
+		"intro": "kuwaiti founders work around oil production and refining, petrochemicals, trade and finance, with ports on the northern gulf handling much of what comes in. reagent matter fits the energy and petrochemical work, reagent logistics fits the ports, and reagent capital fits the finance side.",
+		"focus": [
+			"matter",
+			"logistics",
+			"capital"
+		]
+	},
+	"oman": {
+		"intro": "omani founders build around oil and gas, fisheries and mining, with deepwater ports at sohar, duqm and salalah facing the arabian sea and the gulf of oman. reagent logistics fits the ports and shipping routes, and reagent matter fits the energy and mineral work.",
+		"focus": [
+			"logistics",
+			"matter"
+		]
+	},
+	"jordan": {
+		"intro": "jordanian founders work around software and IT services, pharmaceuticals, phosphate and potash mining, and trade through the red sea port at aqaba. reagent research fits the software teams, reagent matter fits the pharma and mineral work, and reagent logistics fits the port at aqaba.",
+		"focus": [
+			"research",
+			"matter",
+			"logistics"
+		]
+	},
+	"israel": {
+		"intro": "israeli founders build around software, cybersecurity, semiconductors, medical devices and agricultural technology such as drip irrigation, with research universities and a deep pool of engineers. reagent research fits the labs and chip work, reagent defense fits the cybersecurity side, and reagent capital fits teams raising at the earliest stage.",
+		"focus": [
+			"research",
+			"defense",
+			"capital"
+		]
+	}
+}
