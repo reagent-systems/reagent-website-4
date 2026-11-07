@@ -2,34 +2,26 @@
 	import IsoField from './IsoField.svelte';
 	import { COMPANIES } from './companies';
 
-	type Statement = { title: string; body: string; link?: { href: string; label: string } };
+	type Statement = { title?: string; body: string; link?: { href: string; label: string } };
 
-	// Mission, then how we work, then why.
+	// Founder's wording, trimmed only. Mission first, then how, then why.
 	const statements: Statement[] = [
 		{
 			title: 'build what builders need.',
-			body: 'reagent systems was founded out of necessity. every founder meets problems no one warned them about, and none of them should decide whether a company survives. so we brought the knowledge, the resources, and the capital into one place, for any early-stage founder who needs them. we have been where you are. helping founders is our favorite place to be.'
+			body: "we founded a network out of necessity. there are unknown unknowns in any entrepreneurial career, but that shouldn't stop you from achieving success. so we gathered the resources, the knowledge, and the capital in one place to help any early stage founder succeed. we've been helped where you are now, and helping founders is our favorite spot to be."
 		},
 		{
-			title: 'it starts with a conversation.',
-			body: 'we sit down with every founder to hear what they are building and what is in the way. then we measure where the company truly stands, its technology and manufacturing readiness, so the constraints ahead are clear before they arrive.'
+			body: "first, we get the founder on a call. we want to hear what they're working on and what blockers they have. through a questionnaire, we estimate the true technology readiness level or manufacturing readiness level of the company. in doing so, we identify the constraints they're facing or will face, and work in a partnership capacity towards solutions. from there, we build companies up to a stage almost assuredly ready for a capital raise, and connect them to our investor network."
 		},
 		{
-			title: 'then we build alongside you.',
-			body: 'we work as partners against those constraints until the company is ready to raise. when it is, we bring it to our investor network.'
+			body: "for the work we do beyond introductions, whether engineering, management, marketing, development, or administrative, terms are worked out as to our consultancy. if we're doing the work, we get paid for it. we don't take any capital, any equity, or any profit share, and we choose not to take a percentage of any introduction, because to us it stifles the forward progress of a company."
 		},
 		{
-			title: 'no equity. no cut.',
-			body: 'when we do the work, in engineering, management, marketing, development, or administration, we are paid for that work. we take no equity, no profit share, and no percentage of any introduction. a cut of the raise slows a company down. we would rather see it move.'
-		},
-		{
-			title: 'we pay it forward.',
-			body: 'we have been where every founder is: heads down, too close to see the mistakes. what carried us was other founders who reached out and helped. now we do the same.',
+			body: "we do this because we've been where they are now. we know what it's like to tunnel vision and not realize the mistakes we may be making. getting to a point where the market agrees with you is a trial for anyone, and the most invaluable thing is a network of founders that reach out and assist. we want to see people succeed.",
 			link: { href: '/community', label: 'meet the community' }
 		},
 		{
-			title: 'a modern bell labs.',
-			body: 'we want a defense industrial base and a supply chain secured for decades to come. we want to pay people to chase the breakthroughs they believe in. if the only thing standing between someone and the next frontier is our help, we will help.'
+			body: "we want to see our defense industrial base and supply chain secured for decades to come. we want to be the modern equivalent of bell labs, and pay people to pursue their dreams and innovations. if the only thing stopping anybody from the next breakthrough is a lack of our assistance, then by all means, we are going to assist. we pay it forward."
 		}
 	];
 
@@ -114,8 +106,10 @@
 	{#each statements as statement, i}
 		<section class="statement" bind:this={statementEls[i]}>
 			<div class="statement-copy">
-				<h2>{statement.title}</h2>
-				<p>{statement.body}</p>
+				{#if statement.title}
+					<h2>{statement.title}</h2>
+				{/if}
+				<p class="lead">{statement.body}</p>
 				{#if statement.link}
 					<a class="quiet-link" href={statement.link.href}>{statement.link.label}</a>
 				{/if}
@@ -279,6 +273,15 @@
 		margin-bottom: 2rem;
 	}
 
+	/* All body copy is fully justified. */
+	p,
+	.card-line,
+	.article-excerpt {
+		text-align: justify;
+		hyphens: auto;
+		-webkit-hyphens: auto;
+	}
+
 	.statement p {
 		font-family: 'Raleway Variable', var(--main-font);
 		font-weight: 300;
@@ -286,6 +289,15 @@
 		line-height: 1.7;
 		color: #5f5f5f;
 		max-width: 30rem;
+	}
+
+	/* Story paragraphs. */
+	.statement p.lead {
+		font-weight: 300;
+		font-size: clamp(1.25rem, 1.65vw, 1.65rem);
+		line-height: 1.6;
+		color: #3a3a3a;
+		max-width: 36rem;
 	}
 
 	/* Research, writing, portal */
@@ -606,14 +618,14 @@
 	}
 
 	.quote blockquote {
-		max-width: 40rem;
+		max-width: 42vw;
 	}
 
 	.quote p {
 		font-family: var(--main-font);
 		font-weight: 100;
-		font-size: clamp(2rem, 3.6vw, 3.8rem);
-		line-height: 1.12;
+		font-size: clamp(1.75rem, 2.45vw, 2.75rem);
+		line-height: 1.15;
 		letter-spacing: -0.01em;
 		color: #1a1a1a;
 		margin-bottom: 2rem;
@@ -650,6 +662,10 @@
 		.statement h2 {
 			font-size: 2.4rem;
 			margin-bottom: 1.1rem;
+		}
+		.statement p.lead {
+			font-size: 1.12rem;
+			line-height: 1.6;
 		}
 		.statement p {
 			font-size: 1.02rem;

@@ -61,19 +61,6 @@
 		[-0.5, -0.5, 2.7]
 	);
 
-	// Build alongside: a finished tower, and a second one rising next to it.
-	const alongside = pad(
-		[
-			[-3, -3, 0, 6, 6, 0.15],
-			[-1.9, -0.7, 0.15, 1.4, 1.4, 4.6],
-			[0.2, -0.7, 0.15, 1.4, 1.4, 1],
-			[0.2, -0.7, 1.15, 1.4, 1.4, 1],
-			[0.2, -0.7, 2.15, 1.4, 1.4, 1],
-			[0.2, -0.7, 3.75, 1.4, 1.4, 1]
-		],
-		[0.9, 0, 2]
-	);
-
 	// No equity, no cut: one whole block.
 	const whole = pad([[-1.6, -1.6, 0, 3.2, 3.2, 3.2]], [0, 0, 1.6]);
 
@@ -154,12 +141,11 @@
 
 	const scenes: Box[][] = [
 		scatter,
-		gathered,
-		conversation,
-		alongside,
-		whole,
-		steps,
-		campus,
+		gathered, // mission
+		conversation, // first, we get the founder on a call
+		whole, // terms: no equity, no cut
+		steps, // why: founders helping founders
+		campus, // decades ahead, a modern bell labs
 		lattice,
 		pages,
 		gate,
