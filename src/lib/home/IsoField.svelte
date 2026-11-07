@@ -25,6 +25,7 @@
 
 	type Overlay =
 		| { kind: 'gate'; box: number; href: string }
+		| { kind: 'sign'; box: number; text: string }
 		| { kind: 'portal'; box: number; href: string; live: string; poster: string };
 
 	type Scene = {
@@ -38,8 +39,8 @@
 		portal?: { zc: number; R: number; ring: number; depth: number };
 		/** Set for the examination scene: a magnifying glass hovering over it. */
 		lens?: { R: number; z: number; cx: number; cy: number; roam: number };
-		/** Set for the vault scene: a round dial on the front of the given box. */
-		dial?: { box: number };
+		/** Set for the bank scene: windows and a door on `body`, a roof well on `roof`. */
+		storefront?: { body: number; roof: number };
 	};
 
 	const K = 24;
@@ -96,44 +97,24 @@
 		lens: { R: 1.3, z: 6.1, cx: -0.4, cy: -0.4, roam: 0.9 }
 	};
 
-	// From there, the raise: a vault with its dial turning, gold bars beside it,
-	// and coins stacking up out front.
-	const coin = (x: number, y: number, z: number, tone = 0.15): Tuple => [x, y, z, 0.8, 0.8, 0.13, 0, tone, 1];
-	const bar = (x: number, y: number, z: number): Tuple => [x, y, z, 1.05, 0.5, 0.3, 0, 0.3];
-	const vault: Scene = {
+	// From there, the raise: a bank. A flat-roofed building with a sign across
+	// the front, glass windows and a door, and an ATM on the side.
+	const bank: Scene = {
 		boxes: pad(
 			[
-				[-3.1, -2.7, 0, 6.4, 5.3, 0.12],
-				[-2.5, -2.1, 0.12, 2.6, 2.3, 2.8, 0, 0.85],
-				bar(0.75, -1.5, 0.12),
-				bar(0.75, -0.9, 0.12),
-				bar(0.75, -0.3, 0.12),
-				bar(0.75, -1.2, 0.42),
-				bar(0.75, -0.6, 0.42),
-				bar(0.75, -0.9, 0.72),
-				coin(-1.6, 1.0, 0.12),
-				coin(-1.6, 1.0, 0.25, 0.85),
-				coin(-1.6, 1.0, 0.38),
-				coin(-1.6, 1.0, 0.51, 0.85),
-				coin(-0.5, 1.5, 0.12, 0.85),
-				coin(-0.5, 1.5, 0.25),
-				coin(-0.5, 1.5, 0.38, 0.85),
-				coin(0.8, 1.1, 0.12),
-				coin(0.8, 1.1, 0.25, 0.85)
+				[-3.2, -2.8, 0, 6.2, 5.4, 0.12],
+				[-2.3, -1.9, 0.12, 3.8, 3.1, 2.3],
+				[-2.45, -2.05, 2.42, 4.1, 3.4, 0.32],
+				[-2.3, 1.2, 1.78, 3.8, 0.14, 0.5, 0, 0.85],
+				[1.5, -0.3, 0.12, 0.45, 0.8, 1.35, 0, 0.85],
+				[1.95, -0.2, 0.75, 0.04, 0.6, 0.4, 0, 0.1]
 			],
 			[0, 0, 1]
 		),
-		dial: { box: 1 },
-		actors: (t) => {
-			// A coin drops onto the shortest stack, then the cycle repeats.
-			const f = (t * 0.55) % 1;
-			const fall = Math.min(1, f / 0.55);
-			const z = 0.38 + 1.4 * (1 - fall * fall);
-			const s = f > 0.85 ? 1 - (f - 0.85) / 0.15 : 1;
-			const off = (0.8 - 0.8 * s) / 2;
-			return [[0.8 + off, 1.1 + off, z, 0.8 * s, 0.8 * s, 0.13, 0, 0.15, 1]];
-		}
+		storefront: { body: 1, roof: 2 },
+		overlays: [{ kind: 'sign', box: 3, text: 'bank' }]
 	};
+
 
 
 	// Why: steps, and a small block climbing them, one after another.
@@ -215,7 +196,7 @@
 				scatter,
 				gathered, // mission
 				examine, // first, we talk with the founder
-				vault, // from there, the raise
+				bank, // from there, the raise
 				steps, // why: founders helping founders
 				campus // decades ahead
 			];
@@ -638,40 +619,48 @@
 			}
 		}
 
-		// The vault door: a seam inset on the front face, and a dial whose spokes turn.
-		function drawDial(b: Box, t: number) {
-			if (b.h < 0.5) return;
-			const yF = b.y + b.d + 0.001;
-			const inset = 0.22;
-			shape(
-				closed([
-					P(b.x + inset, yF, b.z + inset),
-					P(b.x + b.w - inset, yF, b.z + inset),
-					P(b.x + b.w - inset, yF, b.z + b.h - inset - 0.07),
-					P(b.x + inset, yF, b.z + b.h - inset - 0.07)
-				]),
-				{ stroke: '#8a8a8a', strokeWidth: 0.9 }
+		// Glass on the bank's two front faces, with a door in the front one. Drawn
+		// right after the walls, so the sign and the ATM still sit on top.
+		function drawStorefront(b: Box) {
+			const top = b.z + b.h - 0.62;
+			const bottom = b.z + 0.18;
+			if (top - bottom < 0.4) return;
+			const pane = (pts: string[], fill: string) =>
+				shape(closed(pts), { fill, stroke: '#1a1a1a', strokeWidth: 0.7 });
+
+			// Front face (toward the lower left): two windows and a door between them.
+			const yF = b.y + b.d + 0.002;
+			const door = 0.95;
+			const mid = b.x + b.w * 0.5;
+			const side = (b.w - door - 0.6) / 2;
+			const fx = [b.x + 0.2, b.x + 0.2 + side, mid + door / 2 + 0.1, mid + door / 2 + 0.1 + side];
+			pane([P(fx[0], yF, bottom), P(fx[1], yF, bottom), P(fx[1], yF, top), P(fx[0], yF, top)], 'url(#lens-glass)');
+			pane([P(fx[2], yF, bottom), P(fx[3], yF, bottom), P(fx[3], yF, top), P(fx[2], yF, top)], 'url(#lens-glass)');
+			pane(
+				[P(mid - door / 2, yF, b.z), P(mid + door / 2, yF, b.z), P(mid + door / 2, yF, top), P(mid - door / 2, yF, top)],
+				'#3a3a3a'
 			);
-			const cx = b.x + b.w * 0.5;
-			const cz = b.z + b.h * 0.5;
-			const N = 40;
-			const circle = (r: number) =>
-				Array.from({ length: N }, (_, i) => {
-					const a = (i / N) * Math.PI * 2;
-					return P(cx + Math.cos(a) * r, yF, cz + Math.sin(a) * r);
-				});
-			shape(`${closed(circle(0.7))} ${closed(circle(0.55))}`, { fill: '#d6d6d6', stroke: '#1a1a1a', evenodd: true });
-			shape(closed(circle(0.55)), { fill: '#2a2a2a' });
-			// Three spokes, turning slowly.
-			const turn = t * 0.5;
-			for (let k = 0; k < 3; k++) {
-				const a = turn + (k * Math.PI * 2) / 3;
-				shape(open([P(cx, yF, cz), P(cx + Math.cos(a) * 0.48, yF, cz + Math.sin(a) * 0.48)]), {
-					stroke: '#d6d6d6',
-					strokeWidth: 2.2
-				});
+			// Mullions.
+			for (const [a, c] of [[fx[0], fx[1]], [fx[2], fx[3]]]) {
+				const m = (a + c) / 2;
+				shape(open([P(m, yF, bottom), P(m, yF, top)]), { stroke: '#1a1a1a', strokeWidth: 0.7 });
 			}
-			shape(closed(circle(0.12)), { fill: '#d6d6d6', stroke: '#1a1a1a' });
+
+			// Side face (toward the lower right): a long window.
+			const xR = b.x + b.w + 0.002;
+			pane([P(xR, b.y + 0.25, bottom), P(xR, b.y + b.d * 0.55, bottom), P(xR, b.y + b.d * 0.55, top), P(xR, b.y + 0.25, top)], 'url(#lens-glass)');
+		}
+
+		// The roof: a well inside the parapet.
+		function drawRoofWell(b: Box) {
+			const z = b.z + b.h + 0.002;
+			const i = 0.28;
+			shape(closed([P(b.x + i, b.y + i, z), P(b.x + b.w - i, b.y + i, z), P(b.x + b.w - i, b.y + b.d - i, z), P(b.x + i, b.y + b.d - i, z)]), {
+				fill: '#d9d9d9',
+				stroke: '#1a1a1a',
+				strokeOpacity: 0.5,
+				strokeWidth: 0.7
+			});
 		}
 
 		// A magnifying glass: a round rim with glass in it, and a handle.
@@ -834,11 +823,14 @@
 				b.z < 0.05 && b.h < 0.2 ? -1e6 : b.x + b.w / 2 + b.y + b.d / 2 + b.z * 1.5;
 			all.sort((p, q) => depth(p.b) - depth(q.b));
 
-			for (const { b, n } of all) drawBox(b, Math.min(1, b.tone), n, t);
+			for (const { b, n } of all) {
+				drawBox(b, Math.min(1, b.tone), n, t);
+				if (scene.storefront && n === scene.storefront.body) drawStorefront(b);
+				if (scene.storefront && n === scene.storefront.roof) drawRoofWell(b);
+			}
 
 			if (scene.portal) drawPortal(scene.portal, t);
 			if (scene.lens && lensAt) drawLens(scene.lens.R, lensAt, t);
-			if (scene.dial) drawDial(cur[scene.dial.box], t);
 
 			for (let i = used; i < pool.length; i++) pool[i].style.display = 'none';
 
@@ -911,6 +903,8 @@
 						onmouseenter={() => (hovered = o.box)}
 						onmouseleave={() => (hovered = -1)}>enter</a
 					>
+				{:else if o.kind === 'sign'}
+					<span class="face front sign" bind:this={overlayFront[i]} aria-hidden="true">{o.text}</span>
 				{:else if o.kind === 'portal'}
 					<a class="face portal-view" href={o.href} bind:this={overlayTop[i]} aria-label="enter the portal to spark">
 						<img class="portal-poster" src={o.poster} alt="" />
@@ -1009,6 +1003,18 @@
 		letter-spacing: 0.35em;
 		color: #fafafa;
 		text-decoration: none;
+	}
+
+	.sign {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-family: 'Raleway Variable', var(--main-font);
+		font-weight: 500;
+		font-size: 12px;
+		letter-spacing: 0.5em;
+		text-transform: uppercase;
+		color: #fafafa;
 	}
 
 	/* The status tag at the end of the leader. */
