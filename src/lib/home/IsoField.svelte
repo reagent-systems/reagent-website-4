@@ -317,6 +317,10 @@
 		if (untrack(() => inline)) frames[0] = frames[frames.length - 1];
 		const view = { u: 0, cx: frames[0].cx, cy: frames[0].cy };
 		const grow = { k: 0 };
+		// The magnifying glass flies in (0 to 1), stays, then flies out (1 to 2).
+		const lensFly = { p: 0 };
+		let lensCfg: NonNullable<Scene['lens']> | null = null;
+		let lensAnim: { stop: () => void } | null = null;
 		const lift = new Array(K).fill(0);
 		let controls: { stop: () => void }[] = [];
 		let pw = 0;
@@ -341,6 +345,17 @@
 		// Blocks spring into the next scene, lowest first, so it builds upward.
 		function goTo(index: number) {
 			arrivedAt = performance.now() / 1000;
+			const lens = scenes[index].lens;
+			if (lens) {
+				lensCfg = lens;
+				lensAnim?.stop();
+				lensFly.p = reduceMotion ? 1 : 0;
+				if (!reduceMotion) lensAnim = animate(lensFly, { p: 1 }, { duration: 1.6, ease: [0.22, 1, 0.36, 1] });
+			} else if (lensCfg && lensFly.p > 0 && lensFly.p < 2) {
+				lensAnim?.stop();
+				if (reduceMotion) lensFly.p = 2;
+				else lensAnim = animate(lensFly, { p: 2 }, { duration: 1.2, ease: [0.64, 0, 0.78, 0] });
+			}
 			controls.forEach((c) => c.stop());
 			settled = false;
 			clearTimeout(settleTimer);
@@ -895,22 +910,36 @@
 
 			used = 0;
 
-			// Where the glass is this frame.
-			const lensAt = scene.lens
-				? {
-						x: scene.lens.cx + Math.cos(t * 0.45) * scene.lens.roam,
-						y: scene.lens.cy + Math.sin(t * 0.6) * scene.lens.roam * 0.8,
-						z: scene.lens.z + Math.sin(t * 1.2) * 0.12
-					}
-				: null;
-			if (scene.lens && lensAt) {
-				// Its soft shadow on the ground.
-				const N = 36;
-				const sh = Array.from({ length: N }, (_, i) => {
-					const a = (i / N) * Math.PI * 2;
-					return P(lensAt.x + 0.5 + Math.cos(a) * scene.lens!.R, lensAt.y + 0.1 + Math.sin(a) * scene.lens!.R, 0.125);
+			// Where the glass is this frame: roaming over the blocks, or on its way in
+			// from off the left of the screen, or out past the right.
+			let lensAt: { x: number; y: number; z: number } | null = null;
+			if (lensCfg && lensFly.p > 0.001 && lensFly.p < 1.999) {
+				const station = {
+					x: lensCfg.cx + Math.cos(t * 0.45) * lensCfg.roam,
+					y: lensCfg.cy + Math.sin(t * 0.6) * lensCfg.roam * 0.8,
+					z: lensCfg.z + Math.sin(t * 1.2) * 0.12
+				};
+				// Far enough along the screen's horizontal to clear the whole window.
+				const reach = (window.innerWidth / (C * u)) * 0.6 + 4;
+				const from = { x: station.x - reach, y: station.y + reach, z: station.z + 2.5 };
+				const to = { x: station.x + reach, y: station.y - reach, z: station.z + 2.5 };
+				const lerp3 = (a: typeof station, b: typeof station, k: number) => ({
+					x: a.x + (b.x - a.x) * k,
+					y: a.y + (b.y - a.y) * k,
+					z: a.z + (b.z - a.z) * k
 				});
-				shape(closed(sh), { fill: '#1a1a1a', fillOpacity: 0.05 });
+				lensAt = lensFly.p <= 1 ? lerp3(from, station, lensFly.p) : lerp3(station, to, lensFly.p - 1);
+				// Its soft shadow on the ground, only while it's over the blocks.
+				const near = 1 - Math.min(1, Math.abs(lensFly.p - 1) * 2.5);
+				if (near > 0.01) {
+					const N = 36;
+					const R = lensCfg.R;
+					const sh = Array.from({ length: N }, (_, i) => {
+						const a = (i / N) * Math.PI * 2;
+						return P(lensAt!.x + 0.5 + Math.cos(a) * R, lensAt!.y + 0.1 + Math.sin(a) * R, 0.125);
+					});
+					shape(closed(sh), { fill: '#1a1a1a', fillOpacity: 0.05 * near });
+				}
 			}
 
 			// Soft shadows on the ground, cast toward the lower right.
@@ -947,7 +976,7 @@
 			for (const it of items) it.draw();
 
 			if (scene.portal) drawPortal(scene.portal, t);
-			if (scene.lens && lensAt) drawLens(scene.lens.R, lensAt, t);
+			if (lensCfg && lensAt) drawLens(lensCfg.R, lensAt, t);
 
 			if (scene.storefront && !reduceMotion) drawCoins(t);
 			else for (const c of coinText) c.style.display = 'none';
@@ -1081,6 +1110,8 @@
 		height: 100%;
 		display: block;
 		opacity: 0;
+		/* Lets the magnifying glass fly in from the edge of the screen. */
+		overflow: visible;
 	}
 
 	/* Same origin as the drawing, so faces line up. */
