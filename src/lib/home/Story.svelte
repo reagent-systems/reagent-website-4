@@ -129,20 +129,14 @@
 
 	<section class="resource portal" bind:this={portal}>
 		<h2 class="resource-title">portal</h2>
-		<p class="portal-line">spark, community inference.</p>
 		<p class="portal-body">
 			a shared nvidia dgx spark, open to the community. it serves open models through an
 			openai-compatible api, with its status, uptime and leaderboards kept in the open.
 		</p>
 		{#if sparkStatus && spark?.ok}
-			<p class="portal-live" class:training={spark.status === 'training'}>
-				<span class="live-dot" aria-hidden="true"></span>{sparkStatus}
+			<p class="portal-live">
+				{sparkStatus}.{#if spark.tokens > 0}{' '}{tokensText(spark.tokens)} tokens served{spark.since ? ` since ${sinceText(spark.since)}` : ''}.{/if}
 			</p>
-			{#if spark.tokens > 0}
-				<p class="portal-note">
-					{tokensText(spark.tokens)} tokens served{spark.since ? ` since ${sinceText(spark.since)}` : ''}.
-				</p>
-			{/if}
 		{/if}
 		<div class="portal-links">
 			<a class="quiet-link" href="https://spark.reagent-systems.com">enter the portal</a>
@@ -332,21 +326,11 @@
 	}
 
 	.portal .resource-title {
-		margin-bottom: 2rem;
-	}
-
-	.portal-line {
-		text-align: left;
-		text-align-last: left;
-		font-family: var(--main-font);
-		font-weight: 200;
-		font-size: var(--text-sub);
-		line-height: 1.15;
-		color: #1a1a1a;
+		margin-bottom: 0;
 	}
 
 	.portal-body {
-		margin-top: 1.5rem;
+		margin-top: 2rem;
 		max-width: 30rem;
 		font-family: 'Raleway Variable', var(--main-font);
 		font-weight: 300;
@@ -355,53 +339,14 @@
 		color: #5f5f5f;
 	}
 
-	.portal-live,
-	.portal-note {
-		text-align: left;
-		text-align-last: left;
+	.portal-live {
+		margin-top: 1.25rem;
+		max-width: 30rem;
 		font-family: 'Raleway Variable', var(--main-font);
 		font-weight: 300;
 		font-size: var(--text-small);
-		color: #3a3a3a;
-	}
-
-	.portal-live {
-		display: flex;
-		align-items: center;
-		gap: 0.6rem;
-		margin-top: 2rem;
-	}
-
-	.portal-note {
-		margin-top: 0.5rem;
+		line-height: 1.7;
 		color: #6b6b6b;
-	}
-
-	/* A small light that breathes while Spark is serving; steady while it trains. */
-	.live-dot {
-		width: 0.5rem;
-		height: 0.5rem;
-		border-radius: 50%;
-		background: #2e9e5b;
-		flex: none;
-		animation: breathe 2.4s ease-in-out infinite;
-	}
-
-	.portal-live.training .live-dot {
-		background: #c98a1b;
-		animation: none;
-	}
-
-	@keyframes breathe {
-		50% {
-			opacity: 0.35;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.live-dot {
-			animation: none;
-		}
 	}
 
 	.portal-links {
