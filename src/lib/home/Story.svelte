@@ -17,7 +17,7 @@
 			body: 'first, we talk with the founder. we estimate the true technology or manufacturing readiness of the company, identify its constraints, and work in a partnership capacity towards solutions.'
 		},
 		{
-			body: 'from there, we build up companies to a stage almost assuredly ready to reach a capital raise. we take no equity and no percentage of any introduction, because to us it stifles the forward progress of a company.'
+			body: 'from there, we build up companies to a stage ready to reach a capital raise. we take no equity and no percentage of any introduction, because to us it stifles the forward progress of a company.'
 		},
 		{
 			body: "why do we do this? because we've been where they are now. the most invaluable thing is a network of founders that reach out and assist."
