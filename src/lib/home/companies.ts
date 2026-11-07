@@ -2,6 +2,7 @@ import { capitalArt } from './capital-art';
 import { defenseArt } from './defense-art';
 import { logisticsArt } from './logistics-art';
 import { matterArt } from './matter-art';
+import { researchArt } from './research-art';
 
 export interface Company {
 	slug: string;
@@ -65,6 +66,7 @@ export const COMPANIES: Company[] = [
 		line: 'open science and new architectures.',
 		email: 'research@reagent-systems.com',
 		logo: '/company-logos/research.svg',
+		art: researchArt,
 		slogan: ['the', 'new', 'frontier']
 	},
 	{

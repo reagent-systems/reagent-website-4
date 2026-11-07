@@ -43,13 +43,19 @@
 		xs: Float32Array; // left edge of each cell, css px
 		ws: Float32Array; // width of each cell, css px
 		drawn: string[]; // what is painted in each cell now
-		left: number; // where this art's text block starts and how wide it is, device px
+		left: number; // where this art's text block starts and how wide it is, css px
 		width: number;
 	};
 
 	// Canvases reach past the <pre> on both sides: wide Braille rows grow the
 	// block outward from its centre, as the text did when it lived in the <pre>.
 	let pad = 0;
+	// The part of the art that can appear on screen (plus room for the tilt),
+	// in <pre> coordinates. Characters outside it are tracked but never drawn.
+	let visX0 = 0;
+	let visX1 = 0;
+	let visY0 = 0;
+	let visY1 = 0;
 	let baseW = 0;
 
 	let layers: Layer[] = [];
@@ -77,6 +83,9 @@
 	let from: string[] = base.slice();
 	let goal: string[] = base.slice();
 	const delays = new Float32Array(rows * cols);
+	// Indices of the cells that change in the current transition.
+	const active = new Int32Array(rows * cols);
+	let activeCount = 0;
 	let dissolveStart = 0;
 	let dissolving = false;
 	let ready = false;
@@ -158,17 +167,31 @@
 			widest = Math.max(widest, x);
 		}
 		// Centre the block where the <pre> would have put it.
-		const off = pad + (baseW - widest) / 2;
+		const off = (baseW - widest) / 2;
 		for (let i = 0; i < layer.xs.length; i++) layer.xs[i] += off;
-		layer.left = off * dpr;
-		layer.width = Math.max(1, widest * dpr);
+		layer.left = off;
+		layer.width = Math.max(1, widest);
+	}
+
+	function onScreen(layer: Layer, i: number, r = (i / cols) | 0) {
+		return (
+			layer.xs[i] + layer.ws[i] >= visX0 &&
+			layer.xs[i] <= visX1 &&
+			(r + 1) * lineH >= visY0 &&
+			r * lineH <= visY1
+		);
 	}
 
 	function paint(layer: Layer, i: number, ch: string) {
 		if (layer.drawn[i] === ch) return;
 		const r = (i / cols) | 0;
-		const x0 = Math.round(layer.xs[i] * dpr);
-		const x1 = Math.round((layer.xs[i] + layer.ws[i]) * dpr);
+		if (!onScreen(layer, i, r)) {
+			// Off screen: remember it, but skip the drawing.
+			layer.drawn[i] = ch;
+			return;
+		}
+		const x0 = Math.round((layer.xs[i] + pad) * dpr);
+		const x1 = Math.round((layer.xs[i] + layer.ws[i] + pad) * dpr);
 		const y0 = Math.round(r * lineH * dpr);
 		const y1 = Math.round((r + 1) * lineH * dpr);
 		const ctx = layer.ctx;
@@ -176,7 +199,7 @@
 		layer.drawn[i] = ch;
 		if (!blank(ch)) {
 			// The CSS gradient spanned the text block, so the colour follows the block.
-			const band = Math.max(0, Math.min(BANDS - 1, (((x0 - layer.left) / layer.width) * BANDS) | 0));
+			const band = Math.max(0, Math.min(BANDS - 1, (((layer.xs[i] - layer.left) / layer.width) * BANDS) | 0));
 			const g = glyph(ch);
 			const w = Math.min(slotW, x1 - x0 + 1);
 			ctx.drawImage(bandSheets[band], g.x, g.y, w, slotH, x0, y0 + ((y1 - y0 - slotH) >> 1), w, slotH);
@@ -213,16 +236,33 @@
 		const w = preEl.offsetWidth;
 		const h = preEl.offsetHeight;
 		if (!w || !h) return;
-		// Keep each bitmap under ~8M pixels so phones don't run out of canvas memory.
-		dpr = Math.min(window.devicePixelRatio || 1, Math.sqrt(8e6 / (w * 1.4 * h)));
 		lineH = h / rows;
+		pad = Math.ceil(w * 0.2);
+
+		// Where the <pre> sits on the page, before the tilt.
+		const host = (stageEl?.offsetParent as HTMLElement | null) ?? stageEl?.parentElement;
+		const hostBox = host?.getBoundingClientRect() ?? { left: 0, top: 0 };
+		const preLeft = hostBox.left + (stageEl?.offsetLeft ?? 0) + window.scrollX;
+		const preTop = hostBox.top + (stageEl?.offsetTop ?? 0) + window.scrollY;
+		const vw = window.innerWidth;
+		const vh = window.innerHeight;
+		const mx = Math.max(200, vw * 0.25);
+		const my = Math.max(200, vh * 0.25);
+		const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+		visX0 = clamp(-preLeft - mx, -pad, w + pad);
+		visX1 = clamp(vw - preLeft + mx, -pad, w + pad);
+		visY0 = clamp(-preTop - my, 0, h);
+		visY1 = clamp(vh - preTop + my, 0, h);
+		const rw = w + 2 * pad;
+		const rh = h;
+		// Keep each bitmap under ~8M pixels so phones don't run out of canvas memory.
+		dpr = Math.min(window.devicePixelRatio || 1, Math.sqrt(8e6 / (rw * rh)));
 		const cs = getComputedStyle(preEl);
 		font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
 		const stops = cs.backgroundImage.match(/rgba?\([^)]*\)|#[0-9a-f]{3,8}/gi) ?? [];
 		if (stops.length >= 2) gradStops = [stops[0]!, stops[1]!];
 		bandColors = gradientBands(gradStops[0], gradStops[1]);
 		baseW = w;
-		pad = Math.ceil(w * 0.2);
 
 		// Widths are measured at css size; glyphs are drawn at device size.
 		measureCtx = document.createElement('canvas').getContext('2d')!;
@@ -235,10 +275,12 @@
 		buildSheets([]);
 
 		layers = canvasEls.map((el) => {
-			el.width = Math.round((w + 2 * pad) * dpr);
-			el.height = Math.round(h * dpr);
-			el.style.width = `${w + 2 * pad}px`;
+			el.width = Math.round(rw * dpr);
+			el.height = Math.round(rh * dpr);
+			el.style.width = `${rw}px`;
+			el.style.height = `${rh}px`;
 			el.style.left = `${-pad}px`;
+			el.style.top = '0px';
 			el.style.transition = 'none';
 			el.style.opacity = '1';
 			return {
@@ -391,7 +433,26 @@
 		incoming.el.style.visibility = 'visible';
 		layoutLayer(incoming, next);
 		goal = next;
-		for (let i = 0; i < delays.length; i++) delays[i] = Math.random() * (DISSOLVE_MS - 160);
+		// Only characters that differ, on screen, take part. Blank cells stay
+		// untouched; a character that is the same in both arts and sits in the
+		// same spot, or one that is off screen, just switches over now.
+		const out = layers[front];
+		activeCount = 0;
+		for (let i = 0; i < next.length; i++) {
+			const fb = blank(from[i]);
+			const gb = blank(next[i]);
+			if (fb && gb) continue;
+			if (
+				(from[i] === next[i] && Math.abs(out.xs[i] - incoming.xs[i]) < 0.5) ||
+				(!onScreen(out, i) && !onScreen(incoming, i))
+			) {
+				paint(incoming, i, next[i]);
+				paint(out, i, ' ');
+				continue;
+			}
+			active[activeCount++] = i;
+			delays[i] = Math.random() * (DISSOLVE_MS - 160);
+		}
 		dissolveStart = performance.now();
 		dissolving = true;
 	}
@@ -406,7 +467,8 @@
 		const e = now - dissolveStart;
 		const half = SCRAMBLE_MS / 2;
 		let done = true;
-		for (let i = 0; i < goal.length; i++) {
+		for (let k = 0; k < activeCount; k++) {
+			const i = active[k];
 			const d = delays[i];
 			const scramble = from[i] !== goal[i];
 			if (e < d) {
@@ -486,6 +548,13 @@
 			setup();
 		});
 		if (preEl) ro.observe(preEl);
+		// What counts as on screen depends on the window too.
+		let resizeFrame = 0;
+		const onResize = () => {
+			cancelAnimationFrame(resizeFrame);
+			resizeFrame = requestAnimationFrame(() => setup());
+		};
+		window.addEventListener('resize', onResize);
 
 		// The hero only animates while it is on screen.
 		let onScreen = true;
@@ -510,6 +579,8 @@
 			clearTimeout(fadeTimer);
 			io.disconnect();
 			ro.disconnect();
+			window.removeEventListener('resize', onResize);
+			cancelAnimationFrame(resizeFrame);
 		};
 	});
 </script>
@@ -544,7 +615,5 @@
 
 	canvas {
 		position: absolute;
-		top: 0;
-		height: 100%;
 	}
 </style>
