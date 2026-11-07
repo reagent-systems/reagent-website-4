@@ -19,8 +19,9 @@
 		portalTag?: { title: string; detail?: string } | null;
 	} = $props();
 
-	type Box = { x: number; y: number; z: number; w: number; d: number; h: number; win: number; tone: number };
-	type Tuple = [number, number, number, number, number, number, number?, number?];
+	// `round` 1 makes the block a cylinder; in between, the corners round off as it morphs.
+	type Box = { x: number; y: number; z: number; w: number; d: number; h: number; win: number; tone: number; round: number };
+	type Tuple = [number, number, number, number, number, number, number?, number?, number?];
 
 	type Overlay =
 		| { kind: 'gate'; box: number; href: string }
@@ -38,7 +39,7 @@
 	};
 
 	const K = 24;
-	const toBox = ([x, y, z, w, d, h, win = 0, tone = 0]: Tuple): Box => ({ x, y, z, w, d, h, win, tone });
+	const toBox = ([x, y, z, w, d, h, win = 0, tone = 0, round = 0]: Tuple): Box => ({ x, y, z, w, d, h, win, tone, round });
 
 	function pad(list: Tuple[], at: [number, number, number] = [0, 0, 0]): Box[] {
 		const out = list.slice(0, K).map(toBox);
@@ -104,10 +105,43 @@
 		}
 	};
 
-	// Terms: one whole, uncut block.
-	const whole: Scene = {
-		boxes: pad([[-1.6, -1.6, 0, 3.2, 3.2, 3.2, 0, 0]], [0, 0, 1.6]),
-		float: 0.06
+	// From there, the raise: a bank, with stacks of coins out front and one more
+	// coin landing on the pile.
+	const coin = (x: number, y: number, z: number, tone = 0.15): Tuple => [x, y, z, 0.85, 0.85, 0.13, 0, tone, 1];
+	const bank: Scene = {
+		boxes: pad(
+			[
+				[-2.7, -2.3, 0, 5.4, 4.2, 0.2],
+				[-2.4, -2.0, 0.2, 4.8, 3.6, 0.2],
+				[-2.0, -1.7, 0.4, 4.0, 1.6, 2.1],
+				[-1.95, 0.45, 0.4, 0.52, 0.52, 2.1, 0, 0, 1],
+				[-0.9, 0.45, 0.4, 0.52, 0.52, 2.1, 0, 0, 1],
+				[0.15, 0.45, 0.4, 0.52, 0.52, 2.1, 0, 0, 1],
+				[1.2, 0.45, 0.4, 0.52, 0.52, 2.1, 0, 0, 1],
+				[-2.3, -1.9, 2.5, 4.6, 3.1, 0.32, 0, 0.85],
+				[-1.9, -1.6, 2.82, 3.8, 2.5, 0.24],
+				[-1.2, -1.15, 3.06, 2.4, 1.6, 0.2],
+				coin(2.9, 0.4, 0),
+				coin(2.9, 0.4, 0.13, 0.85),
+				coin(2.9, 0.4, 0.26),
+				coin(2.9, 0.4, 0.39, 0.85),
+				coin(2.9, 0.4, 0.52),
+				coin(3.15, 1.6, 0, 0.85),
+				coin(3.15, 1.6, 0.13),
+				coin(3.15, 1.6, 0.26, 0.85),
+				coin(1.95, 2.35, 0),
+				coin(1.95, 2.35, 0.13, 0.85)
+			],
+			[0, 0, 1]
+		),
+		actors: (t) => {
+			// A coin drops onto the front stack, then the cycle repeats.
+			const f = (t * 0.55) % 1;
+			const fall = Math.min(1, f / 0.55);
+			const z = 0.39 + 1.5 * (1 - fall * fall);
+			const s = f > 0.85 ? 1 - (f - 0.85) / 0.15 : 1;
+			return [[3.15 + (0.85 - 0.85 * s) / 2, 1.6 + (0.85 - 0.85 * s) / 2, z, 0.85 * s, 0.85 * s, 0.13, 0, 0.15, 1]];
+		}
 	};
 
 	// Why: steps, and a small block climbing them, one after another.
@@ -189,7 +223,7 @@
 				scatter,
 				gathered, // mission
 				conversation, // first, we talk with the founder
-				whole, // terms
+				bank, // from there, the raise
 				steps, // why: founders helping founders
 				campus // decades ahead
 			];
@@ -365,6 +399,8 @@
 
 		// Plan outline of a box with rounded corners, inset by `k`.
 		function outline(x: number, y: number, w: number, d: number, r: number, k: number): [number, number][] {
+			// More points on bigger curves, so cylinders stay smooth.
+			const steps = r > 0.3 ? 8 : 4;
 			const out: [number, number][] = [];
 			const rr = Math.max(0.001, r - k);
 			const corners: [number, number, number][] = [
@@ -374,8 +410,8 @@
 				[x + r, y + r, Math.PI]
 			];
 			for (const [cx, cy, a0] of corners)
-				for (let s2 = 0; s2 <= 4; s2++) {
-					const a = a0 + (s2 / 4) * (Math.PI / 2);
+				for (let s2 = 0; s2 <= steps; s2++) {
+					const a = a0 + (s2 / steps) * (Math.PI / 2);
 					out.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]);
 				}
 			return out;
@@ -384,8 +420,9 @@
 		// A block with rounded vertical edges and a chamfered top.
 		function drawBox(b: Box, tone: number, n: number, t: number) {
 			const { x, y, z, w, d, h } = b;
-			const r = Math.min(0.2, w * 0.22, d * 0.22);
-			const c = Math.min(0.07, h * 0.3, r * 0.6);
+			const square = Math.min(0.2, w * 0.22, d * 0.22);
+			const r = square + (Math.min(w, d) / 2 - square) * Math.max(0, Math.min(1, b.round));
+			const c = Math.min(0.07, h * 0.3, square * 0.6);
 			const top = z + h;
 			const side = top - c;
 			const ring = outline(x, y, w, d, r, 0);
@@ -685,9 +722,10 @@
 				);
 			}
 
-			// Ground slabs always go down first; everything else back to front.
+			// Ground slabs always go down first; everything else back to front, with
+			// height weighted so roofs and anything resting on top draw last.
 			const depth = (b: Box) =>
-				b.z < 0.05 && b.h < 0.2 ? -1e6 : b.x + b.w / 2 + b.y + b.d / 2 + b.z;
+				b.z < 0.05 && b.h < 0.2 ? -1e6 : b.x + b.w / 2 + b.y + b.d / 2 + b.z * 1.5;
 			all.sort((p, q) => depth(p.b) - depth(q.b));
 
 			for (const { b, n } of all) drawBox(b, Math.min(1, b.tone), n, t);
