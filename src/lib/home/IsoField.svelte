@@ -35,7 +35,7 @@
 		actors?: (t: number) => Tuple[];
 		/** Extra extent for framing, for things drawn outside the boxes. */
 		bounds?: Tuple[];
-		/** Buildings pop up from the ground, from the centre outward, when the scene arrives. */
+		/** Holds back the scene's moving pieces until its buildings have risen. */
 		grow?: boolean;
 		/** Set for the portal scene: draws the ring and its surface. */
 		portal?: { zc: number; R: number; ring: number; depth: number };
@@ -163,12 +163,13 @@
 	const campus: Scene = {
 		boxes: pad(
 			[
+				// The six steps before this become the tower and the inner ring.
 				[-0.7, -0.7, 0, 1.4, 1.4, 4.4, 1],
-				[-0.06, -0.06, 4.4, 0.12, 0.12, 0.9],
 				...Array.from({ length: 6 }, (_, i): Tuple => {
 					const a = (i / 6) * Math.PI * 2;
 					return [Math.cos(a) * 2.05 - 0.55, Math.sin(a) * 2.05 - 0.55, 0, 1.1, 1.1, campusHeights[i], 1];
 				}),
+				[-0.06, -0.06, 4.4, 0.12, 0.12, 0.9],
 				...outer
 			],
 			[0, 0, 0.5]
@@ -329,8 +330,6 @@
 		let frame = 0;
 		let settleTimer: ReturnType<typeof setTimeout> | undefined;
 		let arrivedAt = 0;
-		// A little overshoot as each building lands.
-		const backOut = (x: number) => 1 + 2.2 * Math.pow(x - 1, 3) + 1.2 * Math.pow(x - 1, 2);
 
 		function resize() {
 			const r = svg.getBoundingClientRect();
@@ -360,15 +359,29 @@
 			settled = false;
 			clearTimeout(settleTimer);
 			const target = scenes[index].boxes;
-			controls = target.map((b, n) =>
-				animate(cur[n], { ...b }, {
+			const shown = (b: Box) => b.w > 0.02 && b.d > 0.02 && b.h > 0.02;
+			controls = target.map((b, n) => {
+				const c = cur[n];
+				let goal: Box = { ...b };
+				let delay = Math.min(0.5, b.z * 0.06 + n * 0.012);
+				if (!shown(c) && shown(b)) {
+					// A new block: start flat on the ground under where it will stand, and
+					// rise in a wave from the middle outward.
+					Object.assign(c, { ...b, z: 0, h: 0 });
+					delay = 0.15 + Math.hypot(b.x + b.w / 2, b.y + b.d / 2) * 0.09;
+				} else if (shown(c) && !shown(b)) {
+					// No longer needed: sink into the ground where it stands.
+					goal = { ...c, z: 0, h: 0 };
+					delay = 0;
+				}
+				return animate(c, goal, {
 					type: 'spring',
 					stiffness: 140,
 					damping: 19,
 					mass: 0.9,
-					delay: reduceMotion ? 0 : Math.min(0.5, b.z * 0.06 + n * 0.012)
-				})
-			);
+					delay: reduceMotion ? 0 : delay
+				});
+			});
 			const ring = scenes[index].portal && scenes[index].boxes.some((b) => b.h > 0) ? 1 : 0;
 			controls.push(
 				animate(grow, { k: ring }, { type: 'spring', stiffness: 90, damping: 15, delay: reduceMotion ? 0 : 0.3 })
@@ -888,22 +901,11 @@
 				...b,
 				z: b.z + lift[n] + Math.sin(t * 1.3 + n * 0.55) * float
 			}));
-			// Growing cities: each block rises once the wave from the centre reaches it.
+			// In the city, the tower's beacon waits until the tower has finished rising.
 			const age = t - arrivedAt;
-			const growth = (b: Box) => {
-				if (!scene.grow || reduceMotion) return 1;
-				const d = Math.hypot(b.x + b.w / 2, b.y + b.d / 2);
-				return backOut(Math.min(1, Math.max(0, age * 1.6 - d * 0.42)));
-			};
-			if (scene.grow)
-				for (const b of drawn) {
-					const g = growth(b);
-					b.h *= g;
-					b.z *= g;
-				}
 			const actors = reduceMotion
 				? []
-				: (scene.actors?.(t) ?? []).map(toBox).map((a) => (scene.grow ? { ...a, z: a.z * growth(a) } : a));
+				: (scene.actors?.(t) ?? []).map(toBox).filter(() => !scene.grow || age > 1.4);
 			const all = [...drawn.map((b, n) => ({ b, n })), ...actors.map((b) => ({ b, n: -1 }))].filter(
 				({ b }) => b.w > 0.02 && b.d > 0.02 && b.h > 0.02
 			);
