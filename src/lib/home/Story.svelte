@@ -156,7 +156,7 @@
 		<IsoField {anchors} />
 
 		{#each statements as statement, i}
-			<section class="statement" bind:this={statementEls[i]}>
+			<section class="statement" id={i === 0 ? 'mission' : undefined} bind:this={statementEls[i]}>
 				<div class="statement-copy">
 					{#if statement.title}
 						<h2 class="title">{statement.title}</h2>
@@ -167,7 +167,7 @@
 		{/each}
 	</div>
 
-	<section class="link-section">
+	<section class="link-section" id="research">
 		<h2 class="title">research</h2>
 		<table class="releases">
 			<thead>
@@ -195,7 +195,7 @@
 		<a class="quiet-link" href="/research">all research</a>
 	</section>
 
-	<section class="link-section">
+	<section class="link-section" id="news">
 		<h2 class="title">news</h2>
 		<div class="cards" use:reveal>
 			{#each ARTICLES.slice(0, 2) as article}
@@ -208,7 +208,7 @@
 		<a class="quiet-link" href="/blog">all news</a>
 	</section>
 
-	<section class="link-section">
+	<section class="link-section" id="portal">
 		<h2 class="title">portal</h2>
 		<p class="body">
 			{@render whole(
@@ -249,7 +249,7 @@
 				{#if spark.leaders.length}
 					<div class="leaders">
 						<h3 class="sub">leaderboard</h3>
-						<table class="releases">
+						<table class="releases leaders-table">
 							<thead>
 								<tr>
 									<th scope="col">builder</th>
@@ -534,6 +534,10 @@
 
 	.uptime-days .day.dip {
 		background: #9a9a9a;
+	}
+
+	.leaders-table td {
+		vertical-align: baseline;
 	}
 
 	.col-hours {

@@ -120,6 +120,9 @@ html {
 
 body {
 	font-family: var(--main-font);
+	/* Raleway's default numerals rise and drop like lowercase letters; use the
+	   ones that sit on the line at capital height, all the same width. */
+	font-variant-numeric: lining-nums tabular-nums;
 	background-color: var(--page-background);
 	color: #1a1a1a;
 	min-height: 100vh;
@@ -322,4 +325,12 @@ body {
 		align-self: flex-start;
 		margin-left: -12rem;
 	}
+}
+
+/* Form controls don't inherit numeral settings. */
+input,
+textarea,
+button,
+select {
+	font-variant-numeric: lining-nums tabular-nums;
 }

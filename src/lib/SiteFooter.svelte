@@ -1,69 +1,23 @@
 <script lang="ts">
-	// Keep multi-word names on one line, and keep each dot with the name before it.
-	const list = (items: string[]) => items.map((n) => n.replace(/ /g, '\u00a0')).join('\u00a0·  ');
-
-	import { COMPANIES } from '$lib/home/companies';
+	import { LINK_GROUPS, LEGAL_LINKS } from '$lib/site-links';
+	import { REGIONS, displayName } from '$lib/areas';
 
 	const currentYear = new Date().getFullYear();
 
-	const linkGroups = [
-		{
-			title: 'resources',
-			links: [
-				{ href: '/research', label: 'research' },
-				{ href: '/blog', label: 'news' },
-				{ href: '/#join', label: 'newsletter' }
-			]
-		},
-		{
-			title: 'reagent',
-			links: [
-				{ href: '/plan', label: 'plan' },
-				{ href: '/community', label: 'community' },
-				{ href: '/careers', label: 'careers' },
-				{ href: '/portal', label: 'portal' },
-				{ href: '/#join', label: 'contact' }
-			]
-		}
-	];
-
-	const states = [
-		'alabama', 'alaska', 'arizona', 'arkansas', 'california', 'colorado', 'connecticut',
-		'delaware', 'florida', 'georgia', 'hawaii', 'idaho', 'illinois', 'indiana', 'iowa',
-		'kansas', 'kentucky', 'louisiana', 'maine', 'maryland', 'massachusetts', 'michigan',
-		'minnesota', 'mississippi', 'missouri', 'montana', 'nebraska', 'nevada', 'new hampshire',
-		'new jersey', 'new mexico', 'new york', 'north carolina', 'north dakota', 'ohio',
-		'oklahoma', 'oregon', 'pennsylvania', 'rhode island', 'south carolina', 'south dakota',
-		'tennessee', 'texas', 'utah', 'vermont', 'virginia', 'washington', 'west virginia',
-		'wisconsin', 'wyoming'
-	];
-
-	// Country lists outside North America are placeholders to confirm.
-	const regions = [
-		{
-			name: 'europe',
-			places: [
-				'united kingdom', 'ireland', 'france', 'germany', 'netherlands', 'belgium',
-				'switzerland', 'austria', 'spain', 'portugal', 'italy', 'sweden', 'norway',
-				'denmark', 'finland', 'poland'
-			]
-		},
-		{
-			name: 'asia',
-			places: [
-				'japan', 'south korea', 'taiwan', 'singapore', 'india', 'indonesia', 'malaysia',
-				'thailand', 'vietnam', 'philippines'
-			]
-		},
-		{
-			name: 'middle east',
-			places: [
-				'united arab emirates', 'saudi arabia', 'qatar', 'bahrain', 'kuwait', 'oman',
-				'jordan', 'israel'
-			]
-		}
-	];
+	// North America lists its countries, then the states on their own line.
+	const northAmerica = REGIONS.find((r) => r.name === 'north america')!;
+	const states = REGIONS.find((r) => r.name === 'united states')!;
+	const abroad = REGIONS.filter((r) => !['north america', 'united states'].includes(r.name));
 </script>
+
+{#snippet places(list: { slug: string; name: string }[])}
+	{#each list as place, i}
+		<a href="/areas-served/{place.slug}">{displayName(place.name).replace(/ /g, ' ')}</a>{#if i < list.length - 1}<span
+				class="dot"
+				aria-hidden="true">&nbsp;·</span
+			>{' '}{/if}
+	{/each}
+{/snippet}
 
 <footer class="footer">
 	<div class="footer-inner">
@@ -75,54 +29,59 @@
 					tampa, florida 33647
 				</address>
 				<a class="mail" href="mailto:help@reagent-systems.com">help@reagent-systems.com</a>
-				<a class="mail" href="https://x.com/Reagent_Systems" target="_blank" rel="noopener noreferrer"
-					>x</a
-				>
+				<a class="mail" href="https://x.com/Reagent_Systems" target="_blank" rel="noopener noreferrer">x</a>
+				<a class="work" href="/#join">talk to reagent</a>
 			</div>
 
-			<nav class="link-col" aria-label="companies">
-				<span class="col-title">companies</span>
-				{#each COMPANIES as company}
-					<a href="/{company.slug}">{company.name}</a>
-				{/each}
-			</nav>
-
-			{#each linkGroups as group}
+			{#each LINK_GROUPS as group}
 				<nav class="link-col" aria-label={group.title}>
 					<span class="col-title">{group.title}</span>
 					{#each group.links as link}
-						<a href={link.href}>{link.label}</a>
+						<a
+							href={link.href}
+							target={link.external ? '_blank' : undefined}
+							rel={link.external ? 'noopener noreferrer' : undefined}>{link.label}</a
+						>
 					{/each}
 				</nav>
 			{/each}
 		</div>
 
 		<div class="served">
-			<span class="served-title">where we serve</span>
+			<a class="served-title" href="/areas-served">areas served</a>
 
 			<div class="region">
 				<span class="region-name">north america</span>
-				<p class="places strong">canada · united states · mexico</p>
-				<p class="places">
-					{list(states)}
+				<p class="places strong">
+					{#each northAmerica.areas as place, i}
+						<a href="/areas-served/{place.slug}">{place.name}</a><span class="dot" aria-hidden="true"
+							>&nbsp;·</span
+						>{' '}{#if i === 0}<a href="/areas-served#united-states">united&nbsp;states</a><span
+								class="dot"
+								aria-hidden="true">&nbsp;·</span
+							>{' '}{/if}
+					{/each}
 				</p>
+				<p class="places">{@render places(states.areas)}</p>
 			</div>
 
 			<div class="region-row">
-				{#each regions as region}
+				{#each abroad as region}
 					<div class="region">
 						<span class="region-name">{region.name}</span>
-						<p class="places">
-							{list(region.places)}
-						</p>
+						<p class="places">{@render places(region.areas)}</p>
 					</div>
 				{/each}
 			</div>
 		</div>
 
 		<div class="bottom">
-			<span>© {currentYear} reagent systems</span>
-			<a href="/privacy">privacy</a>
+			<span>© {currentYear} reagent systems. all rights reserved.</span>
+			<nav class="legal" aria-label="legal">
+				{#each LEGAL_LINKS as link}
+					<a href={link.href}>{link.label}</a>
+				{/each}
+			</nav>
 		</div>
 	</div>
 </footer>
@@ -145,7 +104,7 @@
 
 	.footer-top {
 		display: grid;
-		grid-template-columns: 1.6fr repeat(3, 1fr);
+		grid-template-columns: 1.4fr repeat(4, 1fr);
 		gap: 3rem;
 		margin-bottom: 8rem;
 	}
@@ -168,6 +127,12 @@
 		font-style: normal;
 		line-height: 1.7;
 		margin-bottom: 0.75rem;
+	}
+
+	.work {
+		margin-top: 1.5rem;
+		color: #1a1a1a;
+		letter-spacing: 0.04em;
 	}
 
 	.link-col {
@@ -211,6 +176,7 @@
 		font-weight: 100;
 		font-size: 2.6rem;
 		letter-spacing: -0.01em;
+		color: #1a1a1a;
 	}
 
 	.region {
@@ -226,29 +192,56 @@
 	}
 
 	.places {
-		white-space: pre-wrap;
 		line-height: 1.9;
 		font-size: 0.98rem;
 		max-width: 70rem;
+		margin: 0;
 	}
 
-	.places.strong {
+	.places a {
+		display: inline;
+	}
+
+	.places.strong a {
 		color: #1a1a1a;
 		font-size: 1.1rem;
+	}
+
+	.places.strong a:hover {
+		color: #6b6b6b;
+	}
+
+	.dot {
+		color: #b0b0b0;
 	}
 
 	.bottom {
 		display: flex;
 		justify-content: space-between;
+		align-items: baseline;
+		flex-wrap: wrap;
+		gap: 1.5rem;
 		font-size: 0.95rem;
+	}
+
+	.legal {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 2rem;
+	}
+
+	@media (max-width: 1200px) {
+		.footer-top {
+			grid-template-columns: repeat(4, 1fr);
+		}
+		.brand {
+			grid-column: 1 / -1;
+		}
 	}
 
 	@media (max-width: 1024px) {
 		.footer-top {
 			grid-template-columns: 1fr 1fr;
-		}
-		.brand {
-			grid-column: 1 / -1;
 		}
 		.region-row {
 			grid-template-columns: 1fr;
@@ -269,6 +262,9 @@
 		.bottom {
 			flex-direction: column;
 			gap: 0.75rem;
+		}
+		.legal {
+			gap: 1.5rem;
 		}
 	}
 </style>

@@ -205,7 +205,12 @@
 	}
 
 	.terms-section ul {
-		padding-left: 1.5rem;
+		list-style: none;
+		padding-left: 0;
+	}
+
+	.terms-section a {
+		white-space: nowrap;
 	}
 
 	.terms-section li {

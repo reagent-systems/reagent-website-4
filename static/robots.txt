@@ -1,2 +1,5 @@
 # allow crawling everything
 User-agent: *
+Allow: /
+
+Sitemap: https://reagent-systems.com/sitemap.xml
