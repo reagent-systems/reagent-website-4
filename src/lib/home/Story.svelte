@@ -619,7 +619,7 @@
 
 		.statement {
 			min-height: calc(100svh - var(--panel-h));
-			padding: var(--space-m) var(--gutter);
+			padding: var(--space-s) var(--gutter);
 		}
 
 		.statement .title {

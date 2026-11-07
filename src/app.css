@@ -71,7 +71,7 @@ html {
 	--text-sub: clamp(1.5rem, 2vw, 2rem);
 	--text-card: clamp(1.2rem, 1.5vw, 1.5rem);
 	--text-quote: clamp(1.5rem, 2.2vw, 2.35rem);
-	--text-body: clamp(1rem, 1.1vw, 1.15rem);
+	--text-body: clamp(1.125rem, 1.25vw, 1.3rem);
 	--text-small: 1rem;
 
 	/* One spacing scale for the whole site. */
@@ -92,7 +92,7 @@ html {
 		--text-sub: 1.45rem;
 		--text-card: 1.1rem;
 		--text-quote: 1.4rem;
-		--text-body: 1.125rem;
+		--text-body: 1.25rem;
 		--text-small: 0.95rem;
 		--space-l: 2.5rem;
 		--space-xl: 3.5rem;
@@ -164,7 +164,7 @@ body {
 	font-weight: 700;
 	font-size: 1rem;
 	line-height: 1.2;
-	background: linear-gradient(90deg, #2d4a8a, #800020, #2d4a8a);
+	background: linear-gradient(90deg, #8aade0, #c98a9a, #8aade0);
 	background-size: 200% 100%;
 	-webkit-background-clip: text;
 	background-clip: text;

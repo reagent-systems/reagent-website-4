@@ -902,7 +902,7 @@
 			// On phones the band starts under the status bar, so its scene sits a little
 			// low in the band rather than dead centre.
 			const lowered = !untrack(() => inline) && pw < 769 && window.innerWidth <= 768;
-			const fitH = lowered ? 0.72 : untrack(() => inline) ? 0.9 : 0.8;
+			const fitH = lowered ? 0.66 : untrack(() => inline) ? 0.9 : 0.8;
 			const targetU = Math.min((pw * 0.9) / Math.max(fr.w, 1), (ph * fitH) / Math.max(fr.h, 1), cap);
 			const ease = view.u === 0 ? 1 : 0.07;
 			view.u += (targetU - view.u) * ease;
@@ -910,7 +910,7 @@
 			view.cy += (fr.cy - view.cy) * ease;
 			u = view.u;
 			ox = pw / 2 - view.cx * u;
-			oy = ph * (lowered ? 0.58 : 0.5) - view.cy * u;
+			oy = ph * (lowered ? 0.65 : 0.5) - view.cy * u;
 
 			// Hover raises a block a little.
 			for (let n = 0; n < K; n++) lift[n] += ((hovered === n ? 0.35 : 0) - lift[n]) * 0.15;
