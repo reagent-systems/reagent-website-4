@@ -5,6 +5,8 @@ export interface Company {
 	line: string;
 	email: string;
 	logo: string;
+	/** Three lines shown in the hero while this company is up. */
+	slogan: [string, string, string];
 }
 
 // Logos in /static/company-logos are placeholders until the final marks arrive.
@@ -15,7 +17,8 @@ export const COMPANIES: Company[] = [
 		fullName: 'reagent matter',
 		line: 'materials and physical products.',
 		email: 'matter@reagent-systems.com',
-		logo: '/company-logos/matter.svg'
+		logo: '/company-logos/matter.svg',
+		slogan: ['u.s.', 'made', 'materials']
 	},
 	{
 		slug: 'defense',
@@ -23,7 +26,8 @@ export const COMPANIES: Company[] = [
 		fullName: 'reagent defense',
 		line: 'technology that protects.',
 		email: 'defense@reagent-systems.com',
-		logo: '/company-logos/defense.svg'
+		logo: '/company-logos/defense.svg',
+		slogan: ['for', 'new', 'swords']
 	},
 	{
 		slug: 'logistics',
@@ -31,7 +35,8 @@ export const COMPANIES: Company[] = [
 		fullName: 'reagent logistics',
 		line: 'moving what we make.',
 		email: 'logistics@reagent-systems.com',
-		logo: '/company-logos/logistics.svg'
+		logo: '/company-logos/logistics.svg',
+		slogan: ['supply', 'chains', 'simplified']
 	},
 	{
 		slug: 'capital',
@@ -39,7 +44,8 @@ export const COMPANIES: Company[] = [
 		fullName: 'reagent capital',
 		line: 'funding the earliest stage.',
 		email: 'capital@reagent-systems.com',
-		logo: '/company-logos/capital.svg'
+		logo: '/company-logos/capital.svg',
+		slogan: ['money', 'is', 'power']
 	},
 	{
 		slug: 'research',
@@ -47,7 +53,8 @@ export const COMPANIES: Company[] = [
 		fullName: 'reagent research',
 		line: 'open science and new architectures.',
 		email: 'research@reagent-systems.com',
-		logo: '/company-logos/research.svg'
+		logo: '/company-logos/research.svg',
+		slogan: ['the', 'new', 'frontier']
 	},
 	{
 		slug: 'creative',
@@ -55,6 +62,10 @@ export const COMPANIES: Company[] = [
 		fullName: 'reagent creative',
 		line: 'the community and the craft.',
 		email: 'creative@reagent-systems.com',
-		logo: '/company-logos/creative.svg'
+		logo: '/company-logos/creative.svg',
+		slogan: ['the', 'idea', 'factory']
 	}
 ];
+
+// Hero order: creative always loads first.
+export const HERO_ORDER = ['creative', 'capital', 'matter', 'research', 'logistics', 'defense'];
