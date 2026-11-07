@@ -6,8 +6,7 @@
 }
 
 html {
-	overflow-x: hidden;
-	overflow-y: auto;
+	overflow-x: clip;
 	max-width: 100%;
 	min-height: 100%;
 }
@@ -77,8 +76,7 @@ body {
 	background-color: var(--page-background);
 	color: #1a1a1a;
 	min-height: 100vh;
-	overflow-x: hidden;
-	overflow-y: auto;
+	overflow-x: clip;
 }
 
 .container {
