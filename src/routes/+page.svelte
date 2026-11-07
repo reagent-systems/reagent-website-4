@@ -6,11 +6,26 @@
 	import PartnerMarquee from '$lib/home/PartnerMarquee.svelte';
 	import Story from '$lib/home/Story.svelte';
 	import { COMPANIES, HERO_ORDER, type Company } from '$lib/home/companies';
+	import { systemsArt } from '$lib/home/systems-art';
 
 	// Seconds each company holds the hero before the next one takes over.
 	const HOLD_MS = 5000;
 
-	const order: Company[] = HERO_ORDER.map((slug) => COMPANIES.find((c) => c.slug === slug)!);
+	// The parent company closes the cycle with its own mark.
+	const systems: Company = {
+		slug: 'systems',
+		name: 'systems',
+		fullName: 'reagent systems',
+		line: '',
+		email: 'help@reagent-systems.com',
+		logo: '',
+		art: systemsArt,
+		slogan: ['reagent', 'systems', 'corporation']
+	};
+	const order: Company[] = [
+		...HERO_ORDER.map((slug) => COMPANIES.find((c) => c.slug === slug)!),
+		systems
+	];
 
 	let mounted = $state(false);
 	let cycleIndex = $state(0);
@@ -93,13 +108,14 @@
 					{#key current.slug}
 						<span
 							class="main-title"
+							style="--chars: {Math.max(...current.slogan.map((w) => w.length))}"
 							in:mist={{ delay: 380 + line * 140 }}
 							out:mist={{ delay: line * 90, duration: 450 }}>{current.slogan[line]}</span
 						>
 					{/key}
 				</div>
 			{/each}
-			<a class="hero-link" href="/{current.slug}">
+			<a class="hero-link" href={current.slug === 'systems' ? '/' : `/${current.slug}`}>
 				<DitherText text={current.fullName} />
 			</a>
 		</div>
@@ -139,6 +155,20 @@
 		grid-area: 1 / 1;
 		display: block;
 		white-space: nowrap;
+	}
+
+	/* On narrow screens a slide with a long word gets smaller words, so nothing
+	   runs off the edge. Slides with short words keep the normal size. */
+	@media (max-width: 768px) {
+		.title-line > :global(.main-title) {
+			font-size: min(6.5rem, calc((100vw - 3rem) / (var(--chars) * 0.49)));
+		}
+	}
+
+	@media (max-width: 480px) {
+		.title-line > :global(.main-title) {
+			font-size: min(5rem, calc((100vw - 3rem) / (var(--chars) * 0.49)));
+		}
 	}
 
 	.hero-link {
