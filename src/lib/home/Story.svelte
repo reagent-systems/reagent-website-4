@@ -1,5 +1,5 @@
 <script lang="ts">
-	import MorphField from './MorphField.svelte';
+	import IsoField from './IsoField.svelte';
 	import { COMPANIES } from './companies';
 
 	type Statement = { title: string; body: string; link?: { href: string; label: string } };
@@ -109,7 +109,7 @@
 </script>
 
 <div class="story">
-	<MorphField {anchors} />
+	<IsoField {anchors} />
 
 	{#each statements as statement, i}
 		<section class="statement" bind:this={statementEls[i]}>
@@ -237,8 +237,7 @@
 
 	<section class="quote" bind:this={quote}>
 		<blockquote>
-			<p>the best way to predict the future is to invent it.</p>
-			<cite>alan kay</cite>
+			<p>we measure progress in decades. to make sure our vision for the future succeeds, we accelerate founders in days.</p>
 		</blockquote>
 		<a class="quiet-link plan-link" href="/plan">read the plan</a>
 	</section>
@@ -250,9 +249,11 @@
 		background: var(--page-background);
 	}
 
+	/* Text keeps to the left; the blocks live in the right-hand panel. */
 	section {
 		position: relative;
 		z-index: 1;
+		padding-right: 48vw !important;
 	}
 
 	/* Mission, why, how */
@@ -309,7 +310,7 @@
 	}
 
 	.card-row.four {
-		grid-template-columns: repeat(4, minmax(0, 1fr));
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
 	.card {
@@ -445,12 +446,11 @@
 
 	.join-grid {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-		grid-template-areas:
-			'newsletter contact'
-			'careers contact';
-		gap: 5rem 6rem;
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-areas: 'newsletter' 'contact' 'careers';
+		gap: 5rem;
 		align-items: start;
+		max-width: 36rem;
 	}
 
 	.join-grid > :nth-child(1) {
@@ -595,44 +595,28 @@
 		min-height: 100vh;
 		min-height: 100svh;
 		display: flex;
-		align-items: center;
+		flex-direction: column;
+		align-items: flex-start;
 		justify-content: center;
 		padding: 0 8vw;
-		text-align: center;
-	}
-
-	.quote {
-		flex-direction: column;
 	}
 
 	.plan-link {
-		margin-top: 3rem;
-		transform: translateY(-22vh);
+		margin-top: 1rem;
 	}
 
 	.quote blockquote {
-		max-width: 52rem;
-		/* Leaves room for the single dot below the line. */
-		transform: translateY(-22vh);
+		max-width: 40rem;
 	}
 
 	.quote p {
 		font-family: var(--main-font);
 		font-weight: 100;
-		font-size: clamp(2.2rem, 4.4vw, 4.4rem);
-		line-height: 1.1;
+		font-size: clamp(2rem, 3.6vw, 3.8rem);
+		line-height: 1.12;
 		letter-spacing: -0.01em;
 		color: #1a1a1a;
 		margin-bottom: 2rem;
-	}
-
-	.quote cite {
-		font-family: 'Raleway Variable', var(--main-font);
-		font-style: normal;
-		font-weight: 300;
-		font-size: 1.1rem;
-		letter-spacing: 0.05em;
-		color: #6b6b6b;
 	}
 
 	.visually-hidden {
@@ -648,34 +632,42 @@
 		.card-row.four {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
-		.join-grid {
-			grid-template-columns: 1fr;
-			grid-template-areas: 'newsletter' 'contact' 'careers';
-			gap: 5rem;
-		}
 	}
 
 	@media (max-width: 768px) {
-		/* The drawing sits in the top half on phones; text takes the lower half. */
+		/* Phones: text scrolls in the top half; the blocks hold the bottom half. */
+		.story {
+			padding-bottom: 50svh;
+		}
+		section {
+			padding-right: 1.5rem !important;
+		}
 		.statement {
-			padding: 46vh 1.5rem 8vh;
-			padding: 46svh 1.5rem 8svh;
-			align-items: flex-start;
+			min-height: 75vh;
+			min-height: 75svh;
+			padding: 0 1.5rem;
 		}
 		.statement h2 {
-			margin-bottom: 1.25rem;
+			font-size: 2.4rem;
+			margin-bottom: 1.1rem;
 		}
-		.resource.portal {
-			justify-content: flex-start;
-			padding-top: 50vh;
-			padding-top: 50svh;
+		.statement p {
+			font-size: 1.02rem;
+			line-height: 1.65;
+		}
+		.statement .quiet-link {
+			margin-top: 1.5rem;
 		}
 		.resource,
 		.join {
-			padding: 14vh 1.5rem;
+			padding: 12vh 1.5rem;
+		}
+		.portal {
+			min-height: 75vh;
+			min-height: 75svh;
 		}
 		.resource-title {
-			margin-bottom: 3rem;
+			margin-bottom: 2.5rem;
 		}
 		.card-row.four {
 			gap: 2.5rem 1.25rem;
@@ -690,6 +682,8 @@
 			flex-direction: column;
 		}
 		.quote {
+			min-height: 75vh;
+			min-height: 75svh;
 			padding: 0 1.5rem;
 		}
 	}
