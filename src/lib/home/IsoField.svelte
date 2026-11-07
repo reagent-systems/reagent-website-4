@@ -83,19 +83,14 @@
 		float: 0.05
 	};
 
-	// First, we talk with the founder and examine the company: the stack from the
-	// opening pulls apart into an exploded view, and a magnifying glass looks it over.
+	// First, we talk with the founder and examine the company: the stack breaks
+	// back into its loose pieces, floating, and a magnifying glass looks them over.
 	const examine: Scene = {
-		boxes: pad(
-			Array.from({ length: 16 }, (_, i) => {
-				const layer = Math.floor(i / 4);
-				const k = i % 4;
-				return cube(-1.5 + (k % 2) * 2, -1.5 + Math.floor(k / 2) * 2, layer * 1.4, 1, 0, i === 13 ? 0.85 : 0);
-			})
-		),
-		bounds: [[-2, -2, 0, 4, 4, 7.1]],
-		lens: { R: 1.3, z: 6.1, cx: -0.4, cy: -0.4, roam: 0.9 }
+		boxes: scatter.boxes,
+		float: scatter.float,
+		lens: { R: 1.3, z: 4.1, cx: -0.6, cy: -0.6, roam: 1.5 }
 	};
+
 
 	// From there, the raise: a bank. A flat-roofed building with a sign across
 	// the front, glass windows and a door, and an ATM on the side.
