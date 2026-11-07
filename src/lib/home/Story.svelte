@@ -109,7 +109,7 @@
 				{#if statement.title}
 					<h2>{statement.title}</h2>
 				{/if}
-				<p class="lead">{statement.body}</p>
+				<p>{statement.body}</p>
 				{#if statement.link}
 					<a class="quiet-link" href={statement.link.href}>{statement.link.label}</a>
 				{/if}
@@ -273,11 +273,13 @@
 		margin-bottom: 2rem;
 	}
 
-	/* All body copy is fully justified. */
+	/* All body copy is fully justified, with the last line centred. */
 	p,
 	.card-line,
 	.article-excerpt {
 		text-align: justify;
+		/* The last line sits centred under the block. */
+		text-align-last: center;
 		hyphens: auto;
 		-webkit-hyphens: auto;
 	}
@@ -291,14 +293,6 @@
 		max-width: 30rem;
 	}
 
-	/* Story paragraphs. */
-	.statement p.lead {
-		font-weight: 300;
-		font-size: clamp(1.25rem, 1.65vw, 1.65rem);
-		line-height: 1.6;
-		color: #3a3a3a;
-		max-width: 36rem;
-	}
 
 	/* Research, writing, portal */
 	.resource {
@@ -662,10 +656,6 @@
 		.statement h2 {
 			font-size: 2.4rem;
 			margin-bottom: 1.1rem;
-		}
-		.statement p.lead {
-			font-size: 1.12rem;
-			line-height: 1.6;
 		}
 		.statement p {
 			font-size: 1.02rem;
