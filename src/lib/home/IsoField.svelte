@@ -361,24 +361,45 @@
 			const shown = (b: Box) => b.w > 0.02 && b.d > 0.02 && b.h > 0.02;
 			controls = target.map((b, n) => {
 				const c = cur[n];
-				const goal: Box = { ...b };
-				let delay = Math.min(0.5, b.z * 0.06 + n * 0.012);
-				// "Extra" means absent from the previous scene's layout, even if a block is
-				// still shrinking away on screen from a fast scroll.
+				const spring = { type: 'spring' as const, stiffness: 140, damping: 19, mass: 0.9 };
+				// The city's extra buildings (absent from the previous scene's layout):
+				// each rises straight up from the ground where it stands, in a wave from
+				// the middle outward. The start is given to the animation itself, which
+				// otherwise picks up from wherever it last left the block.
 				if (scenes[index].grow && !shown(scenes[from].boxes[n]) && shown(b)) {
-					// The city's extra buildings (the ones not made from the steps): each
-					// starts flat on the ground where it will stand, and they rise in a
-					// wave from the middle outward.
-					Object.assign(c, { ...b, z: 0, h: 0 });
-					delay = 0.15 + Math.hypot(b.x + b.w / 2, b.y + b.d / 2) * 0.09;
+					return animate(
+						c,
+						{
+							x: [b.x, b.x],
+							y: [b.y, b.y],
+							w: [b.w, b.w],
+							d: [b.d, b.d],
+							z: [0, b.z],
+							h: [0, b.h],
+							win: [b.win, b.win],
+							tone: [b.tone, b.tone],
+							round: [b.round, b.round]
+						},
+						{ ...spring, delay: reduceMotion ? 0 : 0.15 + Math.hypot(b.x + b.w / 2, b.y + b.d / 2) * 0.09 }
+					);
 				}
-				return animate(c, goal, {
-					type: 'spring',
-					stiffness: 140,
-					damping: 19,
-					mass: 0.9,
-					delay: reduceMotion ? 0 : delay
-				});
+				// Scrolling back up out of the city: those same buildings sink straight
+				// down into the ground where they stand.
+				if (scenes[from].grow && shown(scenes[from].boxes[n]) && !shown(b) && !shown(scenes[index].boxes[n])) {
+					return animate(
+						c,
+						{
+							x: [c.x, c.x],
+							y: [c.y, c.y],
+							w: [c.w, c.w],
+							d: [c.d, c.d],
+							z: [c.z, 0],
+							h: [c.h, 0]
+						},
+						{ ...spring, delay: 0 }
+					);
+				}
+				return animate(c, { ...b }, { ...spring, delay: reduceMotion ? 0 : Math.min(0.5, b.z * 0.06 + n * 0.012) });
 			});
 			const ring = scenes[index] === gate ? 1 : 0;
 			controls.push(
