@@ -37,8 +37,6 @@
 		bounds?: Tuple[];
 		/** Buildings pop up from the ground, from the centre outward, when the scene arrives. */
 		grow?: boolean;
-		/** An elevated ribbon (the monorail track) along a closed path of points. */
-		ribbon?: { points: [number, number][]; z: number; width: number };
 		/** Set for the portal scene: draws the ring and its surface. */
 		portal?: { zc: number; R: number; ring: number; depth: number };
 		/** Set for the examination scene: a magnifying glass hovering over it. */
@@ -136,7 +134,7 @@
 	};
 
 	// Decades ahead: a city that keeps going. A tower and an inner ring, then
-	// smaller buildings spreading out unevenly, and a monorail weaving through.
+	// smaller buildings spreading out unevenly.
 	const campusHeights = [1.6, 2.4, 1.2, 2, 1.4, 2.8];
 	const outer: Tuple[] = [];
 	{
@@ -162,20 +160,6 @@
 		}
 	}
 
-	// The monorail: a wavy loop between the inner ring and the outer buildings.
-	const RAIL_Z = 2.2;
-	const LOOP = 72;
-	const loopAt = (u: number): [number, number] => {
-		const a = u * Math.PI * 2;
-		const rad = 3.1 + 0.35 * Math.sin(a * 3);
-		return [Math.cos(a) * rad, Math.sin(a) * rad];
-	};
-	const loopPoints = Array.from({ length: LOOP }, (_, i) => loopAt(i / LOOP));
-	const posts: Tuple[] = Array.from({ length: 9 }, (_, i) => {
-		const [x, y] = loopAt(i / 9);
-		return [x - 0.07, y - 0.07, 0, 0.14, 0.14, RAIL_Z, 0, 0.6, 1];
-	});
-
 	const campus: Scene = {
 		boxes: pad(
 			[
@@ -190,15 +174,9 @@
 			[0, 0, 0.5]
 		),
 		grow: true,
-		ribbon: { points: loopPoints, z: RAIL_Z, width: 0.34 },
 		actors: (t) => {
 			const blink = Math.sin(t * 3) > 0.2 ? 0.22 : 0;
-			// Three cars, following each other round the loop.
-			const cars = [0, 1, 2].map((k): Tuple => {
-				const [x, y] = loopAt((((t * 0.045 - k * 0.022) % 1) + 1) % 1);
-				return [x - 0.22, y - 0.22, RAIL_Z + 0.02, 0.44, 0.44, 0.34, 0, k === 0 ? 0.85 : 0.6, 0.5];
-			});
-			return [cube(-0.11, -0.11, 5.3, blink, 0, 1), ...posts, ...cars];
+			return [cube(-0.11, -0.11, 5.3, blink, 0, 1)];
 		}
 	};
 
@@ -839,14 +817,9 @@
 					b.h *= g;
 					b.z *= g;
 				}
-			// The monorail rises once the buildings are up.
-			const rails = !scene.grow || reduceMotion ? 1 : backOut(Math.min(1, Math.max(0, (age - 2.6) * 1.2)));
 			const actors = reduceMotion
 				? []
-				: (scene.actors?.(t) ?? []).map(toBox).map((a, i) => {
-						if (!scene.grow || i === 0) return a;
-						return { ...a, z: a.z * rails, h: a.h * rails, w: a.w * Math.min(1, rails * 3), d: a.d * Math.min(1, rails * 3) };
-					});
+				: (scene.actors?.(t) ?? []).map(toBox).map((a) => (scene.grow ? { ...a, z: a.z * growth(a) } : a));
 			const all = [...drawn.map((b, n) => ({ b, n })), ...actors.map((b) => ({ b, n: -1 }))].filter(
 				({ b }) => b.w > 0.02 && b.d > 0.02 && b.h > 0.02
 			);
@@ -900,43 +873,6 @@
 					if (scene.storefront && n === scene.storefront.roof) drawRoofWell(b);
 				}
 			}));
-
-			// The monorail track, one short piece at a time so it sorts in among the
-			// buildings: a light top with a darker edge beneath.
-			if (scene.ribbon && rails > 0.02) {
-				const { points, width } = scene.ribbon;
-				const z = scene.ribbon.z * rails;
-				const hw = (width / 2) * Math.min(1, rails * 3);
-				const thick = 0.1;
-				for (let i = 0; i < points.length; i++) {
-					const a = points[i];
-					const c = points[(i + 1) % points.length];
-					const dx = c[0] - a[0];
-					const dy = c[1] - a[1];
-					const len = Math.hypot(dx, dy) || 1;
-					const nx = (-dy / len) * hw;
-					const ny = (dx / len) * hw;
-					// Extend a hair along the path so pieces meet without gaps.
-					const ex = (dx / len) * 0.02;
-					const ey = (dy / len) * 0.02;
-					const q = [
-						[a[0] + nx - ex, a[1] + ny - ey],
-						[c[0] + nx + ex, c[1] + ny + ey],
-						[c[0] - nx + ex, c[1] - ny + ey],
-						[a[0] - nx - ex, a[1] - ny - ey]
-					];
-					items.push({
-						key: (a[0] + c[0]) / 2 + (a[1] + c[1]) / 2 + z * 1.5,
-						draw: () => {
-							shape(closed(q.map(([x, y]) => P(x, y, z - thick))), { fill: '#b9b9b9', stroke: '#b9b9b9', strokeWidth: 0.6 });
-							shape(closed(q.map(([x, y]) => P(x, y, z))), { fill: '#ececec', stroke: '#ececec', strokeWidth: 0.6 });
-							// Edge lines only along the sides, so the track reads as one piece.
-							shape(open([P(q[0][0], q[0][1], z), P(q[1][0], q[1][1], z)]), { stroke: '#1a1a1a', strokeWidth: 0.7 });
-							shape(open([P(q[3][0], q[3][1], z), P(q[2][0], q[2][1], z)]), { stroke: '#1a1a1a', strokeWidth: 0.7 });
-						}
-					});
-				}
-			}
 
 			items.sort((p, q) => p.key - q.key);
 			for (const it of items) it.draw();
