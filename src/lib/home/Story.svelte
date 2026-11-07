@@ -66,6 +66,27 @@
 		return n.toLocaleString('en-US');
 	}
 
+	function percent(v: number) {
+		const p = v * 100;
+		return `${p >= 99.995 ? '100' : p.toFixed(2)}%`;
+	}
+
+	function shortNumber(n: number) {
+		if (n >= 1e9) return `${(n / 1e9).toFixed(2)}b`;
+		if (n >= 1e6) return `${(n / 1e6).toFixed(1)}m`;
+		if (n >= 1e3) return `${(n / 1e3).toFixed(1)}k`;
+		return String(n);
+	}
+
+	function hoursText(minutes: number) {
+		const h = minutes / 60;
+		return h >= 10 ? `${Math.round(h).toLocaleString('en-US')} hours` : `${h.toFixed(1)} hours`;
+	}
+
+	function dayText(epoch: number) {
+		return new Date(epoch * 1000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'UTC' }).toLowerCase();
+	}
+
 	function sinceText(iso: string) {
 		const [y, m] = iso.split('-').map(Number);
 		return y && m ? `${MONTHS[m - 1]} ${y}` : '';
@@ -197,6 +218,71 @@
 		<div class="visual">
 			<IsoField inline {portalTag} />
 		</div>
+		{#if spark?.ok}
+			<div class="spark-stats" use:reveal>
+				<div class="uptime">
+					<h3 class="sub">uptime</h3>
+					<div class="uptime-figures">
+						{#each [['last day', spark.uptime.day], ['last week', spark.uptime.week], ['last 30 days', spark.uptime.month]] as [label, value]}
+							{#if value != null}
+								<div class="figure">
+									<span class="figure-value">{percent(value as number)}</span>
+									<span class="figure-label">{label}</span>
+								</div>
+							{/if}
+						{/each}
+					</div>
+					{#if spark.uptime.daily.length}
+						<div class="uptime-days" role="img" aria-label="daily uptime for the last {spark.uptime.daily.length} days">
+							{#each spark.uptime.daily as day}
+								<span
+									class="day"
+									class:dip={day.up < 0.999}
+									style="height: {Math.max(12, day.up * 100)}%"
+									title="{dayText(day.start)}: {percent(day.up)}"
+								></span>
+							{/each}
+						</div>
+					{/if}
+				</div>
+
+				{#if spark.leaders.length}
+					<div class="leaders">
+						<h3 class="sub">leaderboard</h3>
+						<table class="releases">
+							<thead>
+								<tr>
+									<th scope="col">builder</th>
+									<th scope="col">tokens</th>
+									<th scope="col" class="col-type">requests</th>
+									<th scope="col" class="col-hours">engine time</th>
+								</tr>
+							</thead>
+							<tbody>
+								{#each spark.leaders as row}
+									<tr>
+										<td class="col-name"><span class="leader-name">{row.name}</span></td>
+										<td>{shortNumber(row.tokens)}</td>
+										<td class="col-type">{row.requests != null ? row.requests.toLocaleString('en-US') : ''}</td>
+										<td class="col-hours">{hoursText(row.minutes)}</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+						{#if spark.leadersToday.length}
+							<p class="note">
+								{@render whole(
+									`today: ${spark.leadersToday
+										.slice(0, 3)
+										.map((r) => `${r.name}, ${shortNumber(r.tokens)} tokens`)
+										.join('; ')}.`
+								)}
+							</p>
+						{/if}
+					</div>
+				{/if}
+			</div>
+		{/if}
 		<div class="links">
 			<a class="quiet-link" href="https://spark.reagent-systems.com">enter the portal</a>
 			<a class="quiet-link" href="https://spark.reagent-systems.com/docs">read the docs</a>
@@ -391,6 +477,73 @@
 		gap: var(--space-m);
 		width: 100%;
 		max-width: 56rem;
+	}
+
+	/* Portal: Spark's uptime and leaderboard under the visual. */
+	.spark-stats {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-l);
+		width: 100%;
+		max-width: 56rem;
+	}
+
+	.spark-stats .sub {
+		margin-bottom: var(--space-s);
+	}
+
+	.uptime-figures {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-m) var(--space-l);
+	}
+
+	.figure {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+	}
+
+	.figure-value {
+		font-family: var(--main-font);
+		font-weight: 100;
+		font-size: var(--text-sub);
+		color: #1a1a1a;
+	}
+
+	.figure-label {
+		font-size: var(--text-small);
+		color: #9a9a9a;
+		letter-spacing: 0.04em;
+	}
+
+	.uptime-days {
+		display: flex;
+		align-items: flex-end;
+		gap: 2px;
+		height: 2.5rem;
+		margin-top: var(--space-m);
+	}
+
+	.uptime-days .day {
+		flex: 1;
+		min-width: 0;
+		border-radius: 1px;
+		background: #cfcfcf;
+	}
+
+	.uptime-days .day.dip {
+		background: #9a9a9a;
+	}
+
+	.col-hours {
+		white-space: nowrap;
+	}
+
+	.leader-name {
+		font-size: var(--text-body);
+		color: #1a1a1a;
+		white-space: nowrap;
 	}
 
 	/* Research: the newest releases, as in the table on the research page. */

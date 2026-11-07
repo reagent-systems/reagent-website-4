@@ -13,8 +13,22 @@ type Upstream = {
 	lab?: { active: boolean; until: number | null };
 	swap?: { profile: string; label: string };
 	engine?: { up: boolean };
-	totals?: { tokens: number; since: string };
+	totals?: { tokens: number; since: string; requests?: number; users?: number };
+	uptime?: {
+		windows?: Record<string, number>;
+		daily?: { start: number; up: number }[];
+	};
+	leaderboard?: { name: string; tokens: number; requests?: number; minutes: number }[];
+	leaderboard_today?: { name: string; tokens: number; requests?: number; minutes: number }[];
 };
+
+const leaders = (rows: Upstream['leaderboard']) =>
+	(rows ?? []).slice(0, 10).map((r) => ({
+		name: String(r.name),
+		tokens: Number(r.tokens) || 0,
+		requests: r.requests == null ? undefined : Number(r.requests),
+		minutes: Number(r.minutes) || 0
+	}));
 
 export const GET: RequestHandler = async ({ fetch, setHeaders }) => {
 	setHeaders({ 'cache-control': 'public, max-age=30, s-maxage=60, stale-while-revalidate=300' });
@@ -38,7 +52,17 @@ export const GET: RequestHandler = async ({ fetch, setHeaders }) => {
 			model,
 			until: d.lab?.active ? (d.lab.until ?? null) : null,
 			tokens: d.totals?.tokens ?? 0,
-			since: d.totals?.since ?? ''
+			since: d.totals?.since ?? '',
+			requests: d.totals?.requests ?? 0,
+			users: d.totals?.users ?? 0,
+			uptime: {
+				day: d.uptime?.windows?.['86400'] ?? null,
+				week: d.uptime?.windows?.['604800'] ?? null,
+				month: d.uptime?.windows?.['2592000'] ?? null,
+				daily: (d.uptime?.daily ?? []).slice(-60).map((x) => ({ start: x.start, up: x.up }))
+			},
+			leaders: leaders(d.leaderboard),
+			leadersToday: leaders(d.leaderboard_today)
 		} satisfies SparkSummary);
 	} catch {
 		return json({ ok: false } satisfies SparkSummary);
