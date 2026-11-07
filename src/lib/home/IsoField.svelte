@@ -689,6 +689,72 @@
 				strokeOpacity: 0.5,
 				strokeWidth: 0.7
 			});
+			// A coin slot in the middle of the roof.
+			const cx = b.x + b.w / 2;
+			const cy = b.y + b.d / 2;
+			const L = 0.75;
+			const W = 0.11;
+			shape(closed([P(cx - L, cy - W, z), P(cx + L, cy - W, z), P(cx + L, cy + W, z), P(cx - L, cy + W, z)]), {
+				fill: '#1a1a1a',
+				stroke: '#1a1a1a',
+				strokeWidth: 1.2
+			});
+			slot = { x: cx, y: cy, z };
+		}
+
+		// Coins flipping out of the roof slot, each showing a dollar sign as it turns.
+		let slot: { x: number; y: number; z: number } | null = null;
+		const coinText: SVGTextElement[] = [];
+		const coinLayer = document.createElementNS(ns, 'g');
+		function drawCoins(t: number) {
+			if (!slot) return;
+			// Keep the dollar signs above everything drawn this frame.
+			svg.append(coinLayer);
+			const r = 0.36;
+			// Out to the sides and back, so they never cross the sign.
+			const dirs = [
+				[-1, 0.45],
+				[1, -0.5],
+				[-0.2, -1]
+			];
+			let shown = 0;
+			for (let k = 0; k < 3; k++) {
+				const p = (t * 0.42 + k / 3) % 1;
+				const [dx, dy] = dirs[k];
+				const x = slot.x + dx * p * 2.6;
+				const y = slot.y + dy * p * 2.6;
+				const z = slot.z + 0.15 + 5 * p - 4.2 * p * p;
+				const [sx, sy] = pt(x, y, z);
+				const spin = Math.cos(p * Math.PI * 5 + k);
+				const rx = r * u;
+				const ry = Math.max(0.06, Math.abs(spin)) * r * u;
+				const fade = Math.max(0, Math.min(1, p * 8, (1 - p) * 4));
+				const ell = (rr: number, ry2: number) =>
+					`M${(sx - rr).toFixed(1)},${sy.toFixed(1)}a${rr.toFixed(2)},${ry2.toFixed(2)} 0 1,0 ${(rr * 2).toFixed(2)},0a${rr.toFixed(2)},${ry2.toFixed(2)} 0 1,0 ${(-rr * 2).toFixed(2)},0`;
+				// Edge, a touch below, then the face.
+				shape(ell(rx, ry + u * 0.04), { fill: '#9a9a9a', fillOpacity: fade, stroke: '#1a1a1a', strokeOpacity: fade, strokeWidth: 0.8 });
+				shape(ell(rx, ry), { fill: spin > 0 ? '#f4f4f4' : '#e2e2e2', fillOpacity: fade, stroke: '#1a1a1a', strokeOpacity: fade, strokeWidth: 0.8 });
+				let txt = coinText[shown];
+				if (!txt) {
+					txt = document.createElementNS(ns, 'text');
+					txt.setAttribute('text-anchor', 'middle');
+					txt.setAttribute('dominant-baseline', 'central');
+					txt.setAttribute('font-family', 'Raleway Variable, Raleway, sans-serif');
+					txt.setAttribute('font-weight', '500');
+					txt.setAttribute('fill', '#1a1a1a');
+					txt.textContent = '$';
+					coinLayer.append(txt);
+					coinText.push(txt);
+				}
+				shown++;
+				// The sign squashes with the coin and hides when it is edge-on.
+				const sq = Math.abs(spin);
+				txt.setAttribute('font-size', (r * u * 1.1).toFixed(1));
+				txt.setAttribute('transform', `translate(${sx.toFixed(1)},${sy.toFixed(1)}) scale(1,${Math.max(0.05, sq).toFixed(3)})`);
+				txt.setAttribute('opacity', (sq > 0.3 ? fade : 0).toFixed(2));
+				txt.style.display = '';
+			}
+			for (let i = shown; i < coinText.length; i++) coinText[i].style.display = 'none';
 		}
 
 		// A magnifying glass: a round rim with glass in it, and a handle.
@@ -769,11 +835,14 @@
 				return;
 			}
 
-			// Sticky mode: as the story ends, the panel leaves with its last section
-			// instead of hanging over what comes next.
-			if (!untrack(() => inline) && panelEl && story) {
-				const limit = window.innerWidth <= 768 ? panelEl.offsetHeight : window.innerHeight;
-				const shift = Math.min(0, story.bottom - limit);
+			// Sticky mode: once the last paragraph reaches its reading spot, the panel
+			// travels with it, so scrolling on carries both away together.
+			const last = anchors[anchors.length - 1];
+			if (!untrack(() => inline) && panelEl && last) {
+				const phone = window.innerWidth <= 768;
+				const top = last.getBoundingClientRect().top;
+				const rest = phone ? panelEl.offsetHeight : 0;
+				const shift = Math.min(0, top - rest);
 				panelEl.style.transform = shift ? `translateY(${shift.toFixed(1)}px)` : '';
 			}
 
@@ -880,6 +949,9 @@
 			if (scene.portal) drawPortal(scene.portal, t);
 			if (scene.lens && lensAt) drawLens(scene.lens.R, lensAt, t);
 
+			if (scene.storefront && !reduceMotion) drawCoins(t);
+			else for (const c of coinText) c.style.display = 'none';
+			slot = null;
 			for (let i = used; i < pool.length; i++) pool[i].style.display = 'none';
 
 			// Pin the clickable layer onto the block faces (40px per grid unit).
