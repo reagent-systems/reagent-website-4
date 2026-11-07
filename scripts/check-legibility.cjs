@@ -29,18 +29,20 @@ const TEXT = 'h2, h3, p, blockquote p, a.quiet-link, input, textarea, button';
 	for (const vp of VIEWPORTS) {
 		const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
 		await page.goto(URL, { waitUntil: 'networkidle' });
-		const count = await page.locator('.story > section').count();
+		const count = await page.locator('.story section').count();
 		const problems = [];
 		const vpSizes = new Set();
 
 		for (let i = 0; i < count; i++) {
-			const section = page.locator('.story > section').nth(i);
+			const section = page.locator('.story section').nth(i);
 			// Bring the section to where it rests: just under the band on phones,
 			// or with its content centred on larger screens.
 			await section.evaluate((el) => {
 				const phone = innerWidth <= 768;
 				const panel = document.querySelector('.panel');
-				const band = phone && panel ? panel.getBoundingClientRect().height : 0;
+				// Only the story statements have the scene band above them on phones.
+				const banded = phone && panel && el.closest('.intro');
+				const band = banded ? panel.getBoundingClientRect().height : 0;
 				const r = el.getBoundingClientRect();
 				const target = phone ? r.top - band : r.top + r.height / 2 - innerHeight / 2;
 				window.scrollTo(0, window.scrollY + target);
@@ -52,7 +54,7 @@ const TEXT = 'h2, h3, p, blockquote p, a.quiet-link, input, textarea, button';
 				section.evaluate((el, sel) => {
 					const phone = innerWidth <= 768;
 					const panel = document.querySelector('.panel')?.getBoundingClientRect();
-					const band = phone && panel ? panel.bottom : 0;
+					const band = phone && panel && el.closest('.intro') ? Math.max(0, panel.bottom) : 0;
 					const tall = el.getBoundingClientRect().height > innerHeight - band;
 					const out = [];
 					el.querySelectorAll(sel).forEach((node, index) => {
@@ -96,7 +98,7 @@ const TEXT = 'h2, h3, p, blockquote p, a.quiet-link, input, textarea, button';
 					await section.evaluate((el, [sel, index]) => {
 						const node = el.querySelectorAll(sel)[index];
 						const panel = document.querySelector('.panel')?.getBoundingClientRect();
-						const band = innerWidth <= 768 && panel ? panel.bottom : 0;
+						const band = innerWidth <= 768 && panel && el.closest('.intro') ? Math.max(0, panel.bottom) : 0;
 						const r = node.getBoundingClientRect();
 						const clearMid = band + (innerHeight - band) / 2;
 						window.scrollTo(0, window.scrollY + r.top + r.height / 2 - clearMid);

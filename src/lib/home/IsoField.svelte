@@ -1,24 +1,20 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { animate } from 'motion';
-	import { COMPANIES } from './companies';
-	import { ARTICLES, RESEARCH_ITEMS } from './content';
 
 	/**
-	 * Isometric scenes that rebuild themselves for each story section.
-	 * Desktop: a panel beside the text. Phones: a solid lower half.
-	 * In the sections people can act on, the blocks become the things to click:
-	 * research images, books, the portal gate, and the six company buildings.
+	 * Isometric scenes.
+	 * Sticky mode: follows the story (mission, how, why), rebuilding itself for each
+	 * section; beside the text on desktop, a band across the top on phones.
+	 * Inline mode: draws the portal in place and builds it up when it comes into view.
 	 */
 	let {
-		anchors,
-		picked = null,
-		onpick,
+		anchors = [],
+		inline = false,
 		portalTag = null
 	}: {
-		anchors: HTMLElement[];
-		picked?: string | null;
-		onpick?: (slug: string) => void;
+		anchors?: HTMLElement[];
+		inline?: boolean;
 		/** Live status shown on a tag, led off the portal ring. */
 		portalTag?: { title: string; detail?: string } | null;
 	} = $props();
@@ -27,11 +23,8 @@
 	type Tuple = [number, number, number, number, number, number, number?, number?];
 
 	type Overlay =
-		| { kind: 'image'; box: number; src: string; label: string; href: string }
-		| { kind: 'cover'; box: number; title: string; href: string }
 		| { kind: 'gate'; box: number; href: string }
-		| { kind: 'portal'; box: number; href: string; live: string; poster: string }
-		| { kind: 'company'; box: number; slug: string; name: string };
+		| { kind: 'portal'; box: number; href: string; live: string; poster: string };
 
 	type Scene = {
 		boxes: Box[];
@@ -158,35 +151,6 @@
 		}
 	};
 
-	// Research: the four studies, laid out as tiles.
-	const research: Scene = {
-		boxes: pad(
-			[
-				[-2.8, -2.8, 0, 2.5, 2.5, 0.32],
-				[0.1, -2.8, 0, 2.5, 2.5, 0.32],
-				[-2.8, 0.1, 0, 2.5, 2.5, 0.32],
-				[0.1, 0.1, 0, 2.5, 2.5, 0.32]
-			],
-			[0, 0, 0.2]
-		),
-		overlays: RESEARCH_ITEMS.map((r, i) => ({
-			kind: 'image' as const,
-			box: i,
-			src: r.image,
-			label: r.name,
-			href: '/research'
-		}))
-	};
-
-	// Writing: three books.
-	const books: Scene = {
-		boxes: pad(
-			ARTICLES.map((_, i): Tuple => [-3.3 + i * 2.25, -1.5, 0, 1.95, 2.8, 0.42]),
-			[0, 0, 0.2]
-		),
-		overlays: ARTICLES.map((a, i) => ({ kind: 'cover' as const, box: i, title: a.title, href: a.href }))
-	};
-
 	// Portal: a standing ring on a dark plinth. Through it, a live view of where it leads.
 	const SPARK = 'https://spark.reagent-systems.com';
 	const PORTAL = { zc: 2.65, R: 2, ring: 0.36, depth: 0.42 };
@@ -212,49 +176,23 @@
 		]
 	};
 
-	// Join: the six companies, each one a building to pick. Two rows, the taller
-	// row behind, so every rooftop name stays visible.
-	const joinSpots: [number, number, number][] = [
-		[-2.6, -2.6, 2.6],
-		[-0.4, -2.6, 3],
-		[1.8, -2.6, 2.3],
-		[-2.6, -0.2, 1.2],
-		[-0.4, -0.2, 1.5],
-		[1.8, -0.2, 1]
-	];
-	const join: Scene = {
-		boxes: pad(
-			[
-				[-3.3, -3.3, 0, 6.6, 4.6, 0.12],
-				...COMPANIES.map((_, i): Tuple => {
-					const [x, y, h] = joinSpots[i];
-					return [x, y, 0.12, 1.5, 1.6, h, 1];
-				})
-			],
-			[0, 0, 0.5]
-		),
-		overlays: COMPANIES.map((c, i) => ({ kind: 'company' as const, box: i + 1, slug: c.slug, name: c.name }))
+	// Inline mode starts with the portal folded flat, then builds it.
+	const folded: Scene = {
+		...gate,
+		boxes: gate.boxes.map((b) => ({ ...b, z: 0, h: 0 })),
+		overlays: []
 	};
 
-	// Quote: one block, and a small one circling it fast.
-	const single: Scene = {
-		boxes: pad([cube(-0.5, -0.5, 0)], [0, 0, 0.5]),
-		actors: (t) => [cube(Math.cos(t * 2.2) * 1.3 - 0.13, Math.sin(t * 2.2) * 1.3 - 0.13, 0.35, 0.26, 0, 0.85)]
-	};
-
-	const scenes: Scene[] = [
-		scatter,
-		gathered, // mission
-		conversation, // first, we talk with the founder
-		whole, // terms
-		steps, // why: founders helping founders
-		campus, // decades ahead
-		research,
-		books, // writing
-		gate, // portal
-		join,
-		single // quote
-	];
+	const scenes: Scene[] = untrack(() => inline)
+		? [folded, gate]
+		: [
+				scatter,
+				gathered, // mission
+				conversation, // first, we talk with the founder
+				whole, // terms
+				steps, // why: founders helping founders
+				campus // decades ahead
+			];
 
 	// --- State shared with the template ------------------------------------
 
@@ -264,6 +202,7 @@
 	let settled = $state(false);
 	let hovered = $state(-1);
 	let tagEl: HTMLDivElement | undefined = $state();
+	let panelEl: HTMLDivElement | undefined = $state();
 
 	const overlays = $derived(scenes[active].overlays ?? []);
 	let overlayTop: (HTMLElement | undefined)[] = $state([]);
@@ -338,7 +277,10 @@
 			}
 			return { cx: (x0 + x1) / 2, cy: (y0 + y1) / 2, w: x1 - x0, h: y1 - y0 };
 		});
+		// The folded portal is framed like the built one, so the camera stays put.
+		if (untrack(() => inline)) frames[0] = frames[frames.length - 1];
 		const view = { u: 0, cx: frames[0].cx, cy: frames[0].cy };
+		const grow = { k: 0 };
 		const lift = new Array(K).fill(0);
 		let controls: { stop: () => void }[] = [];
 		let pw = 0;
@@ -372,8 +314,22 @@
 					delay: reduceMotion ? 0 : Math.min(0.5, b.z * 0.06 + n * 0.012)
 				})
 			);
-			settleTimer = setTimeout(() => (settled = true), reduceMotion ? 0 : 750);
+			const ring = scenes[index].portal && scenes[index].boxes.some((b) => b.h > 0) ? 1 : 0;
+			controls.push(
+				animate(grow, { k: ring }, { type: 'spring', stiffness: 90, damping: 15, delay: reduceMotion ? 0 : 0.3 })
+			);
+			settleTimer = setTimeout(() => (settled = true), reduceMotion ? 0 : ring ? 1200 : 750);
 		}
+
+		// Inline mode: build the scene once it is properly in view.
+		let revealed = false;
+		const io = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting) revealed = true;
+			},
+			{ threshold: 0.35 }
+		);
+		if (untrack(() => inline)) io.observe(svg);
 
 		function sectionIndex(): number {
 			const vh = window.innerHeight;
@@ -518,7 +474,13 @@
 
 		// The portal: a round ring standing upright, its surface drawing light inward.
 		function drawPortal(pd: { zc: number; R: number; ring: number; depth: number }, t: number) {
-			const { zc, R, ring, depth } = pd;
+			const k = grow.k;
+			if (k < 0.02) return;
+			// Rises out of the plinth as it grows.
+			const R = pd.R * k;
+			const ring = pd.ring * k;
+			const depth = pd.depth;
+			const zc = 0.55 + (pd.zc - 0.55) * k;
 			const Ri = R - ring;
 			const yf = depth / 2;
 			const yb = -depth / 2;
@@ -624,23 +586,37 @@
 		}
 
 		function tick(now: number) {
-			const idx = sectionIndex();
+			const idx = untrack(() => inline) ? (revealed ? 1 : 0) : sectionIndex();
 			if (idx !== active) {
 				active = idx;
 				goTo(idx);
 			}
 
 			const story = anchors[0]?.parentElement?.getBoundingClientRect();
-			const visible = story ? story.top < window.innerHeight && story.bottom > 0 : false;
+			const visible = untrack(() => inline)
+				? true
+				: story
+					? story.top < window.innerHeight && story.bottom > 0
+					: false;
 			alpha += ((visible ? 1 : 0) - alpha) * 0.08;
 			svg.style.opacity = alpha.toFixed(3);
 			layer.style.opacity = alpha.toFixed(3);
+
+			// Sticky mode: as the story ends, the panel leaves with its last section
+			// instead of hanging over what comes next.
+			if (!untrack(() => inline) && panelEl && story) {
+				const limit = window.innerWidth <= 768 ? panelEl.offsetHeight : window.innerHeight;
+				const shift = Math.min(0, story.bottom - limit);
+				panelEl.style.transform = shift ? `translateY(${shift.toFixed(1)}px)` : '';
+			}
 
 			const t = now / 1000;
 			const scene = scenes[active];
 			// Frame the scene: fill most of the panel, but keep small scenes modest.
 			const fr = frames[active];
-			const targetU = Math.min((pw * 0.9) / Math.max(fr.w, 1), (ph * 0.72) / Math.max(fr.h, 1), Math.min(pw, ph) / 8);
+			// Inline scenes have the panel to themselves, so they can fill more of it.
+			const cap = Math.min(pw, ph) / (untrack(() => inline) ? 4.5 : 8);
+			const targetU = Math.min((pw * 0.9) / Math.max(fr.w, 1), (ph * 0.8) / Math.max(fr.h, 1), cap);
 			const ease = view.u === 0 ? 1 : 0.07;
 			view.u += (targetU - view.u) * ease;
 			view.cx += (fr.cx - view.cx) * ease;
@@ -685,12 +661,7 @@
 				b.z < 0.05 && b.h < 0.2 ? -1e6 : b.x + b.w / 2 + b.y + b.d / 2 + b.z;
 			all.sort((p, q) => depth(p.b) - depth(q.b));
 
-			const isJoin = scene === join;
-			for (const { b, n } of all) {
-				const pickedHere = isJoin && n > 0 && COMPANIES[n - 1]?.slug === picked;
-				const tt = Math.min(1, b.tone + (pickedHere ? 0.85 : 0));
-				drawBox(b, tt, n, t);
-			}
+			for (const { b, n } of all) drawBox(b, Math.min(1, b.tone), n, t);
 
 			if (scene.portal) drawPortal(scene.portal, t);
 
@@ -741,12 +712,13 @@
 			controls.forEach((c) => c.stop());
 			clearTimeout(settleTimer);
 			ro.disconnect();
+			io.disconnect();
 		};
 	});
 </script>
 
-<div class="stage">
-	<div class="panel">
+<div class="stage" class:inline>
+	<div class="panel" bind:this={panelEl}>
 		<svg bind:this={svgEl} class="iso" aria-hidden="true"></svg>
 		<div class="layer" class:live={settled} bind:this={layerEl}>
 			{#if scenes[active].portal && portalTag}
@@ -756,30 +728,7 @@
 				</div>
 			{/if}
 			{#each overlays as o, i (active + '-' + i)}
-				{#if o.kind === 'image'}
-					<a
-						class="face top image"
-						href={o.href}
-						bind:this={overlayTop[i]}
-						onmouseenter={() => (hovered = o.box)}
-						onmouseleave={() => (hovered = -1)}
-						aria-label={o.label}
-					>
-						<img src={o.src} alt="" loading="lazy" />
-					</a>
-					<span class="face front label" bind:this={overlayFront[i]} aria-hidden="true">{o.label}</span>
-				{:else if o.kind === 'cover'}
-					<a
-						class="face top cover"
-						href={o.href}
-						bind:this={overlayTop[i]}
-						onmouseenter={() => (hovered = o.box)}
-						onmouseleave={() => (hovered = -1)}
-					>
-						<span class="cover-title">{o.title}</span>
-						<span class="cover-mark">reagent</span>
-					</a>
-				{:else if o.kind === 'gate'}
+				{#if o.kind === 'gate'}
 					<a
 						class="face front gate"
 						href={o.href}
@@ -793,18 +742,6 @@
 						<iframe class="portal-live" src={o.live} title="spark preview" tabindex="-1" aria-hidden="true" loading="lazy"></iframe>
 						<span class="portal-rim" aria-hidden="true"></span>
 					</a>
-				{:else if o.kind === 'company'}
-					<button
-						type="button"
-						class="face top company"
-						class:picked={picked === o.slug}
-						bind:this={overlayTop[i]}
-						onmouseenter={() => (hovered = o.box)}
-						onmouseleave={() => (hovered = -1)}
-						onclick={() => onpick?.(o.slug)}
-						aria-pressed={picked === o.slug}
-						aria-label="talk to reagent {o.name}"><span>{o.name}</span></button
-					>
 				{/if}
 			{/each}
 		</div>
@@ -821,6 +758,22 @@
 		margin-bottom: -100svh;
 		pointer-events: none;
 		z-index: 2;
+	}
+
+	/* Inline: sits in the page like an image. */
+	.stage.inline {
+		position: relative;
+		height: clamp(300px, 50vh, 540px);
+		margin: 0;
+		z-index: auto;
+	}
+
+	.stage.inline .panel {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		background: none;
 	}
 
 	/* Desktop: beside the text, on the right. */
@@ -866,54 +819,11 @@
 		pointer-events: auto;
 	}
 
-	.image {
-		display: block;
-		border-radius: 6px;
-		overflow: hidden;
-	}
 
-	.image img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		display: block;
-	}
 
-	.label {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-family: 'Raleway Variable', var(--main-font);
-		font-weight: 400;
-		font-size: 7px;
-		letter-spacing: 0.08em;
-		color: #3a3a3a;
-		white-space: nowrap;
-	}
 
-	.cover {
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		padding: 9px 9px 7px;
-		background: #fdfdfd;
-		text-decoration: none;
-	}
 
-	.cover-title {
-		font-family: var(--main-font);
-		font-weight: 300;
-		font-size: 11px;
-		line-height: 1.15;
-		color: #1a1a1a;
-	}
 
-	.cover-mark {
-		font-family: var(--ascii-font);
-		font-size: 4.5px;
-		letter-spacing: 0.3em;
-		color: #6b6b6b;
-	}
 
 	.gate {
 		display: flex;
@@ -1019,28 +929,10 @@
 		}
 	}
 
-	.company {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: transparent;
-		border: none;
-		padding: 0;
-		cursor: pointer;
-		font-family: 'Raleway Variable', var(--main-font);
-		font-size: 7.5px;
-		letter-spacing: 0.06em;
-		color: #3a3a3a;
-	}
 
-	.company.picked {
-		color: #fafafa;
-	}
 
-	.company:focus-visible,
-	.image:focus-visible,
-	.cover:focus-visible,
-	.gate:focus-visible {
+	.gate:focus-visible,
+	.portal-view:focus-visible {
 		outline: 1px solid #1a1a1a;
 		outline-offset: 1px;
 	}
@@ -1048,7 +940,7 @@
 	/* Phones: a solid band across the top third, right under the partner strip.
 	   The text scrolls in the space below and slides up behind it. */
 	@media (max-width: 768px) {
-		.panel {
+		.stage:not(.inline) .panel {
 			top: 0;
 			bottom: auto;
 			width: 100%;
@@ -1056,7 +948,7 @@
 			background: var(--page-background);
 		}
 
-		.panel::after {
+		.stage:not(.inline) .panel::after {
 			content: '';
 			position: absolute;
 			left: 0;

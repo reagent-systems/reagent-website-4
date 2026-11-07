@@ -1,43 +1,56 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { animate, inView, stagger } from 'motion';
 	import IsoField from './IsoField.svelte';
 	import type { SparkSummary } from './spark';
-	import { COMPANIES } from './companies';
+	import { ARTICLES, RESEARCH_ITEMS } from './content';
 
-	type Statement = { title?: string; body: string; link?: { href: string; label: string } };
+	type Statement = { title?: string; body: string };
 
-	// Founder's own phrasing, made slightly more formal. Mission first, then how, then why.
+	// Founder's own phrasing, trimmed. Mission first, then how, then why.
 	const statements: Statement[] = [
 		{
 			title: 'build what builders need.',
-			body: "we founded a network out of necessity. there are unknown unknowns in any entrepreneurial career. but that shouldn't stop you from achieving success. so we gathered the resources, the knowledge, and the capital in one place to help any early stage founder succeed. we've been helped where you are now, and helping founders is our favorite place to be."
+			body: "we founded a network out of necessity. there are unknown unknowns in any entrepreneurial career, but that shouldn't stop you from achieving success. so we gathered the resources, the knowledge, and the capital in one place."
 		},
 		{
-			body: 'first, we talk with the founder. we want to hear what project they are working on and what blockers they have. through a questionnaire, we estimate the true technology readiness level or manufacturing readiness level of that company. in doing so, we identify the constraints they will be facing or are currently facing, and work in a partnership capacity towards solutions to these constraints. from there, we build up companies to a stage almost assuredly ready to reach a capital raise, and we connect them to our investor network.'
+			body: 'first, we talk with the founder. we estimate the true technology or manufacturing readiness of the company, identify its constraints, and work in a partnership capacity towards solutions.'
 		},
 		{
-			body: 'where we have to do the work to get a company to that stage, outside of any introductions where others are doing the work, terms are worked out as to our consultancy. we don\'t take any capital, we don\'t take any equity, and we don\'t take any profit share. beyond the engineering, management, marketing, development, or administrative roles we fill, we take nothing. if there is work that we are doing, we get paid for it. but we choose not to take a percentage of any introduction, because to us it stifles the forward progress of a company.'
+			body: 'from there, we build up companies to a stage almost assuredly ready to reach a capital raise. we take no equity and no percentage of any introduction, because to us it stifles the forward progress of a company.'
 		},
 		{
-			body: "why do we do this? because we've been where they are now. we know what it's like to tunnel vision and not realize the mistakes we may be making. we know that while it is a trial for us and anyone else to get to a point where the market agrees with them, the most invaluable thing is having a network of founders that reach out and assist. we want to see people succeed."
+			body: "why do we do this? because we've been where they are now. the most invaluable thing is a network of founders that reach out and assist."
 		},
 		{
-			body: 'we want to see our defense industrial base and its supply chain secured for decades to come. we want to be the modern equivalent of bell labs. we want to see innovation, and to pay people to pursue their dreams and their innovations. if the only thing stopping anybody from achieving the next breakthrough, the next innovation, the next frontier, is a lack of our assistance, then by all means, we are going to assist. we pay it forward.'
+			body: 'we want to be the modern equivalent of bell labs. if the only thing stopping anybody from the next breakthrough is a lack of our assistance, then by all means, we are going to assist.'
 		}
 	];
 
 	let statementEls: HTMLElement[] = $state([]);
-	let research: HTMLElement | undefined = $state();
-	let writing: HTMLElement | undefined = $state();
-	let portal: HTMLElement | undefined = $state();
-	let join: HTMLElement | undefined = $state();
-	let quote: HTMLElement | undefined = $state();
+	const anchors = $derived(statementEls.filter((el): el is HTMLElement => !!el));
 
-	const anchors = $derived(
-		[...statementEls, research, writing, portal, join, quote].filter(
-			(el): el is HTMLElement => !!el
-		)
-	);
+	// Cards and visuals rise into place as they come into view.
+	function reveal(node: HTMLElement) {
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		const items = Array.from(node.children) as HTMLElement[];
+		items.forEach((el) => {
+			el.style.opacity = '0';
+			el.style.transform = 'translateY(32px) scale(0.97)';
+		});
+		const stop = inView(
+			node,
+			() => {
+				animate(
+					items,
+					{ opacity: [0, 1], y: [32, 0], scale: [0.97, 1] },
+					{ type: 'spring', stiffness: 110, damping: 18, delay: stagger(0.12) }
+				);
+			},
+			{ amount: 0.25 }
+		);
+		return { destroy: stop };
+	}
 
 	// Live status from Spark, refreshed every minute.
 	let spark = $state<SparkSummary | null>(null);
@@ -94,12 +107,10 @@
 	let newsletterEmail = $state('');
 	let newsletterSent = $state(false);
 
-	let contactCompany = $state(COMPANIES[0].slug);
 	let contactName = $state('');
 	let contactEmail = $state('');
 	let contactMessage = $state('');
 	let contactSent = $state(false);
-	const pickedName = $derived(COMPANIES.find((c) => c.slug === contactCompany)?.name ?? '');
 
 	function submitNewsletter(e: SubmitEvent) {
 		e.preventDefault();
@@ -113,57 +124,72 @@
 </script>
 
 <div class="story">
-	<IsoField
-		{anchors}
-		picked={contactCompany}
-		onpick={(slug) => (contactCompany = slug)}
-		{portalTag}
-	/>
+	<!-- Mission, how and why: the blocks follow along, then scroll away with this part. -->
+	<div class="intro">
+		<IsoField {anchors} />
 
-	{#each statements as statement, i}
-		<section class="statement" bind:this={statementEls[i]}>
-			<div class="statement-copy">
-				{#if statement.title}
-					<h2>{statement.title}</h2>
-				{/if}
-				<p>{statement.body}</p>
-				{#if statement.link}
-					<a class="quiet-link" href={statement.link.href}>{statement.link.label}</a>
-				{/if}
-			</div>
-		</section>
-	{/each}
+		{#each statements as statement, i}
+			<section class="statement" bind:this={statementEls[i]}>
+				<div class="statement-copy">
+					{#if statement.title}
+						<h2 class="title">{statement.title}</h2>
+					{/if}
+					<p class="body">{statement.body}</p>
+				</div>
+			</section>
+		{/each}
+	</div>
 
-	<section class="resource" bind:this={research}>
-		<h2 class="resource-title">research</h2>
+	<section class="link-section">
+		<h2 class="title">research</h2>
+		<div class="cards" use:reveal>
+			{#each RESEARCH_ITEMS.slice(0, 2) as item}
+				<a class="card" href="/research">
+					<div class="card-image"><img src={item.image} alt="" loading="lazy" /></div>
+					<span class="card-title">{item.name}</span>
+					<span class="card-line">{item.line}</span>
+				</a>
+			{/each}
+		</div>
 		<a class="quiet-link" href="/research">all research</a>
 	</section>
 
-	<section class="resource" bind:this={writing}>
-		<h2 class="resource-title">writing</h2>
+	<section class="link-section">
+		<h2 class="title">writing</h2>
+		<div class="cards" use:reveal>
+			{#each ARTICLES.slice(0, 2) as article}
+				<a class="card text" href={article.href}>
+					<span class="card-title">{article.title}</span>
+					<span class="card-line">{article.excerpt}</span>
+				</a>
+			{/each}
+		</div>
 		<a class="quiet-link" href="/blog">all writing</a>
 	</section>
 
-	<section class="resource portal" bind:this={portal}>
-		<h2 class="resource-title">portal</h2>
-		<p class="portal-body">
+	<section class="link-section">
+		<h2 class="title">portal</h2>
+		<p class="body">
 			a shared nvidia dgx spark, open to the community. it serves open models through an
-			openai-compatible api, with its status, uptime and leaderboards kept in the open.
+			openai-compatible api.
 		</p>
-		<div class="portal-links">
+		<div class="visual">
+			<IsoField inline {portalTag} />
+		</div>
+		<div class="links">
 			<a class="quiet-link" href="https://spark.reagent-systems.com">enter the portal</a>
 			<a class="quiet-link" href="https://spark.reagent-systems.com/docs">read the docs</a>
 		</div>
 	</section>
 
-	<section class="join" bind:this={join} id="join">
-		<h2 class="resource-title">join us</h2>
+	<section class="link-section join" id="join">
+		<h2 class="title">join us</h2>
 		<div class="join-grid">
 			<form class="join-block" onsubmit={submitNewsletter}>
-				<h3>the newsletter</h3>
-				<p>what we are building, sent when there is something worth reading.</p>
+				<h3 class="sub">the newsletter</h3>
+				<p class="note">what we are building, sent when there is something worth reading.</p>
 				{#if newsletterSent}
-					<p class="sent">thank you. you are on the list.</p>
+					<p class="note">thank you. you are on the list.</p>
 				{:else}
 					<div class="inline-field">
 						<label class="visually-hidden" for="newsletter-email">email</label>
@@ -181,9 +207,9 @@
 			</form>
 
 			<form class="join-block" onsubmit={submitContact}>
-				<h3>talk to reagent {pickedName}</h3>
+				<h3 class="sub">talk to reagent</h3>
 				{#if contactSent}
-					<p class="sent">thank you. we will be in touch.</p>
+					<p class="note">thank you. we will be in touch.</p>
 				{:else}
 					<label class="visually-hidden" for="contact-name">name</label>
 					<input id="contact-name" required placeholder="name" autocomplete="name" bind:value={contactName} />
@@ -208,49 +234,40 @@
 				{/if}
 			</form>
 
-			<div class="join-block careers">
-				<h3>careers</h3>
-				<p>build alongside us, in any of the six.</p>
+			<div class="join-block">
+				<h3 class="sub">careers</h3>
+				<p class="note">build alongside us, in any of the six.</p>
 				<a class="quiet-link" href="/careers">open roles</a>
 			</div>
 		</div>
 	</section>
 
-	<section class="quote" bind:this={quote}>
+	<section class="link-section quote">
 		<blockquote>
-			<p>we measure progress in decades. to make sure our vision for the future succeeds, we accelerate founders in days.</p>
+			<p>
+				we measure progress in decades. to make sure our vision for the future succeeds, we
+				accelerate founders in days.
+			</p>
 		</blockquote>
-		<a class="quiet-link plan-link" href="/plan">read the plan</a>
+		<a class="quiet-link" href="/plan">read the plan</a>
 	</section>
 </div>
 
 <style>
+	/* Everything here draws on the shared type and spacing scales in app.css. */
+
 	.story {
 		position: relative;
 		background: var(--page-background);
 	}
 
-	/* Text keeps to the left; the blocks live in the right-hand panel. */
 	section {
 		position: relative;
 		z-index: 1;
-		padding-right: 48vw !important;
 	}
 
-	/* Mission, why, how */
-	.statement {
-		min-height: 100vh;
-		min-height: 100svh;
-		display: flex;
-		align-items: center;
-		padding: 0 var(--gutter);
-	}
-
-	.statement-copy {
-		max-width: 36rem;
-	}
-
-	.statement h2 {
+	/* Type: one style per role. */
+	.title {
 		font-family: var(--main-font);
 		font-weight: 100;
 		font-size: var(--text-title);
@@ -260,59 +277,40 @@
 		margin-bottom: var(--space-m);
 	}
 
-	/* All body copy is fully justified, with the last line centred. */
-	p {
-		text-align: justify;
-		text-align-last: center;
+	.sub {
+		font-family: var(--main-font);
+		font-weight: 200;
+		font-size: var(--text-sub);
+		color: #1a1a1a;
 	}
 
-	.statement p {
+	.body {
 		font-family: 'Raleway Variable', var(--main-font);
 		font-weight: 300;
 		font-size: var(--text-body);
 		line-height: 1.7;
 		color: #5f5f5f;
-		max-width: 30rem;
+		max-width: 32rem;
 	}
 
-
-	/* Research, writing, portal */
-	.resource {
-		min-height: 100vh;
-		min-height: 100svh;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		padding: 0 var(--gutter);
+	/* Body copy is fully justified, with the last line centred. */
+	p {
+		text-align: justify;
+		text-align-last: center;
 	}
 
-	.resource-title {
-		font-family: var(--main-font);
-		font-weight: 100;
-		font-size: var(--text-title);
-		letter-spacing: -0.02em;
-		line-height: 1;
-		color: #1a1a1a;
-		margin-bottom: var(--space-l);
+	.note {
+		font-family: 'Raleway Variable', var(--main-font);
+		font-weight: 300;
+		font-size: var(--text-body);
+		line-height: 1.6;
+		color: #6b6b6b;
+		text-align: left;
+		text-align-last: left;
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	.quiet-link {
 		display: inline-block;
-		margin-top: var(--space-l);
 		font-family: 'Raleway Variable', var(--main-font);
 		font-weight: 300;
 		font-size: var(--text-small);
@@ -326,99 +324,132 @@
 		color: #000;
 	}
 
-	.statement .quiet-link {
-		margin-top: var(--space-m);
+	/* Mission, how and why: text on the left, the blocks on the right. */
+	.intro {
+		position: relative;
 	}
 
-	.portal {
-		min-height: 80vh;
+	.intro section {
+		padding-right: 48vw;
+	}
+
+	.statement {
+		min-height: 100vh;
+		min-height: 100svh;
+		display: flex;
+		align-items: center;
+		padding-left: var(--gutter);
+	}
+
+	.statement-copy {
+		max-width: 34rem;
+	}
+
+	/* Research, writing, portal, join, quote: one layout. Title, then the visual
+	   below it, then the link. */
+	.link-section {
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
+		align-items: flex-start;
+		gap: var(--space-m);
+		/* One centred column, so wide screens don't leave an empty half. */
+		padding: var(--space-section) max(var(--gutter), calc((100% - 56rem) / 2));
 	}
 
-	.portal .resource-title {
+	.link-section .title {
 		margin-bottom: 0;
 	}
 
-	.portal-body {
-		margin-top: var(--space-m);
-		max-width: 30rem;
-		font-family: 'Raleway Variable', var(--main-font);
-		font-weight: 300;
-		font-size: var(--text-body);
-		line-height: 1.7;
-		color: #5f5f5f;
+	.cards {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--space-m);
+		width: 100%;
+		max-width: 56rem;
 	}
 
+	.card {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
+		text-decoration: none;
+		color: inherit;
+	}
 
-	.portal-links {
+	.card-image {
+		aspect-ratio: 1;
+		border-radius: 20px;
+		overflow: hidden;
+		background: #ececec;
+		margin-bottom: var(--space-xs);
+	}
+
+	.card-image img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+		transition: transform 0.6s ease;
+	}
+
+	.card:hover .card-image img {
+		transform: scale(1.03);
+	}
+
+	/* Articles: face-on, the title and a line of the piece. */
+	.card.text {
+		justify-content: space-between;
+		min-height: 13rem;
+		padding: var(--space-m);
+		border-radius: 20px;
+		background: #fdfdfd;
+		box-shadow: 0 1px 16px rgba(26, 26, 26, 0.06);
+		transition: box-shadow 0.4s ease;
+	}
+
+	.card.text:hover {
+		box-shadow: 0 4px 24px rgba(26, 26, 26, 0.1);
+	}
+
+	.card-title {
+		font-family: var(--main-font);
+		font-weight: 300;
+		font-size: var(--text-card);
+		line-height: 1.2;
+		color: #1a1a1a;
+	}
+
+	.card-line {
+		font-family: 'Raleway Variable', var(--main-font);
+		font-weight: 300;
+		font-size: var(--text-small);
+		line-height: 1.5;
+		color: #6b6b6b;
+	}
+
+	.visual {
+		width: 100%;
+		max-width: 56rem;
+	}
+
+	.links {
 		display: flex;
 		gap: var(--space-m);
 	}
 
-	.portal .quiet-link {
-		margin-top: var(--space-m);
-	}
-
 	/* Join */
-	.join {
-		padding: var(--space-section) var(--gutter);
-		min-height: 100vh;
-	}
-
 	.join-grid {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
-		grid-template-areas: 'newsletter' 'contact' 'careers';
-		gap: var(--space-xl);
-		align-items: start;
+		gap: var(--space-l);
+		width: 100%;
 		max-width: 36rem;
-	}
-
-	.join-grid > :nth-child(1) {
-		grid-area: newsletter;
-	}
-
-	.join-grid > :nth-child(2) {
-		grid-area: contact;
-	}
-
-	.join-grid > :nth-child(3) {
-		grid-area: careers;
 	}
 
 	.join-block {
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-s);
-	}
-
-	.join-block h3 {
-		font-family: var(--main-font);
-		font-weight: 200;
-		font-size: var(--text-sub);
-		color: #1a1a1a;
-		margin-bottom: 0;
-	}
-
-	.join-block > p {
-		text-align: left;
-		text-align-last: left;
-		font-family: 'Raleway Variable', var(--main-font);
-		font-weight: 300;
-		font-size: var(--text-body);
-		line-height: 1.7;
-		color: #6b6b6b;
-		margin-bottom: var(--space-s);
-	}
-
-	.careers .quiet-link {
-		margin-top: 0;
-	}
-
-	.join-block .sent {
-		color: #1a1a1a;
 	}
 
 	.inline-field {
@@ -473,31 +504,16 @@
 
 	.send {
 		align-self: flex-start;
-		margin-top: var(--space-xs);
 	}
-
-
-
-
-
 
 	/* Quote */
 	.quote {
-		min-height: 100vh;
-		min-height: 100svh;
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
+		min-height: 70vh;
 		justify-content: center;
-		padding: 0 var(--gutter);
-	}
-
-	.plan-link {
-		margin-top: var(--space-s);
 	}
 
 	.quote blockquote {
-		max-width: 42vw;
+		max-width: 44rem;
 	}
 
 	.quote p {
@@ -507,7 +523,6 @@
 		line-height: 1.15;
 		letter-spacing: -0.01em;
 		color: #1a1a1a;
-		margin-bottom: var(--space-m);
 	}
 
 	.visually-hidden {
@@ -520,43 +535,41 @@
 	}
 
 	@media (max-width: 768px) {
-		/* Phones: the scene band holds the top; each section fills the space below it
-		   and settles there, so no text sits under the band while being read. */
-		/* Room for the band above the first section (the band itself is sticky
-		   and takes no space in the flow). */
-		.story > section:first-of-type {
+		/* Phones: the blocks hold a band at the top; each statement fills the space
+		   below it and settles there, so no text sits under the band while read. */
+		.intro section {
+			padding-right: var(--gutter);
+		}
+
+		.intro section:first-of-type {
 			margin-top: var(--panel-h);
 		}
-		section {
-			padding-right: var(--gutter) !important;
-		}
-		.statement,
-		.resource,
-		.quote {
+
+		.statement {
 			min-height: calc(100svh - var(--panel-h));
 			padding: var(--space-m) var(--gutter);
 			scroll-snap-align: start;
 		}
-		.join {
-			padding: var(--space-l) var(--gutter);
-			scroll-snap-align: start;
-		}
-		/* Research and writing are just a title and a link here; their visuals live
-		   in the band, so they don't need a full screen of their own. */
-		.resource:not(.portal) {
-			min-height: 45svh;
-		}
-		.statement h2 {
+
+		.statement .title {
 			margin-bottom: var(--space-s);
 		}
-		.resource-title {
-			margin-bottom: var(--space-m);
+
+		.cards {
+			gap: var(--space-s);
 		}
+
+		.card.text {
+			min-height: 10rem;
+			padding: var(--space-s);
+		}
+
 		.inline-field {
 			flex-direction: column;
 		}
-		.quote blockquote {
-			max-width: none;
+
+		.quote {
+			min-height: 50svh;
 		}
 	}
 </style>
