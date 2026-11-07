@@ -11,12 +11,13 @@
 	let {
 		anchors = [],
 		inline = false,
-		portalTag = null
+		portalTags = []
 	}: {
 		anchors?: HTMLElement[];
 		inline?: boolean;
-		/** Live status shown on a tag, led off the portal ring. */
-		portalTag?: { title: string; detail?: string } | null;
+		/** Live details shown on tags, each led off the portal ring. In order:
+		 *  the status (top), uptime (right), leaderboard (left). */
+		portalTags?: { title: string; detail?: string; lines?: string[] }[];
 	} = $props();
 
 	// `round` 1 makes the block a cylinder; in between, the corners round off as it morphs.
@@ -229,7 +230,7 @@
 	let active = $state(0);
 	let settled = $state(false);
 	let hovered = $state(-1);
-	let tagEl: HTMLDivElement | undefined = $state();
+	let tagEls: (HTMLDivElement | undefined)[] = $state([]);
 	let panelEl: HTMLDivElement | undefined = $state();
 
 	const overlays = $derived(scenes[active].overlays ?? []);
@@ -315,6 +316,7 @@
 		const view = { u: 0, cx: frames[0].cx, cy: frames[0].cy };
 		const grow = { k: 0 };
 		// The magnifying glass flies in (0 to 1), stays, then flies out (1 to 2).
+		let portalBob = 0;
 		const lensFly = { p: 0 };
 		let lensCfg: NonNullable<Scene['lens']> | null = null;
 		let lensAnim: { stop: () => void } | null = null;
@@ -572,7 +574,7 @@
 			const R = pd.R * k;
 			const ring = pd.ring * k;
 			const depth = pd.depth;
-			const zc = pd.zc * k;
+			const zc = pd.zc * k + portalBob;
 			const Ri = R - ring;
 			const yf = depth / 2;
 			const yb = -depth / 2;
@@ -648,50 +650,75 @@
 			// Front face of the ring.
 			shape(`${disc(R, yf)} ${disc(Ri, yf)}`, { fill: '#fdfdfd', stroke: '#1a1a1a', evenodd: true });
 
-			// A leader from the top of the ring out to the status tag.
-			if (tagEl && portalTag && settled) {
-				const a = Math.PI / 2;
-				const [ax, ay] = pt(Math.cos(a) * R, yf, zc + Math.sin(a) * R);
-				const tw = tagEl.offsetWidth;
-				const th = tagEl.offsetHeight;
-				const rise = Math.max(th / 2 + 12, u * 0.55);
-				const run = Math.max(22, u * 0.7);
-				const dot = 2.2;
-				if (window.innerWidth <= 768) {
-					// Phones: the tag sits centred above the ring, and the leader runs
-					// straight up from the top of the ring to the middle of the tag.
-					const gap = Math.max(36, u * 1.1);
-					const tx = Math.max(8, Math.min(pw - tw - 8, ax - tw / 2));
-					const ty = Math.max(4, ay - gap - th);
-					shape(`M${ax.toFixed(1)},${ay.toFixed(1)}L${ax.toFixed(1)},${(ty + th).toFixed(1)}`, {
-						stroke: '#1a1a1a',
-						strokeWidth: 0.8
-					});
-					shape(
-						`M${(ax - dot).toFixed(1)},${ay.toFixed(1)}a${dot},${dot} 0 1,0 ${dot * 2},0a${dot},${dot} 0 1,0 ${-dot * 2},0`,
-						{ fill: '#1a1a1a' }
+			// Leaders from the ring out to the tags.
+			if (settled) drawPortalTags(R, zc, yf);
+		}
+
+		// Where each tag leaves the ring: an angle around it, the side its tag
+		// sits on, and how far the leader climbs (negative) or drops before it turns.
+		const TAG_SPOTS = [
+			{ a: Math.PI / 2, dir: 1, lift: -1 },
+			{ a: -Math.PI / 5, dir: 1, lift: 0.55 },
+			{ a: Math.PI * 0.95, dir: -1, lift: 0.35 }
+		];
+
+		function drawPortalTags(R: number, zc: number, yf: number) {
+			const dot = 2.2;
+			const marker = (x: number, y: number) =>
+				shape(`M${(x - dot).toFixed(1)},${y.toFixed(1)}a${dot},${dot} 0 1,0 ${dot * 2},0a${dot},${dot} 0 1,0 ${-dot * 2},0`, {
+					fill: '#1a1a1a'
+				});
+			const line = (d: string) => shape(d, { stroke: '#1a1a1a', strokeWidth: 0.8 });
+			const phone = window.innerWidth <= 768;
+			const tags = untrack(() => portalTags);
+
+			tags.forEach((_, i) => {
+				const el = tagEls[i];
+				const spot = TAG_SPOTS[i];
+				if (!el || !spot) return;
+				const tw = el.offsetWidth;
+				const th = el.offsetHeight;
+
+				if (phone) {
+					// Phones: the status sits centred above the ring; the others sit
+					// side by side below it, each on a straight leader.
+					if (i === 0) {
+						const [ax, ay] = pt(0, yf, zc + R);
+						const tx = Math.max(8, Math.min(pw - tw - 8, ax - tw / 2));
+						const ty = Math.max(4, ay - Math.max(28, u * 0.8) - th);
+						line(`M${ax.toFixed(1)},${ay.toFixed(1)}L${ax.toFixed(1)},${(ty + th).toFixed(1)}`);
+						marker(ax, ay);
+						el.style.transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px)`;
+						return;
+					}
+					const a = i === 1 ? -Math.PI / 2 + 0.55 : -Math.PI / 2 - 0.55;
+					const [ax, ay] = pt(Math.cos(a) * R, yf, zc + Math.sin(a) * R);
+					// Uptime pinned to the right edge, the leaderboard to the left.
+					const tx = i === 1 ? pw - tw - 8 : 8;
+					const bottom = pt(0, yf, zc - R)[1];
+					const ty = Math.min(ph - th - 4, bottom + Math.max(30, u * 0.7));
+					const lx = Math.max(tx + 12, Math.min(tx + tw - 12, ax));
+					const my = (Math.max(ay, bottom) + ty) / 2;
+					line(
+						`M${ax.toFixed(1)},${ay.toFixed(1)}L${ax.toFixed(1)},${my.toFixed(1)}L${lx.toFixed(1)},${my.toFixed(1)}L${lx.toFixed(1)},${ty.toFixed(1)}`
 					);
-					tagEl.style.transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px)`;
+					marker(ax, ay);
+					el.style.transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px)`;
 					return;
 				}
-				// Go toward whichever side has more room, and keep the tag inside the panel.
-				const dir = ax > pw / 2 ? -1 : 1;
-				const ex = ax + dir * rise;
-				const ey = Math.max(th / 2 + 6, ay - rise);
-				let tx = dir > 0 ? ex + run + 6 : ex - run - 6 - tw;
+
+				const [ax, ay] = pt(Math.cos(spot.a) * R, yf, zc + Math.sin(spot.a) * R);
+				const rise = Math.max(th / 2 + 12, u * 0.55);
+				const run = Math.max(22, u * 0.7);
+				const ex = ax + spot.dir * rise * 0.8;
+				const ey = Math.max(th / 2 + 6, Math.min(ph - th / 2 - 6, ay + spot.lift * rise));
+				let tx = spot.dir > 0 ? ex + run + 6 : ex - run - 6 - tw;
 				tx = Math.max(8, Math.min(pw - tw - 8, tx));
-				// If the tag ended up right above the ring, the leader runs straight up into it.
-				const over = ax >= tx && ax <= tx + tw;
-				const lead = over
-					? `M${ax.toFixed(1)},${ay.toFixed(1)}L${ax.toFixed(1)},${(ey + th / 2 + 4).toFixed(1)}`
-					: `M${ax.toFixed(1)},${ay.toFixed(1)}L${ex.toFixed(1)},${ey.toFixed(1)}L${(ex < tx ? tx - 6 : tx + tw + 6).toFixed(1)},${ey.toFixed(1)}`;
-				shape(lead, { stroke: '#1a1a1a', strokeWidth: 0.8 });
-				shape(
-					`M${(ax - dot).toFixed(1)},${ay.toFixed(1)}a${dot},${dot} 0 1,0 ${dot * 2},0a${dot},${dot} 0 1,0 ${-dot * 2},0`,
-					{ fill: '#1a1a1a' }
-				);
-				tagEl.style.transform = `translate(${tx.toFixed(1)}px, ${(ey - th / 2).toFixed(1)}px)`;
-			}
+				const end = spot.dir > 0 ? tx - 6 : tx + tw + 6;
+				line(`M${ax.toFixed(1)},${ay.toFixed(1)}L${ex.toFixed(1)},${ey.toFixed(1)}L${end.toFixed(1)},${ey.toFixed(1)}`);
+				marker(ax, ay);
+				el.style.transform = `translate(${tx.toFixed(1)}px, ${(ey - th / 2).toFixed(1)}px)`;
+			});
 		}
 
 		// Glass on the bank's two front faces, with a door in the front one. Drawn
@@ -911,6 +938,8 @@
 			}
 
 			const t = now / 1000;
+			// The portal floats a little, rising and settling.
+			portalBob = reduceMotion ? 0 : Math.sin(t * 1.2) * 0.14;
 			const scene = scenes[active];
 			// Frame the scene: fill most of the panel, but keep small scenes modest.
 			const fr = frames[active];
@@ -919,7 +948,9 @@
 			// On phones the band starts under the status bar, so its scene sits a little
 			// low in the band rather than dead centre.
 			const lowered = !untrack(() => inline) && pw < 769 && window.innerWidth <= 768;
-			const fitH = lowered ? 0.66 : untrack(() => inline) ? 0.9 : 0.8;
+			// On phones the portal leaves room above and below it for its tags.
+			const phoneInline = untrack(() => inline) && window.innerWidth <= 768;
+			const fitH = lowered ? 0.66 : phoneInline ? 0.52 : untrack(() => inline) ? 0.9 : 0.8;
 			const targetU = Math.min((pw * 0.9) / Math.max(fr.w, 1), (ph * fitH) / Math.max(fr.h, 1), cap);
 			const ease = view.u === 0 ? 1 : 0.07;
 			view.u += (targetU - view.u) * ease;
@@ -927,7 +958,7 @@
 			view.cy += (fr.cy - view.cy) * ease;
 			u = view.u;
 			ox = pw / 2 - view.cx * u;
-			oy = ph * (lowered ? 0.65 : 0.5) - view.cy * u;
+			oy = ph * (lowered ? 0.65 : phoneInline ? 0.44 : 0.5) - view.cy * u;
 
 			// Hover raises a block a little.
 			for (let n = 0; n < K; n++) lift[n] += ((hovered === n ? 0.35 : 0) - lift[n]) * 0.15;
@@ -1030,7 +1061,7 @@
 					if (el) {
 						const { zc, R, ring, depth } = scene.portal;
 						const Ri = R - ring;
-						const [ex, ey] = pt(-Ri, depth / 2, zc + Ri);
+						const [ex, ey] = pt(-Ri, depth / 2, zc + portalBob + Ri);
 						const size = Ri * 2 * 40;
 						el.style.width = `${size}px`;
 						el.style.height = `${size}px`;
@@ -1075,11 +1106,14 @@
 	<div class="panel" bind:this={panelEl}>
 		<svg bind:this={svgEl} class="iso" aria-hidden="true"></svg>
 		<div class="layer" class:live={settled} bind:this={layerEl}>
-			{#if scenes[active].portal && portalTag}
-				<div class="tag" bind:this={tagEl}>
-					<span class="tag-title">{portalTag.title}</span>
-					{#if portalTag.detail}<span class="tag-detail">{portalTag.detail}</span>{/if}
-				</div>
+			{#if scenes[active].portal}
+				{#each portalTags as tag, i}
+					<div class="tag" bind:this={tagEls[i]}>
+						<span class="tag-title">{tag.title}</span>
+						{#if tag.detail}<span class="tag-detail">{tag.detail}</span>{/if}
+						{#each tag.lines ?? [] as l}<span class="tag-detail">{l}</span>{/each}
+					</div>
+				{/each}
 			{/if}
 			{#each overlays as o, i (active + '-' + i)}
 				{#if o.kind === 'gate'}
@@ -1244,6 +1278,11 @@
 	@media (max-width: 768px) {
 		.tag {
 			padding: 0.35rem 0.55rem;
+		}
+		/* The two tags under the ring share the width. */
+		.tag + .tag {
+			max-width: calc(50% - 12px);
+			white-space: normal;
 		}
 		.tag-title {
 			font-size: 0.72rem;
