@@ -1,6 +1,7 @@
 // Places we serve, with the public figures behind each place's page.
 // The figures come from scripts/fetch-area-data.cjs (see data.json).
 import data from './data.json';
+import copy from './copy.json';
 
 type Point = { date: string; value: number };
 type Yearly = { year: string; value: number; source?: 'imf' };
@@ -122,3 +123,7 @@ export const monthText = (iso: string) => {
 	const [y, m] = iso.split('-').map(Number);
 	return `${MONTHS[m - 1]} ${y}`;
 };
+
+/** A short intro written for each place, and the companies that fit it best. */
+export type AreaCopy = { intro: string; focus: string[] };
+export const copyFor = (slug: string): AreaCopy | null => (copy as Record<string, AreaCopy>)[slug] ?? null;

@@ -10,12 +10,24 @@
 		change,
 		monthText,
 		displayName,
+		copyFor,
 		type Area
 	} from '$lib/areas';
 
 	let { data }: { data: { area: Area } } = $props();
 	const area = $derived(data.area);
 	const name = $derived(displayName(area.name));
+	const copy = $derived(copyFor(area.slug));
+	// Companies that fit this place come first.
+	const companies = $derived(
+		copy
+			? [...COMPANIES].sort((a, b) => rank(a.slug) - rank(b.slug))
+			: COMPANIES
+	);
+	function rank(slug: string) {
+		const i = copy?.focus.indexOf(slug) ?? -1;
+		return i < 0 ? 99 : i;
+	}
 
 	// Other places in the same region, starting after this one.
 	const nearby = $derived.by(() => {
@@ -105,7 +117,9 @@
 	const sources = $derived(area.kind === 'state' ? stateSources(area.code) : countrySources(area));
 	const title = $derived(`founders in ${name} - reagent systems`);
 	const description = $derived(
-		`reagent systems works with founders in ${name}: readiness assessment, partnership, and preparation for a capital raise, with no equity taken.${facts[0] ? ` ${facts[0].label}: ${facts[0].value}.` : ''}`
+		copy
+			? `${copy.intro} we take no equity and no percentage of any introduction.`
+			: `reagent systems works with founders in ${name}: readiness assessment, partnership, and preparation for a capital raise, with no equity taken.`
 	);
 </script>
 
@@ -127,9 +141,13 @@
 	<header>
 		<h1 class="title">founders in {name}</h1>
 		<p class="lede">
-			we work with founders in {name} the same way we work everywhere. we estimate the true technology or
-			manufacturing readiness of the company, identify its constraints, and build it up to a stage ready to
-			reach a capital raise. we take no equity and no percentage of any introduction.
+			{#if copy}
+				{copy.intro} we take no equity and no percentage of any introduction.
+			{:else}
+				we estimate the true technology or manufacturing readiness of the company, identify its constraints,
+				and build it up to a stage ready to reach a capital raise. we take no equity and no percentage of any
+				introduction.
+			{/if}
 		</p>
 		<a class="quiet-link" href="/#join">talk to reagent</a>
 	</header>
@@ -165,7 +183,7 @@
 	<section>
 		<h2 class="sub">our companies</h2>
 		<ul class="companies">
-			{#each COMPANIES as company}
+			{#each companies as company}
 				<li>
 					<a href="/{company.slug}">{company.fullName}</a>
 					<span>{company.line}</span>
