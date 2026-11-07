@@ -4,10 +4,32 @@
 	import SiteFooter from '$lib/SiteFooter.svelte';
 	import { dev } from '$app/environment';
 	import { injectAnalytics } from '@vercel/analytics/sveltekit';
+	import { onMount } from 'svelte';
+	import Lenis from 'lenis';
+	import 'lenis/dist/lenis.css';
 
 	injectAnalytics({ mode: dev ? 'development' : 'production' });
 
 	let { children } = $props();
+
+	// Mouse and trackpad scrolling glides to a stop. Touch keeps the phone's own
+	// momentum, and anyone who prefers reduced motion keeps normal scrolling.
+	onMount(() => {
+		const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const touch = window.matchMedia('(pointer: coarse)').matches;
+		if (reduce || touch) return;
+		const lenis = new Lenis({ lerp: 0.075, wheelMultiplier: 0.9, anchors: true });
+		let frame = 0;
+		const loop = (time: number) => {
+			lenis.raf(time);
+			frame = requestAnimationFrame(loop);
+		};
+		frame = requestAnimationFrame(loop);
+		return () => {
+			cancelAnimationFrame(frame);
+			lenis.destroy();
+		};
+	});
 	let transitioning = $state(false);
 
 	onNavigate(() => {

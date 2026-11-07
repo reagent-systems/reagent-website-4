@@ -100,14 +100,6 @@ html {
 		--space-section: 10svh;
 		--panel-h: 40svh;
 	}
-
-	/* Each story section settles with its text clear of the scene band. Snapping is
-	   measured from below the band, so sections longer than that space still
-	   scroll freely all the way through. */
-	html {
-		scroll-snap-type: y proximity;
-		scroll-padding-top: var(--panel-h);
-	}
 }
 
 /* Words never split across lines. */

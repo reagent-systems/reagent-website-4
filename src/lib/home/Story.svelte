@@ -10,7 +10,7 @@
 	// Founder's own phrasing, trimmed. Mission first, then how, then why.
 	const statements: Statement[] = [
 		{
-			title: 'build what builders need.',
+			title: 'building what builders need.',
 			body: "we founded a network out of necessity. there are unknown unknowns in any entrepreneurial career, but that shouldn't stop you from achieving success. so we gathered the resources, the knowledge, and the capital in one place."
 		},
 		{
@@ -345,6 +345,10 @@
 		max-width: 34rem;
 	}
 
+	.statement .title {
+		text-align: center;
+	}
+
 	/* Research, writing, portal, join, quote: one layout. Title, then the visual
 	   below it, then the link. */
 	.link-section {
@@ -536,7 +540,7 @@
 
 	@media (max-width: 768px) {
 		/* Phones: the blocks hold a band at the top; each statement fills the space
-		   below it and settles there, so no text sits under the band while read. */
+		   below it, so its text is clear of the band while it is read. */
 		.intro section {
 			padding-right: var(--gutter);
 		}
@@ -548,7 +552,6 @@
 		.statement {
 			min-height: calc(100svh - var(--panel-h));
 			padding: var(--space-m) var(--gutter);
-			scroll-snap-align: start;
 		}
 
 		.statement .title {

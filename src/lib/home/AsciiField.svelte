@@ -151,7 +151,16 @@
 		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		render(current);
 
+		// The hero only animates while it is on screen.
+		let onScreen = true;
+		const io = new IntersectionObserver(([entry]) => (onScreen = entry.isIntersecting));
+		if (preEl) io.observe(preEl.parentElement ?? preEl);
+
 		function tick(now: number) {
+			if (!onScreen) {
+				frame = requestAnimationFrame(tick);
+				return;
+			}
 			const t = now - startTime;
 			if (!reduceMotion) {
 				rotateX = Math.sin(-t * 0.0003) * 15;
@@ -183,7 +192,10 @@
 			frame = requestAnimationFrame(tick);
 		}
 		frame = requestAnimationFrame(tick);
-		return () => cancelAnimationFrame(frame);
+		return () => {
+			cancelAnimationFrame(frame);
+			io.disconnect();
+		};
 	});
 </script>
 

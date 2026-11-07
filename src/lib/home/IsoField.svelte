@@ -323,11 +323,13 @@
 
 		// Inline mode: build the scene once it is properly in view.
 		let revealed = false;
+		let onScreen = !untrack(() => inline);
 		const io = new IntersectionObserver(
 			([entry]) => {
-				if (entry.isIntersecting) revealed = true;
+				onScreen = entry.isIntersecting;
+				if (entry.intersectionRatio >= 0.35) revealed = true;
 			},
-			{ threshold: 0.35 }
+			{ threshold: [0, 0.35] }
 		);
 		if (untrack(() => inline)) io.observe(svg);
 
@@ -618,6 +620,12 @@
 			alpha += ((visible ? 1 : 0) - alpha) * 0.08;
 			svg.style.opacity = alpha.toFixed(3);
 			layer.style.opacity = alpha.toFixed(3);
+
+			// Nothing to draw while off screen: keep scrolling smooth.
+			if ((!visible && alpha < 0.01) || !onScreen) {
+				frame = requestAnimationFrame(tick);
+				return;
+			}
 
 			// Sticky mode: as the story ends, the panel leaves with its last section
 			// instead of hanging over what comes next.
