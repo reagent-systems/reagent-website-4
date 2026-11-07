@@ -37,6 +37,8 @@
 		bounds?: Tuple[];
 		/** Buildings pop up from the ground, from the centre outward, when the scene arrives. */
 		grow?: boolean;
+		/** An elevated ribbon (the monorail track) along a closed path of points. */
+		ribbon?: { points: [number, number][]; z: number; width: number };
 		/** Set for the portal scene: draws the ring and its surface. */
 		portal?: { zc: number; R: number; ring: number; depth: number };
 		/** Set for the examination scene: a magnifying glass hovering over it. */
@@ -133,28 +135,47 @@
 		}
 	};
 
-	// Decades ahead: a city that keeps going. A tower and an inner ring, an outer
-	// ring of smaller buildings, and two elevated monorails with trains running.
+	// Decades ahead: a city that keeps going. A tower and an inner ring, then
+	// smaller buildings spreading out unevenly, and a monorail weaving through.
 	const campusHeights = [1.6, 2.4, 1.2, 2, 1.4, 2.8];
-	const RAIL_Z = 2.1;
-	const RAIL = -5.1; // where the two lines run, along the back edges, behind the city
 	const outer: Tuple[] = [];
 	{
-		let k = 0;
-		for (let gx = -4.4; gx <= 3; gx += 1.45)
-			for (let gy = -4.4; gy <= 3; gy += 1.45) {
-				const d = Math.hypot(gx + 0.45, gy + 0.45);
-				// Outside the inner ring, and clear of the rail lines.
-				if (d < 3.2 || d > 5.3) continue;
-				const h = 0.6 + ((Math.sin(k * 12.9898) + 1) / 2) * 1.2;
-				outer.push([gx, gy, 0, 0.95, 0.95, h, 1]);
-				k++;
-			}
+		let cs = 29;
+		const r = () => {
+			cs = (cs * 16807) % 2147483647;
+			return (cs - 1) / 2147483646;
+		};
+		const taken: [number, number, number, number][] = [];
+		const golden = Math.PI * (3 - Math.sqrt(5));
+		for (let i = 0; i < 80 && outer.length < 18; i++) {
+			const a = i * golden + r() * 0.6;
+			const rad = 3.75 + r() * 1.5;
+			const w = 0.65 + r() * 0.55;
+			const d = 0.65 + r() * 0.55;
+			const x = Math.cos(a) * rad - w / 2;
+			const y = Math.sin(a) * rad - d / 2;
+			// Keep a little street between neighbours.
+			if (taken.some(([tx, ty, tw, td]) => x < tx + tw + 0.25 && x + w + 0.25 > tx && y < ty + td + 0.25 && y + d + 0.25 > ty))
+				continue;
+			taken.push([x, y, w, d]);
+			outer.push([x, y, 0, w, d, 0.5 + r() * 1.5, 1]);
+		}
 	}
-	const pillars = (along: 'x' | 'y'): Tuple[] =>
-		[-3.6, -1.4, 0.8, 3].map((v): Tuple =>
-			along === 'x' ? [v, RAIL + 0.08, 0, 0.16, 0.16, RAIL_Z, 0, 0.6] : [RAIL + 0.08, v, 0, 0.16, 0.16, RAIL_Z, 0, 0.6]
-		);
+
+	// The monorail: a wavy loop between the inner ring and the outer buildings.
+	const RAIL_Z = 2.2;
+	const LOOP = 72;
+	const loopAt = (u: number): [number, number] => {
+		const a = u * Math.PI * 2;
+		const rad = 3.1 + 0.35 * Math.sin(a * 3);
+		return [Math.cos(a) * rad, Math.sin(a) * rad];
+	};
+	const loopPoints = Array.from({ length: LOOP }, (_, i) => loopAt(i / LOOP));
+	const posts: Tuple[] = Array.from({ length: 9 }, (_, i) => {
+		const [x, y] = loopAt(i / 9);
+		return [x - 0.07, y - 0.07, 0, 0.14, 0.14, RAIL_Z, 0, 0.6, 1];
+	});
+
 	const campus: Scene = {
 		boxes: pad(
 			[
@@ -164,26 +185,23 @@
 					const a = (i / 6) * Math.PI * 2;
 					return [Math.cos(a) * 2.05 - 0.55, Math.sin(a) * 2.05 - 0.55, 0, 1.1, 1.1, campusHeights[i], 1];
 				}),
-				...outer.slice(0, 16),
-				...pillars('x'),
-				...pillars('y'),
-				[RAIL, RAIL, RAIL_Z, 9, 0.32, 0.14, 0, 0.6],
-				[RAIL, RAIL, RAIL_Z, 0.32, 9, 0.14, 0, 0.6]
+				...outer
 			],
 			[0, 0, 0.5]
 		),
 		grow: true,
+		ribbon: { points: loopPoints, z: RAIL_Z, width: 0.34 },
 		actors: (t) => {
 			const blink = Math.sin(t * 3) > 0.2 ? 0.22 : 0;
-			// A train along each line, looping.
-			const run = (speed: number, phase: number) => RAIL + 0.3 + ((t * speed + phase) % 1) * 7;
-			return [
-				cube(-0.11, -0.11, 5.3, blink, 0, 1),
-				[run(0.09, 0), RAIL - 0.04, RAIL_Z + 0.14, 1.6, 0.4, 0.34, 0, 0.85],
-				[RAIL - 0.04, run(0.07, 0.5), RAIL_Z + 0.14, 0.4, 1.6, 0.34, 0, 0.2]
-			];
+			// Three cars, following each other round the loop.
+			const cars = [0, 1, 2].map((k): Tuple => {
+				const [x, y] = loopAt((((t * 0.045 - k * 0.022) % 1) + 1) % 1);
+				return [x - 0.22, y - 0.22, RAIL_Z + 0.02, 0.44, 0.44, 0.34, 0, k === 0 ? 0.85 : 0.6, 0.5];
+			});
+			return [cube(-0.11, -0.11, 5.3, blink, 0, 1), ...posts, ...cars];
 		}
 	};
+
 
 
 	// Portal: a standing ring on a dark plinth. Through it, a live view of where it leads.
@@ -821,11 +839,14 @@
 					b.h *= g;
 					b.z *= g;
 				}
-			// Trains run once the rails are up.
-			const trains = !scene.grow || age > 3.4;
+			// The monorail rises once the buildings are up.
+			const rails = !scene.grow || reduceMotion ? 1 : backOut(Math.min(1, Math.max(0, (age - 2.6) * 1.2)));
 			const actors = reduceMotion
 				? []
-				: (scene.actors?.(t) ?? []).map(toBox).filter((a, i) => trains || i === 0);
+				: (scene.actors?.(t) ?? []).map(toBox).map((a, i) => {
+						if (!scene.grow || i === 0) return a;
+						return { ...a, z: a.z * rails, h: a.h * rails, w: a.w * Math.min(1, rails * 3), d: a.d * Math.min(1, rails * 3) };
+					});
 			const all = [...drawn.map((b, n) => ({ b, n })), ...actors.map((b) => ({ b, n: -1 }))].filter(
 				({ b }) => b.w > 0.02 && b.d > 0.02 && b.h > 0.02
 			);
@@ -870,13 +891,55 @@
 			// height weighted so roofs and anything resting on top draw last.
 			const depth = (b: Box) =>
 				b.z < 0.05 && b.h < 0.2 ? -1e6 : b.x + b.w / 2 + b.y + b.d / 2 + b.z * 1.5;
-			all.sort((p, q) => depth(p.b) - depth(q.b));
+			type Item = { key: number; draw: () => void };
+			const items: Item[] = all.map(({ b, n }) => ({
+				key: depth(b),
+				draw: () => {
+					drawBox(b, Math.min(1, b.tone), n, t);
+					if (scene.storefront && n === scene.storefront.body) drawStorefront(b);
+					if (scene.storefront && n === scene.storefront.roof) drawRoofWell(b);
+				}
+			}));
 
-			for (const { b, n } of all) {
-				drawBox(b, Math.min(1, b.tone), n, t);
-				if (scene.storefront && n === scene.storefront.body) drawStorefront(b);
-				if (scene.storefront && n === scene.storefront.roof) drawRoofWell(b);
+			// The monorail track, one short piece at a time so it sorts in among the
+			// buildings: a light top with a darker edge beneath.
+			if (scene.ribbon && rails > 0.02) {
+				const { points, width } = scene.ribbon;
+				const z = scene.ribbon.z * rails;
+				const hw = (width / 2) * Math.min(1, rails * 3);
+				const thick = 0.1;
+				for (let i = 0; i < points.length; i++) {
+					const a = points[i];
+					const c = points[(i + 1) % points.length];
+					const dx = c[0] - a[0];
+					const dy = c[1] - a[1];
+					const len = Math.hypot(dx, dy) || 1;
+					const nx = (-dy / len) * hw;
+					const ny = (dx / len) * hw;
+					// Extend a hair along the path so pieces meet without gaps.
+					const ex = (dx / len) * 0.02;
+					const ey = (dy / len) * 0.02;
+					const q = [
+						[a[0] + nx - ex, a[1] + ny - ey],
+						[c[0] + nx + ex, c[1] + ny + ey],
+						[c[0] - nx + ex, c[1] - ny + ey],
+						[a[0] - nx - ex, a[1] - ny - ey]
+					];
+					items.push({
+						key: (a[0] + c[0]) / 2 + (a[1] + c[1]) / 2 + z * 1.5,
+						draw: () => {
+							shape(closed(q.map(([x, y]) => P(x, y, z - thick))), { fill: '#b9b9b9', stroke: '#b9b9b9', strokeWidth: 0.6 });
+							shape(closed(q.map(([x, y]) => P(x, y, z))), { fill: '#ececec', stroke: '#ececec', strokeWidth: 0.6 });
+							// Edge lines only along the sides, so the track reads as one piece.
+							shape(open([P(q[0][0], q[0][1], z), P(q[1][0], q[1][1], z)]), { stroke: '#1a1a1a', strokeWidth: 0.7 });
+							shape(open([P(q[3][0], q[3][1], z), P(q[2][0], q[2][1], z)]), { stroke: '#1a1a1a', strokeWidth: 0.7 });
+						}
+					});
+				}
 			}
+
+			items.sort((p, q) => p.key - q.key);
+			for (const it of items) it.draw();
 
 			if (scene.portal) drawPortal(scene.portal, t);
 			if (scene.lens && lensAt) drawLens(scene.lens.R, lensAt, t);
