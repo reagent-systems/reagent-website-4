@@ -1,6 +1,5 @@
 <script lang="ts">
 	// `dark` deepens pale logos so they match the rest of the strip; `round` seals get more height.
-	// Florida Poly shows as a wordmark until its logo file is added.
 	const partners: { name: string; logo?: string; dark?: boolean; round?: boolean }[] = [
 		{ name: 'Linux Foundation', logo: '/partner-logos/linux-foundation.svg' },
 		{ name: 'NSF', logo: '/partner-logos/nsf.png', round: true },
@@ -8,7 +7,7 @@
 		{ name: 'City of Tampa', logo: '/partner-logos/city-of-tampa.png', dark: true },
 		{ name: 'Open Secure AI Alliance', logo: '/partner-logos/open-secure-ai-alliance.svg' },
 		{ name: 'SAM.gov', logo: '/partner-logos/sam-gov.svg' },
-		{ name: 'Florida Polytechnic University' },
+		{ name: 'Florida Polytechnic University', logo: '/partner-logos/florida-poly.png' },
 		{ name: 'First Coast Alarm', logo: '/partner-logos/first-coast-alarm.webp', round: true }
 	];
 	// Repeated so the strip is always wider than the screen, then doubled for a seamless loop.
