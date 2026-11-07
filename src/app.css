@@ -72,6 +72,17 @@ html {
 	--text-quote: clamp(1.5rem, 2.2vw, 2.35rem);
 	--text-body: clamp(1rem, 1.1vw, 1.15rem);
 	--text-small: 1rem;
+
+	/* One spacing scale for the whole site. */
+	--space-xs: 0.5rem;
+	--space-s: 1rem;
+	--space-m: 2rem;
+	--space-l: 3.5rem;
+	--space-xl: 5rem;
+	--gutter: 8vw;
+	--space-section: 18vh;
+	/* Height of the scene band on phones (unused on desktop). */
+	--panel-h: 34svh;
 }
 
 @media (max-width: 768px) {
@@ -81,6 +92,18 @@ html {
 		--text-quote: 1.4rem;
 		--text-body: 1rem;
 		--text-small: 0.95rem;
+		--space-l: 2.5rem;
+		--space-xl: 3.5rem;
+		--gutter: 1.5rem;
+		--space-section: 10svh;
+	}
+
+	/* Each story section settles with its text clear of the scene band. Snapping is
+	   measured from below the band, so sections longer than that space still
+	   scroll freely all the way through. */
+	html {
+		scroll-snap-type: y proximity;
+		scroll-padding-top: var(--panel-h);
 	}
 }
 

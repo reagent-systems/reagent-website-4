@@ -1052,8 +1052,7 @@
 			top: 0;
 			bottom: auto;
 			width: 100%;
-			height: 34vh;
-			height: 34svh;
+			height: var(--panel-h);
 			background: var(--page-background);
 		}
 
@@ -1063,7 +1062,7 @@
 			left: 0;
 			right: 0;
 			top: 100%;
-			height: 2.5rem;
+			height: 0.75rem;
 			background: linear-gradient(to top, transparent, var(--page-background));
 		}
 	}

@@ -243,7 +243,7 @@
 		min-height: 100svh;
 		display: flex;
 		align-items: center;
-		padding: 0 8vw;
+		padding: 0 var(--gutter);
 	}
 
 	.statement-copy {
@@ -257,7 +257,7 @@
 		line-height: 1.02;
 		letter-spacing: -0.02em;
 		color: #1a1a1a;
-		margin-bottom: 2rem;
+		margin-bottom: var(--space-m);
 	}
 
 	/* All body copy is fully justified, with the last line centred. */
@@ -283,7 +283,7 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		padding: 0 8vw;
+		padding: 0 var(--gutter);
 	}
 
 	.resource-title {
@@ -293,7 +293,7 @@
 		letter-spacing: -0.02em;
 		line-height: 1;
 		color: #1a1a1a;
-		margin-bottom: 4.5rem;
+		margin-bottom: var(--space-l);
 	}
 
 
@@ -312,7 +312,7 @@
 
 	.quiet-link {
 		display: inline-block;
-		margin-top: 4rem;
+		margin-top: var(--space-l);
 		font-family: 'Raleway Variable', var(--main-font);
 		font-weight: 300;
 		font-size: var(--text-small);
@@ -327,7 +327,7 @@
 	}
 
 	.statement .quiet-link {
-		margin-top: 2.5rem;
+		margin-top: var(--space-m);
 	}
 
 	.portal {
@@ -342,7 +342,7 @@
 	}
 
 	.portal-body {
-		margin-top: 2rem;
+		margin-top: var(--space-m);
 		max-width: 30rem;
 		font-family: 'Raleway Variable', var(--main-font);
 		font-weight: 300;
@@ -354,16 +354,16 @@
 
 	.portal-links {
 		display: flex;
-		gap: 2rem;
+		gap: var(--space-m);
 	}
 
 	.portal .quiet-link {
-		margin-top: 2.5rem;
+		margin-top: var(--space-m);
 	}
 
 	/* Join */
 	.join {
-		padding: 22vh 8vw;
+		padding: var(--space-section) var(--gutter);
 		min-height: 100vh;
 	}
 
@@ -371,7 +371,7 @@
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
 		grid-template-areas: 'newsletter' 'contact' 'careers';
-		gap: 5rem;
+		gap: var(--space-xl);
 		align-items: start;
 		max-width: 36rem;
 	}
@@ -391,7 +391,7 @@
 	.join-block {
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
+		gap: var(--space-s);
 	}
 
 	.join-block h3 {
@@ -399,7 +399,7 @@
 		font-weight: 200;
 		font-size: var(--text-sub);
 		color: #1a1a1a;
-		margin-bottom: 0.25rem;
+		margin-bottom: 0;
 	}
 
 	.join-block > p {
@@ -410,7 +410,7 @@
 		font-size: var(--text-body);
 		line-height: 1.7;
 		color: #6b6b6b;
-		margin-bottom: 1rem;
+		margin-bottom: var(--space-s);
 	}
 
 	.careers .quiet-link {
@@ -423,7 +423,7 @@
 
 	.inline-field {
 		display: flex;
-		gap: 0.75rem;
+		gap: var(--space-xs);
 	}
 
 	input,
@@ -473,7 +473,7 @@
 
 	.send {
 		align-self: flex-start;
-		margin-top: 0.5rem;
+		margin-top: var(--space-xs);
 	}
 
 
@@ -489,11 +489,11 @@
 		flex-direction: column;
 		align-items: flex-start;
 		justify-content: center;
-		padding: 0 8vw;
+		padding: 0 var(--gutter);
 	}
 
 	.plan-link {
-		margin-top: 1rem;
+		margin-top: var(--space-s);
 	}
 
 	.quote blockquote {
@@ -507,7 +507,7 @@
 		line-height: 1.15;
 		letter-spacing: -0.01em;
 		color: #1a1a1a;
-		margin-bottom: 2rem;
+		margin-bottom: var(--space-m);
 	}
 
 	.visually-hidden {
@@ -520,47 +520,40 @@
 	}
 
 	@media (max-width: 768px) {
-		/* Phones: the blocks hold the top third; text scrolls below it. */
-		.story {
-			padding-top: 34svh;
-			padding-bottom: 8svh;
+		/* Phones: the scene band holds the top; each section fills the space below it
+		   and settles there, so no text sits under the band while being read. */
+		/* Room for the band above the first section (the band itself is sticky
+		   and takes no space in the flow). */
+		.story > section:first-of-type {
+			margin-top: var(--panel-h);
 		}
 		section {
-			padding-right: 1.5rem !important;
+			padding-right: var(--gutter) !important;
 		}
-		.statement {
-			min-height: 75vh;
-			min-height: 75svh;
-			padding: 0 1.5rem;
-		}
-		.statement h2 {
-			margin-bottom: 1.1rem;
-		}
-		.statement .quiet-link {
-			margin-top: 1.5rem;
-		}
-		.resource {
-			min-height: 75vh;
-			min-height: 75svh;
-			padding: 0 1.5rem;
+		.statement,
+		.resource,
+		.quote {
+			min-height: calc(100svh - var(--panel-h));
+			padding: var(--space-m) var(--gutter);
+			scroll-snap-align: start;
 		}
 		.join {
-			padding: 12vh 1.5rem;
+			padding: var(--space-l) var(--gutter);
+			scroll-snap-align: start;
 		}
-		.portal {
-			min-height: 75vh;
-			min-height: 75svh;
+		/* Research and writing are just a title and a link here; their visuals live
+		   in the band, so they don't need a full screen of their own. */
+		.resource:not(.portal) {
+			min-height: 45svh;
+		}
+		.statement h2 {
+			margin-bottom: var(--space-s);
 		}
 		.resource-title {
-			margin-bottom: 2.5rem;
+			margin-bottom: var(--space-m);
 		}
 		.inline-field {
 			flex-direction: column;
-		}
-		.quote {
-			min-height: 75vh;
-			min-height: 75svh;
-			padding: 0 1.5rem;
 		}
 		.quote blockquote {
 			max-width: none;
