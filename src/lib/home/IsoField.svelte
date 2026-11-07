@@ -13,11 +13,14 @@
 	let {
 		anchors,
 		picked = null,
-		onpick
+		onpick,
+		portalTag = null
 	}: {
 		anchors: HTMLElement[];
 		picked?: string | null;
 		onpick?: (slug: string) => void;
+		/** Live status shown on a tag, led off the portal ring. */
+		portalTag?: { title: string; detail?: string } | null;
 	} = $props();
 
 	type Box = { x: number; y: number; z: number; w: number; d: number; h: number; win: number; tone: number };
@@ -194,7 +197,8 @@
 			],
 			[0, 0, 0.3]
 		),
-		bounds: [[-PORTAL.R, -0.3, 0, PORTAL.R * 2, 0.6, PORTAL.zc + PORTAL.R]],
+		// The extra height above the ring leaves room for the status tag.
+		bounds: [[-PORTAL.R, -0.3, 0, PORTAL.R * 2, 0.6, PORTAL.zc + PORTAL.R + 1.3]],
 		portal: PORTAL,
 		overlays: [
 			{
@@ -259,6 +263,7 @@
 	let active = $state(0);
 	let settled = $state(false);
 	let hovered = $state(-1);
+	let tagEl: HTMLDivElement | undefined = $state();
 
 	const overlays = $derived(scenes[active].overlays ?? []);
 	let overlayTop: (HTMLElement | undefined)[] = $state([]);
@@ -588,6 +593,34 @@
 
 			// Front face of the ring.
 			shape(`${disc(R, yf)} ${disc(Ri, yf)}`, { fill: '#fdfdfd', stroke: '#1a1a1a', evenodd: true });
+
+			// A leader from the top of the ring out to the status tag.
+			if (tagEl && portalTag && settled) {
+				const a = Math.PI / 2;
+				const [ax, ay] = pt(Math.cos(a) * R, yf, zc + Math.sin(a) * R);
+				const tw = tagEl.offsetWidth;
+				const th = tagEl.offsetHeight;
+				const rise = Math.max(th / 2 + 12, u * 0.55);
+				const run = Math.max(22, u * 0.7);
+				// Go toward whichever side has more room, and keep the tag inside the panel.
+				const dir = ax > pw / 2 ? -1 : 1;
+				const ex = ax + dir * rise;
+				const ey = Math.max(th / 2 + 6, ay - rise);
+				let tx = dir > 0 ? ex + run + 6 : ex - run - 6 - tw;
+				tx = Math.max(8, Math.min(pw - tw - 8, tx));
+				// If the tag ended up right above the ring, the leader runs straight up into it.
+				const over = ax >= tx && ax <= tx + tw;
+				const lead = over
+					? `M${ax.toFixed(1)},${ay.toFixed(1)}L${ax.toFixed(1)},${(ey + th / 2 + 4).toFixed(1)}`
+					: `M${ax.toFixed(1)},${ay.toFixed(1)}L${ex.toFixed(1)},${ey.toFixed(1)}L${(ex < tx ? tx - 6 : tx + tw + 6).toFixed(1)},${ey.toFixed(1)}`;
+				shape(lead, { stroke: '#1a1a1a', strokeWidth: 0.8 });
+				const dot = 2.2;
+				shape(
+					`M${(ax - dot).toFixed(1)},${ay.toFixed(1)}a${dot},${dot} 0 1,0 ${dot * 2},0a${dot},${dot} 0 1,0 ${-dot * 2},0`,
+					{ fill: '#1a1a1a' }
+				);
+				tagEl.style.transform = `translate(${tx.toFixed(1)}px, ${(ey - th / 2).toFixed(1)}px)`;
+			}
 		}
 
 		function tick(now: number) {
@@ -716,6 +749,12 @@
 	<div class="panel">
 		<svg bind:this={svgEl} class="iso" aria-hidden="true"></svg>
 		<div class="layer" class:live={settled} bind:this={layerEl}>
+			{#if scenes[active].portal && portalTag}
+				<div class="tag" bind:this={tagEl}>
+					<span class="tag-title">{portalTag.title}</span>
+					{#if portalTag.detail}<span class="tag-detail">{portalTag.detail}</span>{/if}
+				</div>
+			{/if}
 			{#each overlays as o, i (active + '-' + i)}
 				{#if o.kind === 'image'}
 					<a
@@ -885,6 +924,53 @@
 		letter-spacing: 0.35em;
 		color: #fafafa;
 		text-decoration: none;
+	}
+
+	/* The status tag at the end of the leader. */
+	.tag {
+		position: absolute;
+		top: 0;
+		left: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+		padding: 0.45rem 0.7rem;
+		border-radius: 8px;
+		background: #fdfdfd;
+		box-shadow: 0 1px 10px rgba(26, 26, 26, 0.08);
+		font-family: 'Raleway Variable', var(--main-font);
+		white-space: nowrap;
+		opacity: 0;
+		transition: opacity 0.5s ease;
+		pointer-events: none;
+	}
+
+	.layer.live .tag {
+		opacity: 1;
+	}
+
+	.tag-title {
+		font-size: 0.82rem;
+		font-weight: 400;
+		color: #1a1a1a;
+	}
+
+	.tag-detail {
+		font-size: 0.72rem;
+		font-weight: 300;
+		color: #6b6b6b;
+	}
+
+	@media (max-width: 768px) {
+		.tag {
+			padding: 0.35rem 0.55rem;
+		}
+		.tag-title {
+			font-size: 0.72rem;
+		}
+		.tag-detail {
+			font-size: 0.62rem;
+		}
 	}
 
 	/* What lies on the other side: the live page, seen through the ring. */

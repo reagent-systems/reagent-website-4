@@ -68,6 +68,18 @@
 		return 'resting';
 	});
 
+	const portalTag = $derived(
+		sparkStatus && spark?.ok
+			? {
+					title: sparkStatus,
+					detail:
+						spark.tokens > 0
+							? `${tokensText(spark.tokens)} tokens served${spark.since ? ` since ${sinceText(spark.since)}` : ''}`
+							: undefined
+				}
+			: null
+	);
+
 	onMount(() => {
 		const load = () =>
 			fetch('/api/spark')
@@ -101,7 +113,12 @@
 </script>
 
 <div class="story">
-	<IsoField {anchors} picked={contactCompany} onpick={(slug) => (contactCompany = slug)} />
+	<IsoField
+		{anchors}
+		picked={contactCompany}
+		onpick={(slug) => (contactCompany = slug)}
+		{portalTag}
+	/>
 
 	{#each statements as statement, i}
 		<section class="statement" bind:this={statementEls[i]}>
@@ -133,11 +150,6 @@
 			a shared nvidia dgx spark, open to the community. it serves open models through an
 			openai-compatible api, with its status, uptime and leaderboards kept in the open.
 		</p>
-		{#if sparkStatus && spark?.ok}
-			<p class="portal-live">
-				{sparkStatus}.{#if spark.tokens > 0}{' '}{tokensText(spark.tokens)} tokens served{spark.since ? ` since ${sinceText(spark.since)}` : ''}.{/if}
-			</p>
-		{/if}
 		<div class="portal-links">
 			<a class="quiet-link" href="https://spark.reagent-systems.com">enter the portal</a>
 			<a class="quiet-link" href="https://spark.reagent-systems.com/docs">read the docs</a>
@@ -339,15 +351,6 @@
 		color: #5f5f5f;
 	}
 
-	.portal-live {
-		margin-top: 1.25rem;
-		max-width: 30rem;
-		font-family: 'Raleway Variable', var(--main-font);
-		font-weight: 300;
-		font-size: var(--text-small);
-		line-height: 1.7;
-		color: #6b6b6b;
-	}
 
 	.portal-links {
 		display: flex;
