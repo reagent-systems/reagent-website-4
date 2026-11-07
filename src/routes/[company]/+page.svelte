@@ -3,7 +3,6 @@
 	import { asciiArt } from '$lib/ascii-art';
 	import AsciiField from '$lib/home/AsciiField.svelte';
 	import { COMPANIES } from '$lib/home/companies';
-	import { SERVICES } from '$lib/site-links';
 	import { PROJECTS } from '$lib/projects';
 
 	// A project's description, cut to its opening sentence for the cards. Very
@@ -25,11 +24,9 @@
 	let mounted = $state(false);
 	onMount(() => (mounted = true));
 
-	// The founder-facing services, in the homepage's words.
-	const how = SERVICES.filter((s) => s.id !== 'spark-inference');
 
 	const description = $derived(
-		`${company.fullName}: ${company.line} part of reagent systems. we work with founders on readiness, partnership and preparation for a capital raise, with no equity taken.`
+		`${company.fullName}: ${company.line} part of reagent systems. ${company.about?.[0] ?? ''}`
 	);
 </script>
 
@@ -103,17 +100,14 @@
 		</section>
 	{/if}
 
-	<section>
-		<h2 class="sub">how we work</h2>
-		<dl class="how">
-			{#each how as s}
-				<div>
-					<dt><a href="/services#{s.id}">{s.name}</a></dt>
-					<dd>{s.text}</dd>
-				</div>
+	{#if company.about?.length}
+		<section>
+			<h2 class="sub">what we do</h2>
+			{#each company.about as paragraph}
+				<p class="body">{paragraph}</p>
 			{/each}
-		</dl>
-	</section>
+		</section>
+	{/if}
 
 	<section>
 		<h2 class="sub">the other companies</h2>
@@ -232,87 +226,6 @@
 
 	.quiet-link:hover {
 		color: #1a1a1a;
-	}
-
-	.how {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-		gap: var(--space-l) var(--space-m);
-		margin: 0;
-	}
-
-	.how dt a {
-		font-size: var(--text-body);
-		color: #1a1a1a;
-		text-decoration: none;
-	}
-
-	.how dt a:hover {
-		color: #6b6b6b;
-	}
-
-	.how dd {
-		margin: var(--space-xs) 0 0;
-		font-size: var(--text-small);
-		line-height: 1.6;
-		color: #6b6b6b;
-	}
-
-	.projects {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: var(--space-l) var(--space-m);
-		width: 100%;
-	}
-
-	.project {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-xs);
-		text-decoration: none;
-		color: inherit;
-	}
-
-	.project-media {
-		aspect-ratio: 4 / 3;
-		border-radius: 1rem;
-		overflow: hidden;
-		background: #f1f1f1;
-		margin-bottom: var(--space-xs);
-	}
-
-	.project-media img,
-	.project-media video {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		display: block;
-		transition: transform 0.6s ease;
-	}
-
-	.project:hover .project-media img,
-	.project:hover .project-media video {
-		transform: scale(1.03);
-	}
-
-	.project-name {
-		font-size: var(--text-body);
-		color: #1a1a1a;
-	}
-
-	.project-text {
-		font-size: var(--text-small);
-		line-height: 1.6;
-		color: #6b6b6b;
-	}
-
-	@media (max-width: 768px) {
-		.projects {
-			grid-template-columns: 1fr;
-		}
 	}
 
 	.others {

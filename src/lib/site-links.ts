@@ -1,34 +1,34 @@
 // Links shared by the footer and the sitemap page.
 import { COMPANIES } from '$lib/home/companies';
 
-// Each service is described in the words of the homepage statements.
+// Each service is described in our own words, from founder calls.
 export type Service = { id: string; name: string; text: string; link?: { href: string; label: string } };
 
 export const SERVICES: Service[] = [
 	{
 		id: 'readiness-assessment',
 		name: 'readiness assessment',
-		text: 'we estimate the true technology or manufacturing readiness of the company and identify its constraints.'
+		text: "we ask the questions that show how defensible you are, and from that we gauge your technology readiness level and your manufacturing readiness level."
 	},
 	{
 		id: 'founder-partnership',
 		name: 'founder partnership',
-		text: 'we work in a partnership capacity towards solutions.'
+		text: "we take founders from very early stage to a technology readiness level of five and a manufacturing readiness level of six: compliance in check, paperwork in check, a business model that scales, and operators in wherever they're needed."
 	},
 	{
 		id: 'raise-preparation',
 		name: 'raise preparation',
-		text: 'we build up companies to a stage ready to reach a capital raise. we take no equity and no percentage of any introduction, because to us it stifles the forward progress of a company.'
+		text: "investors expect confident decisions backed by numbers and research. that means a pitch deck, a cap table, a data room, a website, branding, and your own research documents, ready before the introduction."
 	},
 	{
 		id: 'founder-network',
 		name: 'founder network',
-		text: 'we gathered the resources, the knowledge, and the capital in one place. the most invaluable thing is a network of founders that reach out and assist.'
+		text: "introductions to founders who are ahead of you, and to the engineers and manufacturers who have built it before."
 	},
 	{
 		id: 'spark-inference',
 		name: 'spark inference',
-		text: 'a shared nvidia dgx spark, open to the community. it serves open models through an openai-compatible api.',
+		text: "we opened our DGX Spark for free compute and free inference for people doing ML work.",
 		link: { href: 'https://spark.reagent-systems.com', label: 'enter the portal' }
 	}
 ];

@@ -118,7 +118,7 @@
 	const title = $derived(`founders in ${name} - reagent systems`);
 	const description = $derived(
 		copy
-			? `${copy.intro} we take no equity and no percentage of any introduction.`
+			? `${copy.intro}`
 			: `reagent systems works with founders in ${name}: readiness assessment, partnership, and preparation for a capital raise, with no equity taken.`
 	);
 </script>
@@ -142,7 +142,7 @@
 		<h1 class="title">founders in {name}</h1>
 		<p class="lede">
 			{#if copy}
-				{copy.intro} we take no equity and no percentage of any introduction.
+				{copy.intro}
 			{:else}
 				we estimate the true technology or manufacturing readiness of the company, identify its constraints,
 				and build it up to a stage ready to reach a capital raise. we take no equity and no percentage of any

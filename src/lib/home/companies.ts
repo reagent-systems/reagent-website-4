@@ -15,6 +15,8 @@ export interface Company {
 	slogan: [string, string, string];
 	/** Text art for the hero, used as-is instead of dithering `logo`. */
 	art?: string;
+	/** What the company does, in our own words (from founder calls). */
+	about?: string[];
 }
 
 // Logos in /static/company-logos are placeholders until the final marks arrive.
@@ -27,7 +29,10 @@ export const COMPANIES: Company[] = [
 		email: 'matter@reagent-systems.com',
 		logo: '/company-logos/matter.svg',
 		art: matterArt,
-		slogan: ['u.s.', 'made', 'materials']
+		slogan: ['u.s.', 'made', 'materials'],
+		about: [
+			"matter is the long road. we want to get into production ourselves, starting with plastics."
+		],
 	},
 	{
 		slug: 'defense',
@@ -37,7 +42,12 @@ export const COMPANIES: Company[] = [
 		email: 'defense@reagent-systems.com',
 		logo: '/company-logos/defense.svg',
 		art: defenseArt,
-		slogan: ['for', 'new', 'swords']
+		slogan: ['for', 'new', 'swords'],
+		about: [
+			"a strategic partnership network of people who want to make change in the defense industry, and bring together a supply chain for new technology.",
+			"if you're at a zero, we want to get you to a five. we take care of the compliance roadblocks ourselves, because that's just paperwork, and paperwork is easy.",
+			"SAM.gov registration, a CAGE code, SBIR and STTR applications, and introductions to manufacturers who have built this before."
+		],
 	},
 	{
 		slug: 'logistics',
@@ -47,7 +57,11 @@ export const COMPANIES: Company[] = [
 		email: 'logistics@reagent-systems.com',
 		logo: '/company-logos/logistics.svg',
 		art: logisticsArt,
-		slogan: ['easy', 'supply', 'chains']
+		slogan: ['easy', 'supply', 'chains'],
+		about: [
+			"we want to get the cost of prototyping hardware to zero, by pre-selling it as much as possible.",
+			"that takes accurate, instant quotes, and a platform that connects the manufacturing supply chain. one button, so hardware is essentially free to prototype and make for everybody with an idea."
+		],
 	},
 	{
 		slug: 'capital',
@@ -57,7 +71,12 @@ export const COMPANIES: Company[] = [
 		email: 'capital@reagent-systems.com',
 		logo: '/company-logos/capital.svg',
 		art: capitalArt,
-		slogan: ['funds', 'for', 'excellence']
+		slogan: ['funds', 'for', 'excellence'],
+		about: [
+			"capital is the one tied to the fundraising.",
+			"we know a network of investors who invest in ideas that are high in the sky, but really good. we make the introduction; we don't take part in the negotiation.",
+			"before that, you'll need a pitch deck, a cap table, a website, and a data room: here's the product, here's the moat, here's the stage on the roadmap, and how defensible it is."
+		],
 	},
 	{
 		slug: 'research',
@@ -67,7 +86,11 @@ export const COMPANIES: Company[] = [
 		email: 'research@reagent-systems.com',
 		logo: '/company-logos/research.svg',
 		art: researchArt,
-		slogan: ['the', 'new', 'frontier']
+		slogan: ['the', 'new', 'frontier'],
+		about: [
+			"we're a research company. we offer free compute and free inference to people doing ML work, and we fund the data.",
+			"let me give you that data set, those users, those testers, the things you would have spent the money on. let me just get you them directly."
+		],
 	},
 	{
 		slug: 'creative',
@@ -76,7 +99,11 @@ export const COMPANIES: Company[] = [
 		line: 'the community and the craft.',
 		email: 'creative@reagent-systems.com',
 		logo: '/company-logos/creative.svg',
-		slogan: ['the', 'idea', 'factory']
+		slogan: ['the', 'idea', 'factory'],
+		about: [
+			"i built reagent as a builder platform, modeled on an indie studio: software developers, hardware developers, and people from all walks of life.",
+			"creative is that community. it lives on discord, where it's easy to get everybody working together, show off projects and come up with ideas. we give developers free inference, compute and models."
+		],
 	}
 ];
 

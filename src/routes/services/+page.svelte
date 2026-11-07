@@ -15,7 +15,7 @@
 	<header>
 		<h1 class="title">services</h1>
 		<p class="lede">
-			the primary barrier stopping anybody from the next breakthrough is a lack of assistance. it takes a community to raise a company. we're here to help.
+			we get founders from very early stage to a middle stage, ready for a pre-seed investment.
 		</p>
 	</header>
 
