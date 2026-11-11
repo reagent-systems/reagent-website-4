@@ -6,8 +6,7 @@
 }
 
 html {
-	overflow-x: hidden;
-	overflow-y: auto;
+	overflow-x: clip;
 	max-width: 100%;
 	min-height: 100%;
 }
@@ -66,6 +65,53 @@ html {
 	--ascii-font: 'IBM Plex Mono', monospace;
 	/* Warm off-white canvas (home / portal behind ASCII); matches footer-adjacent tones */
 	--page-background: #fafafa;
+
+	/* One type scale for the whole site. */
+	--text-title: clamp(2.5rem, 4.4vw, 4.5rem);
+	--text-sub: clamp(1.5rem, 2vw, 2rem);
+	--text-card: clamp(1.2rem, 1.5vw, 1.5rem);
+	--text-quote: clamp(1.5rem, 2.2vw, 2.35rem);
+	--text-body: clamp(1.125rem, 1.25vw, 1.3rem);
+	--text-small: 1rem;
+
+	/* One spacing scale for the whole site. */
+	--space-xs: 0.5rem;
+	--space-s: 1rem;
+	--space-m: 2rem;
+	--space-l: 3.5rem;
+	--space-xl: 5rem;
+	--gutter: 8vw;
+	--space-section: 18vh;
+	/* Height of the scene band on phones (unused on desktop). */
+	--panel-h: 34svh;
+}
+
+@media (max-width: 768px) {
+	:root {
+		--text-title: 2.3rem;
+		--text-sub: 1.45rem;
+		--text-card: 1.1rem;
+		--text-quote: 1.4rem;
+		--text-body: 1.25rem;
+		--text-small: 0.95rem;
+		--space-l: 2.5rem;
+		--space-xl: 3.5rem;
+		--gutter: 1.5rem;
+		--space-section: 10svh;
+		--panel-h: 40svh;
+	}
+}
+
+/* Words never split across lines. */
+p,
+h1,
+h2,
+h3,
+blockquote {
+	hyphens: manual;
+	-webkit-hyphens: manual;
+	overflow-wrap: normal;
+	word-break: normal;
 }
 
 html {
@@ -74,11 +120,13 @@ html {
 
 body {
 	font-family: var(--main-font);
+	/* Raleway's default numerals rise and drop like lowercase letters; use the
+	   ones that sit on the line at capital height, all the same width. */
+	font-variant-numeric: lining-nums tabular-nums;
 	background-color: var(--page-background);
 	color: #1a1a1a;
 	min-height: 100vh;
-	overflow-x: hidden;
-	overflow-y: auto;
+	overflow-x: clip;
 }
 
 .container {
@@ -119,7 +167,7 @@ body {
 	font-weight: 700;
 	font-size: 1rem;
 	line-height: 1.2;
-	background: linear-gradient(90deg, #2d4a8a, #800020, #2d4a8a);
+	background: linear-gradient(90deg, #8aade0, #c98a9a, #8aade0);
 	background-size: 200% 100%;
 	-webkit-background-clip: text;
 	background-clip: text;
@@ -277,4 +325,12 @@ body {
 		align-self: flex-start;
 		margin-left: -12rem;
 	}
+}
+
+/* Form controls don't inherit numeral settings. */
+input,
+textarea,
+button,
+select {
+	font-variant-numeric: lining-nums tabular-nums;
 }

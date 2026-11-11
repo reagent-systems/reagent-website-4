@@ -1,15 +1,35 @@
 <script lang="ts">
 	import '../app.css';
 	import { onNavigate } from '$app/navigation';
-	import { page } from '$app/stores';
+	import SiteFooter from '$lib/SiteFooter.svelte';
 	import { dev } from '$app/environment';
 	import { injectAnalytics } from '@vercel/analytics/sveltekit';
+	import { onMount } from 'svelte';
+	import Lenis from 'lenis';
+	import 'lenis/dist/lenis.css';
 
 	injectAnalytics({ mode: dev ? 'development' : 'production' });
 
 	let { children } = $props();
-	const currentYear = new Date().getFullYear();
-	const showFooter = $derived($page.url.pathname !== '/');
+
+	// Mouse and trackpad scrolling glides to a stop. Touch keeps the phone's own
+	// momentum, and anyone who prefers reduced motion keeps normal scrolling.
+	onMount(() => {
+		const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const touch = window.matchMedia('(pointer: coarse)').matches;
+		if (reduce || touch) return;
+		const lenis = new Lenis({ lerp: 0.075, wheelMultiplier: 0.9, anchors: true });
+		let frame = 0;
+		const loop = (time: number) => {
+			lenis.raf(time);
+			frame = requestAnimationFrame(loop);
+		};
+		frame = requestAnimationFrame(loop);
+		return () => {
+			cancelAnimationFrame(frame);
+			lenis.destroy();
+		};
+	});
 	let transitioning = $state(false);
 
 	onNavigate(() => {
@@ -29,7 +49,7 @@
 	<!-- Primary Meta Tags -->
 	<title>reagent systems - the idea factory</title>
 	<meta name="title" content="reagent systems - the idea factory" />
-	<meta name="description" content="we make cool stuff in the open / a bootstrapped research lab & startup foundry. promoting a free and open internet, decentralization, and open distribution of AI." />
+	<meta name="description" content="reagent systems is six companies working as one: research, matter, logistics, defense, capital, and creative. we turn ideas into companies." />
 	<meta name="keywords" content="reagent systems, open source, AI research, startup foundry, decentralized AI, free software, research lab, Tampa Florida" />
 	<meta name="author" content="reagent systems" />
 	<meta name="robots" content="index, follow" />
@@ -39,7 +59,7 @@
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://reagent-systems.com/" />
 	<meta property="og:title" content="reagent" />
-	<meta property="og:description" content="we make cool stuff in the open / a bootstrapped research lab & startup foundry. promoting a free and open internet, decentralization, and open distribution of AI." />
+	<meta property="og:description" content="reagent systems is six companies working as one: research, matter, logistics, defense, capital, and creative. we turn ideas into companies." />
 	<meta property="og:site_name" content="reagent systems" />
 	<meta property="og:image" content="https://reagent-systems.com/og-image.png" />
 	<meta property="og:image:secure_url" content="https://reagent-systems.com/og-image.png" />
@@ -52,7 +72,7 @@
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:url" content="https://reagent-systems.com/" />
 	<meta name="twitter:title" content="reagent systems - the idea factory" />
-	<meta name="twitter:description" content="we make cool stuff in the open / a bootstrapped research lab & startup foundry. promoting a free and open internet, decentralization, and open distribution of AI." />
+	<meta name="twitter:description" content="reagent systems is six companies working as one: research, matter, logistics, defense, capital, and creative. we turn ideas into companies." />
 	<meta name="twitter:creator" content="@Reagent_Systems" />
 	<meta name="twitter:image" content="https://reagent-systems.com/og-image.png" />
 	<meta name="twitter:image:alt" content="reagent systems - the idea factory" />
@@ -66,37 +86,7 @@
 	{@render children()}
 </div>
 
-{#if showFooter}
-	<footer class="site-footer">
-		<div class="footer-grid">
-			<div class="footer-col">
-				<div class="footer-brand">reagent systems</div>
-				<div class="footer-muted">Tampa, Florida</div>
-				<address class="footer-muted">
-					10523 Bermuda Isle Dr<br />
-					Tampa, FL 33647
-				</address>
-			</div>
-			<div class="footer-col">
-				<div class="footer-heading">links</div>
-				<a href="/plan" class="footer-link">plan</a>
-				<a href="/research" class="footer-link">research</a>
-				<a href="/projects" class="footer-link">projects</a>
-				<a href="/community" class="footer-link">community</a>
-				<a href="/portal" class="footer-link">portal</a>
-				<a href="/careers" class="footer-link">careers</a>
-				<a href="/privacy" class="footer-link">privacy</a>
-			</div>
-			<div class="footer-col">
-				<div class="footer-heading">contact</div>
-				<a href="mailto:help@reagent-systems.com" class="footer-link">help@reagent-systems.com</a>
-				<a href="mailto:sales@reagent-systems.com" class="footer-link">sales@reagent-systems.com</a>
-				<a href="mailto:developers@reagent-systems.com" class="footer-link">developers@reagent-systems.com</a>
-			</div>
-		</div>
-		<div class="footer-copy">© {currentYear} reagent systems. All rights reserved.</div>
-	</footer>
-{/if}
+<SiteFooter />
 
 <style>
 	.page-wrapper {
@@ -106,89 +96,5 @@
 
 	.page-wrapper.transitioning {
 		opacity: 0;
-	}
-
-	.site-footer {
-		position: relative;
-		z-index: 10;
-		background-color: #fafafa;
-		border-top: 1px solid #e8e8e8;
-		margin-top: auto;
-		padding: 3rem 4rem 0;
-		font-family: var(--main-font);
-	}
-
-	.footer-grid {
-		display: grid;
-		grid-template-columns: 1.2fr 1fr 1fr;
-		gap: 2rem;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.footer-brand {
-		font-size: 1.25rem;
-		font-weight: 300;
-		color: #1a1a1a;
-		text-transform: lowercase;
-		margin-bottom: 0.5rem;
-	}
-
-	.footer-heading {
-		font-size: 0.95rem;
-		font-weight: 300;
-		color: #1a1a1a;
-		text-transform: lowercase;
-		margin-bottom: 0.75rem;
-	}
-
-	.footer-muted {
-		font-size: 1rem;
-		font-weight: 300;
-		color: #6b6b6b;
-		line-height: 1.6;
-		font-style: normal;
-	}
-
-	.footer-link {
-		display: block;
-		font-size: 1rem;
-		font-weight: 300;
-		color: #6b6b6b;
-		text-decoration: none;
-		text-transform: lowercase;
-		margin-bottom: 0.35rem;
-		transition: color 0.2s ease;
-	}
-
-	.footer-link:hover {
-		color: #1a1a1a;
-	}
-
-	.footer-copy {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 1.25rem 4rem 3rem;
-		font-size: 0.9rem;
-		font-weight: 300;
-		color: #6b6b6b;
-		border-top: 1px solid #e8e8e8;
-		margin-top: 2rem;
-	}
-
-	@media (max-width: 768px) {
-		.site-footer {
-			padding: 2rem 2rem 0;
-		}
-
-		.footer-grid {
-			grid-template-columns: 1fr;
-			gap: 1.5rem;
-		}
-
-		.footer-copy {
-			padding: 1rem 2rem 2rem;
-			margin-top: 1.5rem;
-		}
 	}
 </style>
