@@ -10,7 +10,8 @@
 		{ name: 'Florida Polytechnic University', logo: '/partner-logos/florida-poly.png' },
 		{ name: 'First Coast Alarm', logo: '/partner-logos/first-coast-alarm.webp', round: true },
 		{ name: 'Google Cloud for Startups', logo: '/partner-logos/google-cloud-startups.png' },
-		{ name: 'AWS Startup Programs', logo: '/partner-logos/aws-startups.png' }
+		{ name: 'AWS Startup Programs', logo: '/partner-logos/aws-startups.png' },
+		{ name: 'NeoAgent', logo: '/partner-logos/neoagent.svg' }
 	];
 	// Repeated so the strip is always wider than the screen, then doubled for a seamless loop.
 	const set = [...partners, ...partners];
