@@ -1,6 +1,7 @@
 <script lang="ts">
-	// `dark` deepens pale logos so they match the rest of the strip; `round` seals get more height.
-	const partners: { name: string; logo?: string; dark?: boolean; round?: boolean }[] = [
+	// `dark` deepens pale logos so they match the rest of the strip; `round` seals get more height;
+	// `caption` prints the name under a logo that is only a symbol.
+	const partners: { name: string; logo?: string; dark?: boolean; round?: boolean; caption?: boolean }[] = [
 		{ name: 'Linux Foundation', logo: '/partner-logos/linux-foundation.svg' },
 		{ name: 'NSF', logo: '/partner-logos/nsf.png', round: true },
 		{ name: 'NVIDIA', logo: '/partner-logos/nvidia.svg' },
@@ -10,7 +11,8 @@
 		{ name: 'Florida Polytechnic University', logo: '/partner-logos/florida-poly.png' },
 		{ name: 'First Coast Alarm', logo: '/partner-logos/first-coast-alarm.webp', round: true },
 		{ name: 'Google Cloud for Startups', logo: '/partner-logos/google-cloud-startups.png' },
-		{ name: 'AWS Startup Programs', logo: '/partner-logos/aws-startups.png' }
+		{ name: 'AWS Startup Programs', logo: '/partner-logos/aws-startups.png' },
+		{ name: 'NeoAgent', logo: '/partner-logos/neoagent.svg', caption: true }
 	];
 	// Repeated so the strip is always wider than the screen, then doubled for a seamless loop.
 	const set = [...partners, ...partners];
@@ -20,9 +22,10 @@
 <section class="marquee" aria-label="partners">
 	<div class="marquee-track">
 		{#each loop as partner, i}
-			<div class="marquee-item" aria-hidden={i >= partners.length}>
+			<div class="marquee-item" class:captioned={partner.caption} aria-hidden={i >= partners.length}>
 				{#if partner.logo}
 					<img src={partner.logo} alt={partner.name} class:dark={partner.dark} class:round={partner.round} />
+					{#if partner.caption}<span class="caption" aria-hidden="true">{partner.name}</span>{/if}
 				{:else}
 					<span class="wordmark">{partner.name}</span>
 				{/if}
@@ -84,6 +87,26 @@
 		max-width: 10rem;
 		object-fit: contain;
 		filter: grayscale(1) contrast(1.1);
+		opacity: 0.5;
+	}
+
+	/* A symbol with its name beneath, kept within the same row height. */
+	.marquee-item.captioned {
+		flex-direction: column;
+		gap: 0.35rem;
+	}
+
+	.marquee-item.captioned img {
+		height: 2.3rem;
+	}
+
+	.caption {
+		font-family: 'Raleway Variable', var(--main-font);
+		font-weight: 500;
+		font-size: 0.8rem;
+		line-height: 1;
+		letter-spacing: 0.02em;
+		color: #1a1a1a;
 		opacity: 0.5;
 	}
 
